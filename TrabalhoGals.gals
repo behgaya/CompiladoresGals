@@ -1,0 +1,274 @@
+#Options
+GenerateScanner = true
+GenerateParser = true
+Language = Java
+ScannerName = Lexico
+ParserName = Sintatico
+SemanticName = Semantico
+ScannerCaseSensitive = true
+ScannerTable = Full
+Input = Stream
+Parser = SLR
+#RegularDefinitions
+id: [a-zA-Z][a-zA-Z0-9_]*
+
+binary: 0b[0-1]+
+hexadecimal: 0x[0-9A-Fa-f]+
+int: [\+\-]?[0-9]+
+float: [\+\-]?[0-9]+[\.][0-9]+
+char: [\\'][a-zA-Z][\\']
+string: [\"][^\n\r\"]*[\"]
+
+comment: [/][/][^\n\r]*
+
+block_comment: [/][\*]([\s\t\r\n\b]*[^\n\r]*[\s\t\r\n\b]*)*[\*][/]
+
+
+
+
+#Tokens
+ID: {id}
+
+KEYWORD_BEGIN = ID : "begin"
+KEYWORD_END   = ID : "end"
+KEYWORD_IF    = ID : "if"
+KEYWORD_THEN  = ID : "then"
+KEYWORD_ELSE = ID : "else"
+KEYWORD_WHILE = ID : "while"
+KEYWORD_DO = ID : "do"
+KEYWORD_WRITE = ID : "write"
+//KEYWORD_MAIN = ID : "main"
+KEYWORD_INT = ID : "int"
+KEYWORD_LONG = ID : "long"
+KEYWORD_FLOAT = ID : "float"
+KEYWORD_DOUBLE = ID : "double"
+KEYWORD_BOOL = ID : "bool"
+KEYWORD_CHAR = ID : "char"
+KEYWORD_STRING = ID : "string"
+KEYWORD_VOID = ID : "voID"
+KEYWORD_STATIC = ID : "static"
+KEYWORD_FOR = ID : "for"
+KEYWORD_CLASS = ID : "class"
+KEYWORD_PUBLIC = ID: "public"
+KEYWORD_PRIVATE = ID : "private"
+KEYWORD_PRINT = ID : "print"
+KEYWORD_READ = ID : "read"
+KEYWORD_CALL = ID : "call"
+KEYWORD_RETURN = ID : "return"
+KEYWORD_TRUE = ID : "true"
+KEYWORD_FALSE = ID : "false"
+ADDITION: "+"
+SUBTRACTION: "-"
+MULTIPLICATION: "*"
+DIVISION: "/"
+EQUALS: "="
+MODULO: "%"
+PLUS_PLUS: "++"
+MINUS_MINUS: "--"
+
+
+PLUS_EQUALS: "+="
+MINUS_EQUALS: "-="
+TIMES_EQUALS: "*="
+DIVIDE_EQUALS: "/="
+
+BIGGER_THAN: ">"
+BIGGER_EQUAL: ">="
+LESS_THAN: "<"
+LESS_EQUAL: "<="
+EQUAL_TO: "=="
+NOT_EQUAL: "!="
+
+AND: "&&"
+OR: "||"
+NOT: "!"
+
+BITWISE_AND: "&"
+BITWISE_OR: "|"
+BITWISE_XOR: "^"
+BITWISE_NOT: "~"
+LEFT_SHIFT: "<<"
+RIGHT_SHIFT: ">>"
+
+BINARY_NUMBER: {binary}
+HEXADECIMAL_NUMBER: {hexadecimal}
+INTEGER_NUMBER: {int}
+FLOAT_NUMBER: {float}
+CHAR_VALUE: {char}
+STRING_VALUE: {string}
+
+COMMENTARY: {comment}
+
+BLOCK_COMMENTARY: {block_comment}
+
+SEMICOLON: ";"
+COLON: ":"
+COMMA: ","
+PERIOD: "."
+CLOSE_BRACES: "}"
+OPEN_BRACES: "{"
+CLOSE_BRACKETS: "]"
+OPEN_BRACKETS: "["
+CLOSE_PARENTHESES: ")"
+OPEN_PARENTHESES: "("
+HASH_SIGN: "#"
+
+
+:[\s\t\r\n\b]*
+#NonTerminals
+<programa>
+<lista_funcoes>
+<funcao>
+<tipo>
+<variavel>
+<parenteses_funcao>
+<bloco>
+<modificador_acesso>
+<id>
+<declaracao_funcao>
+<lista_cmd>
+<cmd>
+<declaracao1>
+<repeticao_while>
+<chamar_funcao>
+<desvio_if>
+<print>
+<read_line>
+<return>
+<exp>
+<parametros_chamar>
+<comment>
+<block_comment>
+<declaracao2>
+<atribuicao>
+<declaracao3>
+<declaracao4>
+<vetor>
+<bool>
+<repeticao_for>
+<declaracao_controle>
+<operacao_incremento>
+<op_incremento>
+<repeticao_do>
+<desvio_else>
+<op_rel>
+<read>
+<exp1>
+<exp2>
+<exp3>
+<exp4>
+<exp5>
+<exp6>
+<op_bitwise>
+<exp7>
+<op_arit_baixa>
+<exp8>
+<op_arit_alta>
+<exp9>
+<op_neg>
+<exp10>
+<op_atribuicao>
+#Grammar
+<programa> ::= <lista_funcoes>;
+
+<lista_funcoes> ::= <funcao> | <lista_funcoes> <funcao>;
+
+<funcao> ::= <tipo> <variavel> <parenteses_funcao> <bloco> | <modificador_acesso> <tipo> <id> <parenteses_funcao> <bloco>;
+
+<parenteses_funcao> ::= OPEN_PARENTHESES CLOSE_PARENTHESES | OPEN_PARENTHESES <declaracao_funcao> CLOSE_PARENTHESES;
+
+<declaracao_funcao> ::= <tipo> <variavel> | <tipo> <variavel> COMMA <declaracao_funcao>;
+
+<bloco> ::= OPEN_BRACES CLOSE_BRACES | OPEN_BRACES <lista_cmd> CLOSE_BRACES;
+
+<lista_cmd> ::= <cmd> | <lista_cmd> <cmd>;
+
+<cmd> ::= <declaracao1> SEMICOLON | <repeticao_while> | <chamar_funcao> SEMICOLON | <desvio_if> | <print> SEMICOLON | <return> SEMICOLON | <comment> | <block_comment> | <read_line> SEMICOLON;
+
+<return> ::= KEYWORD_RETURN <exp>;
+
+<chamar_funcao> ::= <id> OPEN_PARENTHESES CLOSE_PARENTHESES | <id> OPEN_PARENTHESES <parametros_chamar> CLOSE_PARENTHESES;
+
+<parametros_chamar> ::= <exp> | <parametros_chamar> COMMA <exp>;
+
+<comment> ::= COMMENTARY;
+
+<block_comment> ::= BLOCK_COMMENTARY;
+
+<declaracao1> ::= <tipo> <variavel> | <declaracao2>;
+
+<declaracao2> ::= <tipo> <atribuicao> | <declaracao3>;
+
+<declaracao3> ::= <declaracao1> COMMA <variavel> | <declaracao4>;
+
+<declaracao4> ::= <declaracao1> COMMA <atribuicao>;
+////////////////////////////////////////////////////////////////////////////
+<atribuicao> ::= <variavel> <op_atribuicao> <exp>;
+
+<variavel> ::= <id> | <vetor>;
+
+<vetor> ::= <id> OPEN_BRACKETS CLOSE_BRACKETS | <id> OPEN_BRACKETS <exp> CLOSE_BRACKETS;
+
+<repeticao_while> ::= KEYWORD_WHILE <exp> <bloco> | <repeticao_for>;
+
+<repeticao_for> ::= KEYWORD_FOR OPEN_PARENTHESES <declaracao_controle> SEMICOLON <exp> SEMICOLON <operacao_incremento> CLOSE_PARENTHESES <bloco>;
+
+<declaracao_controle> ::= <declaracao1> | <atribuicao> | <declaracao1> <atribuicao>;
+
+<operacao_incremento> ::= <atribuicao> | <id> <op_incremento>;
+
+<repeticao_do> ::= KEYWORD_DO <bloco> KEYWORD_WHILE <exp>;
+
+<desvio_if> ::= KEYWORD_IF <exp> <bloco> | KEYWORD_IF <exp> <bloco> <desvio_else>;
+
+<desvio_else> ::= KEYWORD_ELSE <bloco>;
+
+<print> ::= KEYWORD_PRINT <exp>;
+
+<read_line> ::= <tipo> <variavel> EQUALS <read>;
+
+<read> ::= KEYWORD_READ OPEN_PARENTHESES CLOSE_PARENTHESES;
+
+<modificador_acesso> ::= KEYWORD_PUBLIC | KEYWORD_PRIVATE;
+
+<tipo> ::= KEYWORD_INT | KEYWORD_FLOAT | KEYWORD_CHAR | KEYWORD_BOOL | KEYWORD_VOID | KEYWORD_STRING | KEYWORD_CLASS;
+
+<bool> ::= KEYWORD_TRUE | KEYWORD_FALSE;
+
+<id> ::= ID;
+
+<exp> ::= <exp> OR <exp1> | <exp1>;
+
+<exp1> ::= <exp1> AND <exp2> | <exp2>;
+
+<exp2> ::= <exp2> BITWISE_OR <exp3> | <exp3>;
+
+<exp3> ::= <exp3> BITWISE_XOR <exp4> | <exp4>;
+
+<exp4> ::= <exp4> BITWISE_AND <exp5> | <exp5>;
+
+<exp5> ::= <exp5> <op_rel> <exp6> | <exp6>;
+
+<exp6> ::= <exp6> <op_bitwise> <exp7> | <exp7>;
+
+<exp7> ::= <exp7> <op_arit_baixa> <exp8> | <exp8>;
+
+<exp8> ::= <exp8> <op_arit_alta> <exp9> | <exp9>;
+
+<exp9> ::= <op_neg> <exp10> | <exp10>;
+
+<exp10> ::= STRING_VALUE | INTEGER_NUMBER | FLOAT_NUMBER | OPEN_PARENTHESES <exp> CLOSE_PARENTHESES | <id> | <vetor> | <chamar_funcao>;
+
+<op_rel> ::= BIGGER_THAN | LESS_THAN | BIGGER_EQUAL | LESS_EQUAL | EQUALS | NOT_EQUAL | EQUAL_TO;
+
+<op_neg> ::= SUBTRACTION | BITWISE_NOT | NOT;
+
+<op_bitwise> ::= LEFT_SHIFT | RIGHT_SHIFT;
+
+<op_arit_baixa> ::= ADDITION | SUBTRACTION;
+
+<op_arit_alta> ::= MULTIPLICATION | DIVISION | MODULO;
+
+<op_incremento> ::= PLUS_PLUS | MINUS_MINUS;
+
+<op_atribuicao> ::= EQUALS | PLUS_EQUALS | MINUS_EQUALS | TIMES_EQUALS | DIVIDE_EQUALS;
