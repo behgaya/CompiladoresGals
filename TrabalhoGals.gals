@@ -5,8 +5,8 @@ Language = Java
 ScannerName = Lexico
 ParserName = Sintatico
 SemanticName = Semantico
-ScannerCaseSensitive = true
-ScannerTable = Full
+ScannerCaseSensitive = false
+ScannerTable = Compact
 Input = Stream
 Parser = SLR
 #RegularDefinitions
@@ -117,13 +117,14 @@ HASH_SIGN: "#"
 :[\s\t\r\n\b]*
 #NonTerminals
 <programa>
-<lista_funcoes>
+<lista_rotina>
 <funcao>
+<procedimento>
+<rotina>
 <tipo>
 <variavel>
 <parenteses_funcao>
 <bloco>
-<modificador_acesso>
 <id>
 <declaracao_funcao>
 <lista_cmd>
@@ -133,31 +134,33 @@ HASH_SIGN: "#"
 <chamar_funcao>
 <desvio_if>
 <print>
-<read_line>
 <return>
-<exp>
-<parametros_chamar>
 <comment>
 <block_comment>
+<read_line>
+<exp>
+<parametros_chamar>
 <declaracao2>
 <atribuicao>
 <declaracao3>
 <declaracao4>
+<op_atribuicao>
 <vetor>
-<bool>
 <repeticao_for>
 <declaracao_controle>
 <operacao_incremento>
 <op_incremento>
 <repeticao_do>
+<void>
 <desvio_else>
-<op_rel>
 <read>
+<bool>
 <exp1>
 <exp2>
 <exp3>
 <exp4>
 <exp5>
+<op_rel>
 <exp6>
 <op_bitwise>
 <exp7>
@@ -167,108 +170,85 @@ HASH_SIGN: "#"
 <exp9>
 <op_neg>
 <exp10>
-<op_atribuicao>
 #Grammar
-<programa> ::= <lista_funcoes>;
+<programa> ::= <lista_rotina>;
 
-<lista_funcoes> ::= <funcao> | <lista_funcoes> <funcao>;
 
-<funcao> ::= <tipo> <variavel> <parenteses_funcao> <bloco> | <modificador_acesso> <tipo> <id> <parenteses_funcao> <bloco>;
+<lista_rotina> ::= <rotina> | <lista_rotina> <rotina>;
+<rotina> ::= <funcao> | <procedimento>; 
 
-<parenteses_funcao> ::= OPEN_PARENTHESES CLOSE_PARENTHESES | OPEN_PARENTHESES <declaracao_funcao> CLOSE_PARENTHESES;
 
-<declaracao_funcao> ::= <tipo> <variavel> | <tipo> <variavel> COMMA <declaracao_funcao>;
+<funcao> ::= <tipo> <variavel>  OPEN_PARENTHESES <parenteses_funcao> CLOSE_PARENTHESES <bloco> | <tipo> <variavel> OPEN_PARENTHESES CLOSE_PARENTHESES <bloco>;
+<procedimento> ::= <void> <variavel> OPEN_PARENTHESES <parenteses_funcao> CLOSE_PARENTHESES <bloco> | <void> <variavel> OPEN_PARENTHESES CLOSE_PARENTHESES <bloco>;
+<parenteses_funcao> ::= <tipo> <variavel> | <tipo> <variavel> COMMA <declaracao_funcao>;
+
 
 <bloco> ::= OPEN_BRACES CLOSE_BRACES | OPEN_BRACES <lista_cmd> CLOSE_BRACES;
-
 <lista_cmd> ::= <cmd> | <lista_cmd> <cmd>;
+<cmd> ::= <declaracao1> SEMICOLON | <repeticao_while> | <chamar_funcao> SEMICOLON | <desvio_if> | <print> SEMICOLON | <return> SEMICOLON | <comment> | <block_comment> | <read_line> SEMICOLON | <atribuicao> SEMICOLON;
 
-<cmd> ::= <declaracao1> SEMICOLON | <repeticao_while> | <chamar_funcao> SEMICOLON | <desvio_if> | <print> SEMICOLON | <return> SEMICOLON | <comment> | <block_comment> | <read_line> SEMICOLON;
 
 <return> ::= KEYWORD_RETURN <exp>;
 
-<chamar_funcao> ::= <id> OPEN_PARENTHESES CLOSE_PARENTHESES | <id> OPEN_PARENTHESES <parametros_chamar> CLOSE_PARENTHESES;
 
+<chamar_funcao> ::= KEYWORD_CALL <id> OPEN_PARENTHESES CLOSE_PARENTHESES | KEYWORD_CALL <id> OPEN_PARENTHESES <parametros_chamar> CLOSE_PARENTHESES;
 <parametros_chamar> ::= <exp> | <parametros_chamar> COMMA <exp>;
 
-<comment> ::= COMMENTARY;
 
+<comment> ::= COMMENTARY;
 <block_comment> ::= BLOCK_COMMENTARY;
 
+
 <declaracao1> ::= <tipo> <variavel> | <declaracao2>;
-
 <declaracao2> ::= <tipo> <atribuicao> | <declaracao3>;
-
 <declaracao3> ::= <declaracao1> COMMA <variavel> | <declaracao4>;
-
 <declaracao4> ::= <declaracao1> COMMA <atribuicao>;
-////////////////////////////////////////////////////////////////////////////
+
+
 <atribuicao> ::= <variavel> <op_atribuicao> <exp>;
-
 <variavel> ::= <id> | <vetor>;
-
 <vetor> ::= <id> OPEN_BRACKETS CLOSE_BRACKETS | <id> OPEN_BRACKETS <exp> CLOSE_BRACKETS;
 
+
 <repeticao_while> ::= KEYWORD_WHILE <exp> <bloco> | <repeticao_for>;
-
 <repeticao_for> ::= KEYWORD_FOR OPEN_PARENTHESES <declaracao_controle> SEMICOLON <exp> SEMICOLON <operacao_incremento> CLOSE_PARENTHESES <bloco>;
-
 <declaracao_controle> ::= <declaracao1> | <atribuicao> | <declaracao1> <atribuicao>;
-
 <operacao_incremento> ::= <atribuicao> | <id> <op_incremento>;
-
 <repeticao_do> ::= KEYWORD_DO <bloco> KEYWORD_WHILE <exp>;
 
-<desvio_if> ::= KEYWORD_IF <exp> <bloco> | KEYWORD_IF <exp> <bloco> <desvio_else>;
 
+<desvio_if> ::= KEYWORD_IF <exp> <bloco> | KEYWORD_IF <exp> <bloco> <desvio_else>;
 <desvio_else> ::= KEYWORD_ELSE <bloco>;
 
+
 <print> ::= KEYWORD_PRINT <exp>;
-
 <read_line> ::= <tipo> <variavel> EQUALS <read>;
-
 <read> ::= KEYWORD_READ OPEN_PARENTHESES CLOSE_PARENTHESES;
 
-<modificador_acesso> ::= KEYWORD_PUBLIC | KEYWORD_PRIVATE;
 
-<tipo> ::= KEYWORD_INT | KEYWORD_FLOAT | KEYWORD_CHAR | KEYWORD_BOOL | KEYWORD_VOID | KEYWORD_STRING | KEYWORD_CLASS;
-
+<tipo> ::= KEYWORD_INT #1 | KEYWORD_FLOAT #1 | KEYWORD_CHAR #1 | KEYWORD_BOOL #1 | KEYWORD_STRING #1 | KEYWORD_CLASS #1;
+<void> ::= KEYWORD_VOID;
 <bool> ::= KEYWORD_TRUE | KEYWORD_FALSE;
+<id> ::= ID#2;
 
-<id> ::= ID;
 
 <exp> ::= <exp> OR <exp1> | <exp1>;
-
 <exp1> ::= <exp1> AND <exp2> | <exp2>;
-
 <exp2> ::= <exp2> BITWISE_OR <exp3> | <exp3>;
-
 <exp3> ::= <exp3> BITWISE_XOR <exp4> | <exp4>;
-
 <exp4> ::= <exp4> BITWISE_AND <exp5> | <exp5>;
-
 <exp5> ::= <exp5> <op_rel> <exp6> | <exp6>;
-
 <exp6> ::= <exp6> <op_bitwise> <exp7> | <exp7>;
-
 <exp7> ::= <exp7> <op_arit_baixa> <exp8> | <exp8>;
-
 <exp8> ::= <exp8> <op_arit_alta> <exp9> | <exp9>;
-
 <exp9> ::= <op_neg> <exp10> | <exp10>;
+<exp10> ::= STRING_VALUE | INTEGER_NUMBER | FLOAT_NUMBER | OPEN_PARENTHESES <exp> CLOSE_PARENTHESES | <id> | <vetor> | <chamar_funcao> | <bool>;
 
-<exp10> ::= STRING_VALUE | INTEGER_NUMBER | FLOAT_NUMBER | OPEN_PARENTHESES <exp> CLOSE_PARENTHESES | <id> | <vetor> | <chamar_funcao>;
 
 <op_rel> ::= BIGGER_THAN | LESS_THAN | BIGGER_EQUAL | LESS_EQUAL | EQUALS | NOT_EQUAL | EQUAL_TO;
-
 <op_neg> ::= SUBTRACTION | BITWISE_NOT | NOT;
-
 <op_bitwise> ::= LEFT_SHIFT | RIGHT_SHIFT;
-
 <op_arit_baixa> ::= ADDITION | SUBTRACTION;
-
 <op_arit_alta> ::= MULTIPLICATION | DIVISION | MODULO;
-
 <op_incremento> ::= PLUS_PLUS | MINUS_MINUS;
-
 <op_atribuicao> ::= EQUALS | PLUS_EQUALS | MINUS_EQUALS | TIMES_EQUALS | DIVIDE_EQUALS;

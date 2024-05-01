@@ -30,11 +30,12 @@ public class MainWindow extends javax.swing.JFrame {
         sourceInput = new javax.swing.JTextArea();
         jScrollPane2 = new javax.swing.JScrollPane();
         console = new javax.swing.JTextArea();
-        buttonCompile = createButton("/icons/compile.png", 30, 30);;
-        buttonSave = createButton("/icons/save.png", 30, 30);
-        buttonOpen = createButton("/icons/openFile.png", 30, 30); 
-        buttonSaveAs = createButton("/icons/saveAs.png", 30, 30);
-        buttonDarkMode = createButton("/icons/dark.png", 30, 30);
+        buttonCompile = createButton("icons/compile.png", 30, 30);
+        buttonSave = createButton("icons/save.png", 30, 30);
+        buttonOpen = createButton("icons/openFile.png", 30, 30); 
+        buttonSaveAs = createButton("icons/saveAs.png", 30, 30);
+        buttonDarkMode = createButton("icons/dark.png", 30, 30);
+        
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("IDE do Professor");
