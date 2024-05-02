@@ -7,7 +7,7 @@ ParserName = Sintatico
 SemanticName = Semantico
 ScannerCaseSensitive = false
 ScannerTable = Compact
-Input = String
+Input = Stream
 Parser = SLR
 #RegularDefinitions
 id: [a-zA-Z][a-zA-Z0-9_]*
@@ -179,7 +179,7 @@ HASH_SIGN: "#"
 
 
 <funcao> ::= <tipo> <id>#4  OPEN_PARENTHESES <parenteses_funcao> CLOSE_PARENTHESES <bloco> | <tipo> <id>#4 OPEN_PARENTHESES CLOSE_PARENTHESES <bloco>;
-<procedimento> ::= <void> <id> OPEN_PARENTHESES <parenteses_funcao> CLOSE_PARENTHESES <bloco> | <void> <id> OPEN_PARENTHESES CLOSE_PARENTHESES <bloco>;
+<procedimento> ::= <void>#5 <id> OPEN_PARENTHESES <parenteses_funcao> CLOSE_PARENTHESES <bloco> | <void>#5 <id> OPEN_PARENTHESES CLOSE_PARENTHESES <bloco>;
 <parenteses_funcao> ::= <tipo> <variavel> | <tipo> <variavel> COMMA <declaracao_funcao>;
 
 
@@ -199,13 +199,13 @@ HASH_SIGN: "#"
 <block_comment> ::= BLOCK_COMMENTARY;
 
 
-<declaracao1> ::= <tipo> <variavel> | <declaracao2>;
-<declaracao2> ::= <tipo> <atribuicao> | <declaracao3>;
-<declaracao3> ::= <declaracao1> COMMA <variavel> | <declaracao4>;
-<declaracao4> ::= <declaracao1> COMMA <atribuicao>;
+<declaracao1> ::= <tipo>#6 <variavel>#7 | <declaracao2>;
+<declaracao2> ::= <tipo>#6 <atribuicao> | <declaracao3>;
+<declaracao3> ::= <declaracao1>#6 COMMA <variavel>#7 | <declaracao4>;
+<declaracao4> ::= <declaracao1>#6 COMMA <atribuicao>;
 
 
-<atribuicao> ::= <variavel> <op_atribuicao> <exp>;
+<atribuicao> ::= <variavel>#8 <op_atribuicao> <exp>#9;
 <variavel> ::= <id> | <vetor>;
 <vetor> ::= <id>#3 OPEN_BRACKETS CLOSE_BRACKETS | <id>#3 OPEN_BRACKETS <exp> CLOSE_BRACKETS;
 
@@ -222,12 +222,12 @@ HASH_SIGN: "#"
 
 
 <print> ::= KEYWORD_PRINT <exp>;
-<read_line> ::= <tipo> <variavel> EQUALS <read>;
+<read_line> ::= <tipo> <variavel> COLON <read>;
 <read> ::= KEYWORD_READ OPEN_PARENTHESES CLOSE_PARENTHESES;
 
 
-<tipo> ::= KEYWORD_INT #1 | KEYWORD_FLOAT #1 | KEYWORD_CHAR #1 | KEYWORD_BOOL #1 | KEYWORD_STRING #1 | KEYWORD_CLASS #1;
-<void> ::= KEYWORD_VOID #1;
+<tipo> ::= KEYWORD_INT#1 | KEYWORD_FLOAT#1 | KEYWORD_CHAR#1 | KEYWORD_BOOL#1 | KEYWORD_STRING#1 | KEYWORD_CLASS#1;
+<void> ::= KEYWORD_VOID#1;
 <bool> ::= KEYWORD_TRUE | KEYWORD_FALSE;
 <id> ::= ID#2;
 

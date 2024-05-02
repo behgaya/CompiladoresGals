@@ -11,11 +11,12 @@ public class Symbol {
     private boolean matriz;  // Indica se o identificador é uma matriz
     private boolean ref;     // Indica se o identificador é passado por referência
     private boolean func;    // Indica se o identificador é uma função
+    private boolean proc;    // Indica se o identificador é um procedimento
 
     public Symbol(){}
 
     // Construtor
-    public Symbol(String id, String tipo, boolean ini, boolean usada, String escopo, boolean param, int pos, boolean vet, boolean matriz, boolean ref, boolean func) {
+    public Symbol(String id, String tipo, boolean ini, boolean usada, String escopo, boolean param, int pos, boolean vet, boolean matriz, boolean ref, boolean func, boolean proc) {
         this.id = id;
         this.tipo = tipo;
         this.ini = ini;
@@ -27,6 +28,8 @@ public class Symbol {
         this.matriz = matriz;
         this.ref = ref;
         this.func = func;
+        this.proc = proc;
+
     }
 
     public String getId() {
@@ -144,6 +147,14 @@ public class Symbol {
         this.matriz = false;
         this.ref = false;
         this.func = false;
+    }
+
+    public boolean isProc() {
+        return proc;
+    }
+
+    public void setProc(boolean proc) {
+        this.proc = proc;
     }
  
 

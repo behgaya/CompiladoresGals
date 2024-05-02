@@ -87,25 +87,8 @@ public class MainWindow extends javax.swing.JFrame {
 
         symbols = sem.symbolTable.getSymbols();
         
-        String[] columnNames = { "ID", "Tipo", "Inicializado", "Usado", "Escopo", "Parametro", "Posição", "Vetor", "Matriz", "Referência", "Função" };
-        Object[][] data = new Object[symbols.size()][11];
-
-        for (int i = 0; i < symbols.size(); i++) {
-            Symbol symbol = symbols.get(i);
-            data[i] = new Object[] {
-                    symbol.getId(),
-                    symbol.getTipo(),
-                    symbol.isIni(),
-                    symbol.isUsada(),
-                    symbol.getEscopo(),
-                    symbol.isParam(),
-                    symbol.getPos(),
-                    symbol.isVet(),
-                    symbol.isMatriz(),
-                    symbol.isRef(),
-                    symbol.isFunc()
-            };
-        }
+        String[] columnNames = { "ID", "Tipo", "Inicializado", "Usado", "Escopo", "Parametro", "Posição", "Vetor", "Matriz", "Referência", "Função","Procedimento" };
+        Object[][] data = new Object[symbols.size()][12];
 
         DefaultTableModel model = new DefaultTableModel(data, columnNames);
         table = new JTable(model);
@@ -169,14 +152,19 @@ public class MainWindow extends javax.swing.JFrame {
     private void buttonCompileActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_buttonCompileActionPerformed
         Lexico lex = new Lexico();
         Sintatico sint = new Sintatico();
-        lex.setInput(sourceInput.getText());
+        lex.setInput(new StringReader(sourceInput.getText()));
+        sem.symbolTable.clearTable();
         symbols.clear();
+
         try {
             sint.parse(lex, sem);
             console.setText("Compilado com sucesso!");
             updateTable();
         } catch (LexicalError | SyntaticError | SemanticError ex) {
             console.setText("Problema na compilação: " + ex.getLocalizedMessage());
+            symbols.clear();
+            updateTable();
+
         }
 
     }// GEN-LAST:event_buttonCompileActionPerformed
@@ -309,14 +297,14 @@ public class MainWindow extends javax.swing.JFrame {
     private void updateTable() {
         List<Symbol> symbols = sem.symbolTable.getSymbols();
         String[] columnNames = { "ID", "Tipo", "Inicializado", "Usado", "Escopo", "Parametro", "Posição", "Vetor",
-                "Matriz", "Referência", "Função" };
+                "Matriz", "Referência", "Função", "Procedimento" };
         Object[][] data = new Object[symbols.size()][columnNames.length];
     
         for (int i = 0; i < symbols.size(); i++) {
             Symbol symbol = symbols.get(i);
             data[i] = new Object[] { symbol.getId(), symbol.getTipo(), symbol.isIni(), symbol.isUsada(),
                     symbol.getEscopo(), symbol.isParam(), symbol.getPos(), symbol.isVet(), symbol.isMatriz(),
-                    symbol.isRef(), symbol.isFunc() };
+                    symbol.isRef(), symbol.isFunc(), symbol.isProc() };
         }
     
         DefaultTableModel model = new DefaultTableModel(data, columnNames);

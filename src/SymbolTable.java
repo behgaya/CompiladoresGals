@@ -15,14 +15,25 @@ public class SymbolTable {
         symbolTable.add(symbol);
     }
 
-    public boolean symbolExists(String id) {
+    public boolean symbolExists(Symbol addedSymbol) {
         for (Symbol symbol : symbolTable) {
-            if (symbol.getId().equals(id)) {
+            if (symbol.getId().equals(addedSymbol.getId()) && !symbol.isFunc()) {
                 return true;
             }
         }
         return false;
     }
+
+    public boolean functionExists(Symbol addedFunction) {
+        for (Symbol symbol : symbolTable) {
+            if (symbol.isFunc() && symbol.getId().equals(addedFunction.getId()) && symbol.getTipo().equals(addedFunction.getTipo())) {
+                // Verifica se o símbolo é uma função e se possui a mesma assinatura (nome, tipo e parâmetros)
+                return true;
+            }
+        }
+        return false;
+    }
+
 
     public void printTable() {
         System.out.println("ID\tTipo\tInicializado\tUsado\tEscopo\tParâmetro\tPosição\tVetor\tMatriz\tReferência\tFunção");
@@ -31,6 +42,10 @@ public class SymbolTable {
                 + "\t" + symbol.getEscopo() + "\t" + symbol.isParam() + "\t" + symbol.getPos() + "\t" + symbol.isVet()
                 + "\t" + symbol.isMatriz() + "\t" + symbol.isRef() + "\t" + symbol.isFunc());
         }
+    }
+
+    public void clearTable() {
+        symbolTable.clear();
     }
 
     public boolean updateSymbol(Symbol updatedSymbol) {
