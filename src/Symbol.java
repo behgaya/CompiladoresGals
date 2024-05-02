@@ -12,6 +12,8 @@ public class Symbol {
     private boolean ref;     // Indica se o identificador é passado por referência
     private boolean func;    // Indica se o identificador é uma função
 
+    public Symbol(){}
+
     // Construtor
     public Symbol(String id, String tipo, boolean ini, boolean usada, String escopo, boolean param, int pos, boolean vet, boolean matriz, boolean ref, boolean func) {
         this.id = id;
@@ -27,7 +29,6 @@ public class Symbol {
         this.func = func;
     }
 
-    // Getters e Setters para cada atributo
     public String getId() {
         return id;
     }
@@ -115,5 +116,36 @@ public class Symbol {
     public void setFunc(boolean func) {
         this.func = func;
     }
+
+    public void printParameters() {
+        System.out.println("ID: " + id);
+        System.out.println("Tipo: " + tipo);
+        System.out.println("Inicializado: " + ini);
+        System.out.println("Usada: " + usada);
+        System.out.println("Escopo: " + escopo);
+        System.out.println("Parâmetro: " + param);
+        System.out.println("Posição: " + pos);
+        System.out.println("Vetor: " + vet);
+        System.out.println("Matriz: " + matriz);
+        System.out.println("Referência: " + ref);
+        System.out.println("Função: " + func);
+    }
+
+    public void clear() {
+        // Reset all attributes to their default values
+        this.tipo = null;
+        this.id = null;
+        this.ini = false;
+        this.usada = false;
+        this.escopo = null;
+        this.param = false;
+        this.pos = 0;
+        this.vet = false;
+        this.matriz = false;
+        this.ref = false;
+        this.func = false;
+    }
+ 
+
 
 }

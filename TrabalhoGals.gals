@@ -7,7 +7,7 @@ ParserName = Sintatico
 SemanticName = Semantico
 ScannerCaseSensitive = false
 ScannerTable = Compact
-Input = Stream
+Input = String
 Parser = SLR
 #RegularDefinitions
 id: [a-zA-Z][a-zA-Z0-9_]*
@@ -178,8 +178,8 @@ HASH_SIGN: "#"
 <rotina> ::= <funcao> | <procedimento>; 
 
 
-<funcao> ::= <tipo> <variavel>  OPEN_PARENTHESES <parenteses_funcao> CLOSE_PARENTHESES <bloco> | <tipo> <variavel> OPEN_PARENTHESES CLOSE_PARENTHESES <bloco>;
-<procedimento> ::= <void> <variavel> OPEN_PARENTHESES <parenteses_funcao> CLOSE_PARENTHESES <bloco> | <void> <variavel> OPEN_PARENTHESES CLOSE_PARENTHESES <bloco>;
+<funcao> ::= <tipo> <id>#4  OPEN_PARENTHESES <parenteses_funcao> CLOSE_PARENTHESES <bloco> | <tipo> <id>#4 OPEN_PARENTHESES CLOSE_PARENTHESES <bloco>;
+<procedimento> ::= <void> <id> OPEN_PARENTHESES <parenteses_funcao> CLOSE_PARENTHESES <bloco> | <void> <id> OPEN_PARENTHESES CLOSE_PARENTHESES <bloco>;
 <parenteses_funcao> ::= <tipo> <variavel> | <tipo> <variavel> COMMA <declaracao_funcao>;
 
 
@@ -207,7 +207,7 @@ HASH_SIGN: "#"
 
 <atribuicao> ::= <variavel> <op_atribuicao> <exp>;
 <variavel> ::= <id> | <vetor>;
-<vetor> ::= <id> OPEN_BRACKETS CLOSE_BRACKETS | <id> OPEN_BRACKETS <exp> CLOSE_BRACKETS;
+<vetor> ::= <id>#3 OPEN_BRACKETS CLOSE_BRACKETS | <id>#3 OPEN_BRACKETS <exp> CLOSE_BRACKETS;
 
 
 <repeticao_while> ::= KEYWORD_WHILE <exp> <bloco> | <repeticao_for>;
@@ -227,7 +227,7 @@ HASH_SIGN: "#"
 
 
 <tipo> ::= KEYWORD_INT #1 | KEYWORD_FLOAT #1 | KEYWORD_CHAR #1 | KEYWORD_BOOL #1 | KEYWORD_STRING #1 | KEYWORD_CLASS #1;
-<void> ::= KEYWORD_VOID;
+<void> ::= KEYWORD_VOID #1;
 <bool> ::= KEYWORD_TRUE | KEYWORD_FALSE;
 <id> ::= ID#2;
 

@@ -1381,14 +1381,14 @@ public interface ScannerConstants
         { 0, 0, 0, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27 };
 
     String[] SPECIAL_CASES_KEYS =
-        {  "begin", "bool", "call", "char", "class", "do", "double", "else", "end", "false", "float", "for", "if", "int", "long", "print", "private", "public", "read", "return", "static", "string", "then", "true", "voID", "while", "write" };
+        {  "BEGIN", "BOOL", "CALL", "CHAR", "CLASS", "DO", "DOUBLE", "ELSE", "END", "FALSE", "FLOAT", "FOR", "IF", "INT", "LONG", "PRINT", "PRIVATE", "PUBLIC", "READ", "RETURN", "STATIC", "STRING", "THEN", "TRUE", "VOID", "WHILE", "WRITE" };
 
     int[] SPECIAL_CASES_VALUES =
         {  3, 15, 26, 16, 21, 9, 14, 7, 4, 29, 13, 20, 5, 11, 12, 24, 23, 22, 25, 27, 19, 17, 6, 28, 18, 8, 10 };
 
     String[] SCANNER_ERROR =
     {
-        "Caractere nï¿½o esperado",
+        "Caractere não esperado",
         "",
         "",
         "Erro identificando STRING_VALUE",

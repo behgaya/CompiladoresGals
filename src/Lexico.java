@@ -103,6 +103,8 @@ public class Lexico implements Constants
         int start = SPECIAL_CASES_INDEXES[base];
         int end   = SPECIAL_CASES_INDEXES[base+1]-1;
 
+        key = key.toUpperCase();
+
         while (start <= end)
         {
             int half = (start+end)/2;
