@@ -35,13 +35,13 @@ public class Semantico implements Constants {
                 break;
             // Tipo
             case 3:
-                System.out.println("Tipo:" + token.getLexeme());
+                //System.out.println("Tipo:" + token.getLexeme());
                 tipo = token.getLexeme();
                 break;
 
             // Nome e criação variavel
             case 4:
-                System.out.println("Nome:" + token.getLexeme());
+                //System.out.println("Nome:" + token.getLexeme());
 
                 if (!symbolTable.symbolExists(token.getLexeme(), escopo.peek())) {
                     variable = new Symbol(token.getLexeme(), tipo, false, false, escopo.peek(), false, 0, false, false,
@@ -85,8 +85,8 @@ public class Semantico implements Constants {
             case 9:
                 if (symbolTable.variableExists(variable, escopo.peek())) {
                     throw new SemanticError(
-                            String.format("Variavel %s já declarada", variable.getId()),
-                            token.getPosition());
+                        String.format("Prezado desenvolvedor, a variável '%s' já foi declarada", variable.getId()),
+                        token.getPosition());
                 } else {
                     // System.out.println("variavel declarada:" + variable.getId());
                     symbolTable.addSymbol(variable);
@@ -96,18 +96,18 @@ public class Semantico implements Constants {
                 break;
             case 10:
 
-                System.out.println("============================================");
-                System.out.println("nome >>>>> " + token.getLexeme());
-                System.out.println("DECLARACAO: " + declaracao);
-                System.out.println("============================================");
+                // System.out.println("============================================");
+                // System.out.println("nome >>>>> " + token.getLexeme());
+                // System.out.println("DECLARACAO: " + declaracao);
+                // System.out.println("============================================");
 
                 if (declaracao) { // Verifica se está em modo de declaração
                         if (symbolTable.symbolExists(token.getLexeme(), escopo.peek())) {
                             throw new SemanticError(
-                                    String.format("Variável %s já declarada", variable.getId()),
+                                    String.format("Prezado desenvolvedor, a variável '%s' já foi declarada", variable.getId()),
                                     token.getPosition());
                         } else {
-                            System.out.println("Variável declarada: " + variable.getId());
+                            //System.out.println("Variável declarada: " + variable.getId());
                             // Atualiza o estado de declaração
                             declaracao = false;
                             // Adiciona o símbolo à tabela
@@ -119,19 +119,19 @@ public class Semantico implements Constants {
                     variable = symbolTable.getSymbol(token.getLexeme());
                     // Verifica a existência da variável apenas quando não está em modo de
                     // declaração
-                    if (!symbolTable.variableExists(variable, escopo.peek())) {
+                    if (!symbolTable.symbolExists(token.getLexeme(), escopo.peek())) {
                         throw new SemanticError(
-                                String.format("Variável %s não declarada", variable.getId()),
+                                String.format("Prezado desenvolvedor, a variável '%s' não foi declarada.", token.getLexeme()),
                                 token.getPosition());
                     }
-                    System.out.println("Variável já declarada: " + variable.getId());
+                    //System.out.println("Variável já declarada: " + variable.getId());
                 }
 
                 break;
 
             case 11:
                 if (variable != null) {
-                    System.out.println("CASE 11: " + variable.getId());
+                    //System.out.println("CASE 11: " + variable.getId());
                     variable.setIni(true);
 
                 }

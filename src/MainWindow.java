@@ -158,7 +158,12 @@ public class MainWindow extends javax.swing.JFrame {
 
         try {
             sint.parse(lex, sem);
-            console.setText("Compilado com sucesso!");
+            String mensagem = verificarVariaveisNaoInicializadas(sem.symbolTable);
+            if (!mensagem.contains("Variáveis não inicializadas")) {
+                mensagem = "Compilado com sucesso!";
+            }
+            console.setText("Compilado com sucesso!\n" + mensagem);
+
             updateTable();
         } catch (LexicalError | SyntaticError | SemanticError ex) {
             console.setText("Problema na compilação: " + ex.getLocalizedMessage());
@@ -309,6 +314,20 @@ public class MainWindow extends javax.swing.JFrame {
     
         DefaultTableModel model = new DefaultTableModel(data, columnNames);
         table.setModel(model);
+    }
+
+    private String verificarVariaveisNaoInicializadas(SymbolTable symbolTable) {
+        StringBuilder variaveisNaoInicializadas = new StringBuilder("Variáveis não inicializadas: ");
+        for (Symbol symbol : symbolTable.getSymbols()) {
+            if (!symbol.isIni() && !symbol.isFunc()) {
+                variaveisNaoInicializadas.append(symbol.getId()).append(", ");
+            }
+        }
+        if (variaveisNaoInicializadas.toString().equals("Variáveis não inicializadas: ")) {
+            return "Compilado com sucesso!";
+        } else {
+            return variaveisNaoInicializadas.toString();
+        }
     }
 
     /**
