@@ -15,9 +15,20 @@ public class SymbolTable {
         symbolTable.add(symbol);
     }
 
-    public boolean symbolExists(Symbol addedSymbol) {
+
+    public boolean symbolExists(String id, int escopo) {
+        for (int i = symbolTable.size() - 1; i >= 0; i--) {
+            Symbol symbol = symbolTable.get(i);
+            if (symbol.getId().equals(id) && symbol.getEscopo() == escopo && !symbol.isFunc()) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    public boolean variableExists(Symbol addedSymbol, int escopo) {
         for (Symbol symbol : symbolTable) {
-            if (symbol.getId().equals(addedSymbol.getId()) && !symbol.isFunc()) {
+            if (symbol.getEscopo() == escopo && symbol.getId().equals(addedSymbol.getId()) && !symbol.isFunc()) {
                 return true;
             }
         }
@@ -67,5 +78,15 @@ public class SymbolTable {
         }
         return false; // Indica que o símbolo com o ID fornecido não foi encontrado na tabela
     }
-    // Outros métodos conforme necessário
+
+    public Symbol getSymbol(String id) {
+        for (Symbol symbol : symbolTable) {
+            if (symbol.getId().equals(id)) {
+                return symbol;
+            }
+        }
+        return null; // Retorna null se o símbolo com o ID fornecido não for encontrado na tabela
+    }
+
+
 }

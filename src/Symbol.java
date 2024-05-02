@@ -4,7 +4,7 @@ public class Symbol {
     private String tipo;     // Tipo do identificador (inteiro, real, etc.)
     private boolean ini;     // Indica se o identificador foi inicializado
     private boolean usada;   // Indica se o identificador foi usado
-    private String escopo;   // Escopo do identificador (global, local, etc.)
+    private int escopo;   // Escopo do identificador (global, local, etc.)
     private boolean param;   // Indica se o identificador é um parâmetro de função
     private int pos;         // Posição do identificador em relação aos parâmetros da função
     private boolean vet;     // Indica se o identificador é um vetor
@@ -16,7 +16,7 @@ public class Symbol {
     public Symbol(){}
 
     // Construtor
-    public Symbol(String id, String tipo, boolean ini, boolean usada, String escopo, boolean param, int pos, boolean vet, boolean matriz, boolean ref, boolean func, boolean proc) {
+    public Symbol(String id, String tipo, boolean ini, boolean usada, int escopo, boolean param, int pos, boolean vet, boolean matriz, boolean ref, boolean func, boolean proc) {
         this.id = id;
         this.tipo = tipo;
         this.ini = ini;
@@ -64,11 +64,11 @@ public class Symbol {
         this.usada = usada;
     }
 
-    public String getEscopo() {
+    public int getEscopo() {
         return escopo;
     }
 
-    public void setEscopo(String escopo) {
+    public void setEscopo(int escopo) {
         this.escopo = escopo;
     }
 
@@ -140,7 +140,7 @@ public class Symbol {
         this.id = null;
         this.ini = false;
         this.usada = false;
-        this.escopo = null;
+        this.escopo = 0;
         this.param = false;
         this.pos = 0;
         this.vet = false;
@@ -157,6 +157,9 @@ public class Symbol {
         this.proc = proc;
     }
  
-
+    public boolean isEmpty() {
+        return id == null;// Supondo que id, tipo e valor sejam os campos relevantes
+    }
+    
 
 }

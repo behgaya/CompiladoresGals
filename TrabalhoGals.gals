@@ -178,12 +178,12 @@ HASH_SIGN: "#"
 <rotina> ::= <funcao> | <procedimento>; 
 
 
-<funcao> ::= <tipo> <id>#4  OPEN_PARENTHESES <parenteses_funcao> CLOSE_PARENTHESES <bloco> | <tipo> <id>#4 OPEN_PARENTHESES CLOSE_PARENTHESES <bloco>;
-<procedimento> ::= <void>#5 <id> OPEN_PARENTHESES <parenteses_funcao> CLOSE_PARENTHESES <bloco> | <void>#5 <id> OPEN_PARENTHESES CLOSE_PARENTHESES <bloco>;
-<parenteses_funcao> ::= <tipo> <variavel> | <tipo> <variavel> COMMA <declaracao_funcao>;
+<funcao> ::= <tipo> <id>#6  OPEN_PARENTHESES <parenteses_funcao> CLOSE_PARENTHESES <bloco> | <tipo> <id>#6 OPEN_PARENTHESES CLOSE_PARENTHESES <bloco>;
+<procedimento> ::= <void>#7 <id> OPEN_PARENTHESES <parenteses_funcao> CLOSE_PARENTHESES <bloco> | <void>#7 <id> OPEN_PARENTHESES CLOSE_PARENTHESES <bloco>;
+<parenteses_funcao> ::= <declaracao1>;
 
 
-<bloco> ::= OPEN_BRACES CLOSE_BRACES | OPEN_BRACES <lista_cmd> CLOSE_BRACES;
+<bloco> ::= OPEN_BRACES#1 CLOSE_BRACES#2 | OPEN_BRACES#1 <lista_cmd> CLOSE_BRACES#2;
 <lista_cmd> ::= <cmd> | <lista_cmd> <cmd>;
 <cmd> ::= <declaracao1> SEMICOLON | <repeticao_while> | <chamar_funcao> SEMICOLON | <desvio_if> | <print> SEMICOLON | <return> SEMICOLON | <comment> | <block_comment> | <read_line> SEMICOLON | <atribuicao> SEMICOLON;
 
@@ -199,15 +199,15 @@ HASH_SIGN: "#"
 <block_comment> ::= BLOCK_COMMENTARY;
 
 
-<declaracao1> ::= <tipo>#6 <variavel>#7 | <declaracao2>;
-<declaracao2> ::= <tipo>#6 <atribuicao> | <declaracao3>;
-<declaracao3> ::= <declaracao1>#6 COMMA <variavel>#7 | <declaracao4>;
-<declaracao4> ::= <declaracao1>#6 COMMA <atribuicao>;
+<declaracao1> ::= <tipo>#8 <variavel>#9 | <declaracao2>;
+<declaracao2> ::= <tipo>#8 <atribuicao> | <declaracao3>;
+<declaracao3> ::= <declaracao1> COMMA <variavel>#9 | <declaracao4>;
+<declaracao4> ::= <declaracao1> COMMA <atribuicao>;
 
 
-<atribuicao> ::= <variavel>#8 <op_atribuicao> <exp>#9;
+<atribuicao> ::= <variavel>#10 <op_atribuicao> <exp>#11;
 <variavel> ::= <id> | <vetor>;
-<vetor> ::= <id>#3 OPEN_BRACKETS CLOSE_BRACKETS | <id>#3 OPEN_BRACKETS <exp> CLOSE_BRACKETS;
+<vetor> ::= <id>#5 OPEN_BRACKETS CLOSE_BRACKETS | <id>#5 OPEN_BRACKETS <exp> CLOSE_BRACKETS;
 
 
 <repeticao_while> ::= KEYWORD_WHILE <exp> <bloco> | <repeticao_for>;
@@ -222,14 +222,14 @@ HASH_SIGN: "#"
 
 
 <print> ::= KEYWORD_PRINT <exp>;
-<read_line> ::= <tipo> <variavel> COLON <read>;
+<read_line> ::= <declaracao1> COLON <read>;
 <read> ::= KEYWORD_READ OPEN_PARENTHESES CLOSE_PARENTHESES;
 
 
-<tipo> ::= KEYWORD_INT#1 | KEYWORD_FLOAT#1 | KEYWORD_CHAR#1 | KEYWORD_BOOL#1 | KEYWORD_STRING#1 | KEYWORD_CLASS#1;
-<void> ::= KEYWORD_VOID#1;
+<tipo> ::= KEYWORD_INT#3 | KEYWORD_FLOAT#3 | KEYWORD_CHAR#3 | KEYWORD_BOOL#3 | KEYWORD_STRING#3 | KEYWORD_CLASS#3;
+<void> ::= KEYWORD_VOID#3;
 <bool> ::= KEYWORD_TRUE | KEYWORD_FALSE;
-<id> ::= ID#2;
+<id> ::= ID#4;
 
 
 <exp> ::= <exp> OR <exp1> | <exp1>;
