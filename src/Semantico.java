@@ -42,6 +42,8 @@ public class Semantico implements Constants {
                 for (Symbol symbol : symbolsInScope) {
                     symbolTableShow.addSymbol(symbol);
                 }
+
+                symbolTable.removeSymbolsByScope(escopoDesejado);
                 escopo.pop();
                 break;
             // Tipo
