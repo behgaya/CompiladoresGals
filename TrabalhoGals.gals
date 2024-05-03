@@ -151,6 +151,7 @@ HASH_SIGN: "#"
 <operacao_incremento>
 <op_incremento>
 <repeticao_do>
+<incremento>
 <void>
 <desvio_else>
 <read>
@@ -185,7 +186,8 @@ HASH_SIGN: "#"
 
 <bloco> ::= OPEN_BRACES#1 CLOSE_BRACES#2 | OPEN_BRACES#1 <lista_cmd> CLOSE_BRACES#2;
 <lista_cmd> ::= <cmd> | <lista_cmd> <cmd>;
-<cmd> ::= <declaracao1> SEMICOLON | <repeticao_while> | <chamar_funcao> SEMICOLON | <desvio_if> | <print> SEMICOLON | <return> SEMICOLON | <comment> | <block_comment> | <read_line> SEMICOLON | <atribuicao> SEMICOLON;
+<cmd> ::= <declaracao1> SEMICOLON | <repeticao_while> | <chamar_funcao> SEMICOLON | <desvio_if> | <print> SEMICOLON | 
+	<return> SEMICOLON | <comment> | <block_comment> | <read_line> SEMICOLON | <atribuicao> SEMICOLON | <incremento> ;
 
 
 <return> ::= KEYWORD_RETURN <exp>;
@@ -213,9 +215,11 @@ HASH_SIGN: "#"
 <repeticao_while> ::= KEYWORD_WHILE <exp> <bloco> | <repeticao_for>;
 <repeticao_for> ::= KEYWORD_FOR OPEN_PARENTHESES <declaracao_controle> SEMICOLON <exp> SEMICOLON <operacao_incremento> CLOSE_PARENTHESES <bloco>;
 <declaracao_controle> ::= <declaracao1> | <atribuicao> | <declaracao1> <atribuicao>;
-<operacao_incremento> ::= <atribuicao> | <id> <op_incremento>;
+<operacao_incremento> ::= <atribuicao>;
 <repeticao_do> ::= KEYWORD_DO <bloco> KEYWORD_WHILE <exp>;
 
+
+<incremento> ::= <id>#12 <op_incremento>;
 
 <desvio_if> ::= KEYWORD_IF <exp> <bloco> | KEYWORD_IF <exp> <bloco> <desvio_else>;
 <desvio_else> ::= KEYWORD_ELSE <bloco>;

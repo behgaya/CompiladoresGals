@@ -19,7 +19,7 @@ public class SymbolTable {
     public boolean symbolExists(String id, int escopo) {
         for (int i = symbolTable.size() - 1; i >= 0; i--) {
             Symbol symbol = symbolTable.get(i);
-            if (symbol.getId().equals(id) && symbol.getEscopo() == escopo && !symbol.isFunc()) {
+            if (symbol.getId().equals(id) && symbol.getEscopo() <= escopo && !symbol.isFunc()) {
                 return true;
             }
         }
@@ -88,5 +88,26 @@ public class SymbolTable {
         return null; // Retorna null se o símbolo com o ID fornecido não for encontrado na tabela
     }
 
+    public void removeSymbolsByScope(int scope) {
+        List<Symbol> symbolsToRemove = new ArrayList<>();
+        for (Symbol symbol : symbolTable) {
+            if (symbol.getEscopo() == scope) {
+                symbolsToRemove.add(symbol);
+            }
+        }
+        symbolTable.removeAll(symbolsToRemove);
+    }
+
+    public List<Symbol> getSymbolsByScope(int scope) {
+        List<Symbol> symbolsInScope = new ArrayList<>();
+
+        for (Symbol symbol : symbolTable) {
+            if (symbol.getEscopo() == scope) {
+                symbolsInScope.add(symbol);
+            }
+        }
+
+        return symbolsInScope;
+    }
 
 }

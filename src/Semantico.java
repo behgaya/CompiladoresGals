@@ -3,6 +3,7 @@ import java.util.Stack;
 
 public class Semantico implements Constants {
     public final SymbolTable symbolTable;
+    public SymbolTable symbolTableShow;
     Symbol variable = new Symbol();
 
     public boolean declaracao = false;
@@ -15,6 +16,7 @@ public class Semantico implements Constants {
 
     public Semantico() {
         this.symbolTable = new SymbolTable();
+        this.symbolTableShow = new SymbolTable();
         contadorEscopo = 0;
         escopo.push(contadorEscopo);
     }
@@ -29,19 +31,28 @@ public class Semantico implements Constants {
                 break;
 
             case 2:
-                // System.out.println("fecha escopo");
-                escopo.pop();
+                contadorEscopo--;
+                int escopoDesejado = escopo.peek(); // Obtém o escopo desejado (o topo da pilha)
+                symbolTableShow = new SymbolTable(); // Inicializa a variável symbolTableShow
 
+                // Obtém os símbolos do escopo desejado usando a função getSymbolsByScope
+                List<Symbol> symbolsInScope = symbolTable.getSymbolsByScope(escopoDesejado);
+
+                // Adiciona os símbolos do escopo desejado à symbolTableShow
+                for (Symbol symbol : symbolsInScope) {
+                    symbolTableShow.addSymbol(symbol);
+                }
+                escopo.pop();
                 break;
             // Tipo
             case 3:
-                //System.out.println("Tipo:" + token.getLexeme());
+                // System.out.println("Tipo:" + token.getLexeme());
                 tipo = token.getLexeme();
                 break;
 
             // Nome e criação variavel
             case 4:
-                //System.out.println("Nome:" + token.getLexeme());
+                // System.out.println("Nome:" + token.getLexeme());
 
                 if (!symbolTable.symbolExists(token.getLexeme(), escopo.peek())) {
                     variable = new Symbol(token.getLexeme(), tipo, false, false, escopo.peek(), false, 0, false, false,
@@ -85,34 +96,28 @@ public class Semantico implements Constants {
             case 9:
                 if (symbolTable.variableExists(variable, escopo.peek())) {
                     throw new SemanticError(
-                        String.format("Prezado desenvolvedor, a variável '%s' já foi declarada", variable.getId()),
-                        token.getPosition());
+                            String.format("Prezado desenvolvedor, a variável '%s' já foi declarada", variable.getId()),
+                            token.getPosition());
                 } else {
-                    // System.out.println("variavel declarada:" + variable.getId());
                     symbolTable.addSymbol(variable);
                     declaracao = false;
                 }
 
                 break;
             case 10:
-
-                // System.out.println("============================================");
-                // System.out.println("nome >>>>> " + token.getLexeme());
-                // System.out.println("DECLARACAO: " + declaracao);
-                // System.out.println("============================================");
-
                 if (declaracao) { // Verifica se está em modo de declaração
-                        if (symbolTable.symbolExists(token.getLexeme(), escopo.peek())) {
-                            throw new SemanticError(
-                                    String.format("Prezado desenvolvedor, a variável '%s' já foi declarada", variable.getId()),
-                                    token.getPosition());
-                        } else {
-                            //System.out.println("Variável declarada: " + variable.getId());
-                            // Atualiza o estado de declaração
-                            declaracao = false;
-                            // Adiciona o símbolo à tabela
-                            symbolTable.addSymbol(variable);
-                        
+                    if (symbolTable.symbolExists(token.getLexeme(), escopo.peek())) {
+                        throw new SemanticError(
+                                String.format("Prezado desenvolvedor, a variável '%s' já foi declarada",
+                                        variable.getId()),
+                                token.getPosition());
+                    } else {
+                        // System.out.println("Variável declarada: " + variable.getId());
+                        // Atualiza o estado de declaração
+                        declaracao = false;
+                        // Adiciona o símbolo à tabela
+                        symbolTable.addSymbol(variable);
+
                     }
 
                 } else {
@@ -121,19 +126,37 @@ public class Semantico implements Constants {
                     // declaração
                     if (!symbolTable.symbolExists(token.getLexeme(), escopo.peek())) {
                         throw new SemanticError(
-                                String.format("Prezado desenvolvedor, a variável '%s' não foi declarada.", token.getLexeme()),
+                                String.format("Prezado desenvolvedor, a variável '%s' não foi declarada.",
+                                        token.getLexeme()),
                                 token.getPosition());
                     }
-                    //System.out.println("Variável já declarada: " + variable.getId());
+                    // System.out.println("Variável já declarada: " + variable.getId());
                 }
 
                 break;
 
             case 11:
                 if (variable != null) {
-                    //System.out.println("CASE 11: " + variable.getId());
+                    // System.out.println("CASE 11: " + variable.getId());
                     variable.setIni(true);
 
+                }
+                break;
+
+            case 12:
+                if (!symbolTable.symbolExists(token.getLexeme(), escopo.peek())) {
+                    throw new SemanticError(
+                            String.format("Prezado desenvolvedor, o identificador '%s' não foi declarado neste escopo.",
+                                    token.getLexeme()),
+                            token.getPosition());
+                }
+                break;
+            case 13:
+                if (!symbolTable.symbolExists(token.getLexeme(), escopo.peek())) {
+                    throw new SemanticError(
+                            String.format("Prezado desenvolvedor, o identificador '%s' não foi declarado neste escopo.",
+                                    token.getLexeme()),
+                            token.getPosition());
                 }
                 break;
 
