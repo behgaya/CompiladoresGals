@@ -4,12 +4,16 @@ import java.util.Stack;
 public class Semantico implements Constants {
     public final SymbolTable symbolTable;
     public SymbolTable symbolTableShow;
+    public SemanticTable semanticTable;
+
     Symbol variable = new Symbol();
 
     public boolean declaracao = false;
     public boolean isInit = false;
 
     Stack<Integer> escopo = new Stack<>();
+    Stack<String> operacoes = new Stack<>();
+
     int contadorEscopo = 0;
 
     public String tipo;
@@ -33,16 +37,6 @@ public class Semantico implements Constants {
             case 2:
                 contadorEscopo--;
                 int escopoDesejado = escopo.peek(); // Obtém o escopo desejado (o topo da pilha)
-                symbolTableShow = new SymbolTable(); // Inicializa a variável symbolTableShow
-
-                // Obtém os símbolos do escopo desejado usando a função getSymbolsByScope
-                List<Symbol> symbolsInScope = symbolTable.getSymbolsByScope(escopoDesejado);
-
-                // Adiciona os símbolos do escopo desejado à symbolTableShow
-                for (Symbol symbol : symbolsInScope) {
-                    symbolTableShow.addSymbol(symbol);
-                }
-
                 symbolTable.removeSymbolsByScope(escopoDesejado);
                 escopo.pop();
                 break;
@@ -75,6 +69,9 @@ public class Semantico implements Constants {
                 if (!symbolTable.functionExists(variable)) {
                     variable.setFunc(true);
                     symbolTable.addSymbol(variable);
+                    symbolTableShow.addSymbol(variable);
+
+
                 } else {
                     throw new SemanticError(
                             String.format(
@@ -102,6 +99,8 @@ public class Semantico implements Constants {
                             token.getPosition());
                 } else {
                     symbolTable.addSymbol(variable);
+                    symbolTableShow.addSymbol(variable);
+
                     declaracao = false;
                 }
 
@@ -119,6 +118,8 @@ public class Semantico implements Constants {
                         declaracao = false;
                         // Adiciona o símbolo à tabela
                         symbolTable.addSymbol(variable);
+                        symbolTableShow.addSymbol(variable);
+
 
                     }
 
@@ -132,6 +133,26 @@ public class Semantico implements Constants {
                                         token.getLexeme()),
                                 token.getPosition());
                     }
+
+                    while(operacoes.size() > 1) {
+                        String tipo1 = operacoes.pop();
+                        String tipo2 = operacoes.pop();
+                        System.out.println("TIPO 1: " + tipo1 + "\t TIPO 2: " + tipo2);
+
+                        int resultadoAtribuicao = SemanticTable.atribType(tipo1, tipo2);
+                        if (resultadoAtribuicao == SemanticTable.ERR) {
+                            throw new SemanticError(
+                                String.format("Prezado desenvolvedor, a soma das variaveis " + tipo1 + " e " + tipo2 + " não é possivel"),
+                                token.getPosition()); 
+
+                        } else if (resultadoAtribuicao == SemanticTable.WAR) {
+
+                        } else {
+                            operacoes.push(tipo1);
+                        }
+                    } 
+
+                    //semanticTable.atribType(, escopoDesejado)
                     // System.out.println("Variável já declarada: " + variable.getId());
                 }
 
@@ -143,6 +164,7 @@ public class Semantico implements Constants {
                     variable.setIni(true);
 
                 }
+
                 break;
 
             case 12:
@@ -160,8 +182,38 @@ public class Semantico implements Constants {
                                     token.getLexeme()),
                             token.getPosition());
                 }
+
+                Symbol variableExp = symbolTable.getSymbol(token.getLexeme());
+                operacoes.push(variableExp.getTipo());
+
+
+                break;
+            
+            case 14:
+                //System.out.println(token.getLexeme() + " é uma STRING");
+                operacoes.push("string");
+                break;
+            
+            case 15:
+                System.out.println(token.getLexeme() + " é um int");
+                operacoes.push("int");
+                break;
+                
+            case 16:
+                System.out.println(token.getLexeme() + " é um float");
+
+                operacoes.push("float");
                 break;
 
+            case 17:
+                //System.out.println(token.getLexeme() + " é um bool");
+
+                operacoes.push("bool");
+                break;
+            
+            case 18: 
+            
+                System.out.println("CASE 18: " + token.getLexeme());
         }
 
     }

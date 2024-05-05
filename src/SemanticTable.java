@@ -4,6 +4,9 @@
  * Professor Eduardo Alves da Silva.
  */
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class SemanticTable {
    
    public static final int ERR = -1;
@@ -48,7 +51,25 @@ public class SemanticTable {
       return (expTable[TP1][TP2][OP]);
    }
    
-   static int atribType (int TP1, int TP2){
-      return (atribTable[TP1][TP2]);
+   static int atribType (String TP1, String TP2){
+      int newTP1 = convertTypeToNumber(TP1);
+      int newTP2 = convertTypeToNumber(TP2);
+
+      return (atribTable[newTP1][newTP2]);
    }
+
+    private static final Map<String, Integer> typeMap = new HashMap<>();
+    static {
+        typeMap.put("int", INT);
+        typeMap.put("float", FLO);
+        typeMap.put("char", CHA);
+        typeMap.put("string", STR);
+        typeMap.put("bool", BOO);
+    }
+
+    // Função para converter o tipo de dados em número
+    static int convertTypeToNumber(String TP1) {
+        return typeMap.getOrDefault(TP1, ERR);
+    }
 }
+  

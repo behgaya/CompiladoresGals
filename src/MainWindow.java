@@ -161,12 +161,14 @@ public class MainWindow extends javax.swing.JFrame {
         Lexico lex = new Lexico();
         Sintatico sint = new Sintatico();
         lex.setInput(new StringReader(sourceInput.getText()));
+        sem.symbolTableShow.clearTable();
         sem.symbolTable.clearTable();
+
         symbols.clear();
 
         try {
             sint.parse(lex, sem);
-            String mensagem = verificarVariaveisNaoInicializadas(sem.symbolTable);
+            String mensagem = verificarVariaveisNaoInicializadas(sem.symbolTableShow);
             if (!mensagem.contains("Variáveis não inicializadas")) {
                 mensagem = "Compilado com sucesso!";
             }
@@ -323,7 +325,7 @@ public class MainWindow extends javax.swing.JFrame {
     }
 
     private void updateTable() {
-        List<Symbol> symbols = sem.symbolTable.getSymbols();
+        List<Symbol> symbols = sem.symbolTableShow.getSymbols();
         String[] columnNames = { "ID", "Tipo", "Inicializado", "Usado", "Escopo", "Parametro", "Posição", "Vetor",
                 "Matriz", "Referência", "Função", "Procedimento" };
         Object[][] data = new Object[symbols.size()][columnNames.length];
