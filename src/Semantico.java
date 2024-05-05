@@ -10,6 +10,7 @@ public class Semantico implements Constants {
 
     public boolean declaracao = false;
     public boolean isInit = false;
+    public boolean isOperation = false;
 
     Stack<Integer> escopo = new Stack<>();
     Stack<String> operacoes = new Stack<>();
@@ -116,6 +117,25 @@ public class Semantico implements Constants {
                         // System.out.println("Variável declarada: " + variable.getId());
                         // Atualiza o estado de declaração
                         declaracao = false;
+
+                        while(operacoes.size() > 1) {
+                            String tipo1 = operacoes.pop();
+                            String tipo2 = operacoes.pop();
+                            System.out.println("TIPO 1: " + tipo1 + "\t TIPO 2: " + tipo2);
+    
+                            int resultadoAtribuicao = SemanticTable.atribType(tipo1, tipo2);
+                            if (resultadoAtribuicao == SemanticTable.ERR) {
+                                throw new SemanticError(
+                                    String.format("Prezado desenvolvedor, a soma das variaveis " + tipo1 + " e " + tipo2 + " não é possivel"),
+                                    token.getPosition()); 
+    
+                            } else if (resultadoAtribuicao == SemanticTable.WAR) {
+                                
+                            } else {
+                                operacoes.push(tipo1);
+                            }
+                        } 
+    
                         // Adiciona o símbolo à tabela
                         symbolTable.addSymbol(variable);
                         symbolTableShow.addSymbol(variable);
@@ -146,7 +166,7 @@ public class Semantico implements Constants {
                                 token.getPosition()); 
 
                         } else if (resultadoAtribuicao == SemanticTable.WAR) {
-
+                            
                         } else {
                             operacoes.push(tipo1);
                         }
@@ -185,8 +205,7 @@ public class Semantico implements Constants {
 
                 Symbol variableExp = symbolTable.getSymbol(token.getLexeme());
                 operacoes.push(variableExp.getTipo());
-
-
+                isOperation = false; // Define isOperation como false após processar um identificador
                 break;
             
             case 14:
@@ -197,23 +216,87 @@ public class Semantico implements Constants {
             case 15:
                 System.out.println(token.getLexeme() + " é um int");
                 operacoes.push("int");
+
                 break;
                 
             case 16:
                 System.out.println(token.getLexeme() + " é um float");
 
                 operacoes.push("float");
+
                 break;
 
             case 17:
                 //System.out.println(token.getLexeme() + " é um bool");
 
                 operacoes.push("bool");
+
+                break;
+            case 18:
+                //System.out.println(token.getLexeme() + " é um bool");
+
+                operacoes.push("char");
+
+                break;
+            case 19: 
+                operacoes.push("REL");
+                System.out.println("CASE 19: " + token.getLexeme());
+                isOperation = true; 
+                break;
+            case 20: 
+                operacoes.push("SUM");
+                System.out.println("CASE 20: " + token.getLexeme());
+                isOperation = true; 
+                break;
+            case 21: 
+                operacoes.push("SUB");
+                System.out.println("CASE 21: " + token.getLexeme());
+                isOperation = true; 
+            case 22: 
+                operacoes.push("MUL");
+                System.out.println("CASE 22: " + token.getLexeme());
+                isOperation = true; 
+                break;
+            case 23: 
+                operacoes.push("DIV");
+                System.out.println("CASE 22: " + token.getLexeme());
+                isOperation = true; 
+                break;
+            case 24:
+                if(isOperation){
+                
+                // Verifica se há pelo menos três elementos na pilha
+                    while (operacoes.size() > 3) {
+                        // Remove os três elementos da pilha
+                        String tipo1 = operacoes.pop();
+                        String op = operacoes.pop();
+                        String tipo2 = operacoes.pop();
+                        System.out.println("TIPO 1: " + tipo1 + "\t TIPO 2: " + tipo2 + "\t OP : " + op);
+                
+                        // Verifica o tipo de resultado da operação na tabela semântica
+                        int resultadoAtribuicao = SemanticTable.resultType(tipo1, tipo2, op);
+
+
+                        if (resultadoAtribuicao == SemanticTable.ERR) {
+                            throw new SemanticError(
+                                String.format("Prezado desenvolvedor, a soma das variáveis " + tipo1 + " e " + tipo2 + " não é possível"),
+                                token.getPosition());
+                        } else if (resultadoAtribuicao == SemanticTable.WAR) {
+                            // Se houver um aviso, faça o tratamento necessário
+                        } else {
+                            // Se não houver erro nem aviso, empilhe o resultado da operação
+                            operacoes.push(tipo1);
+                        }
+                    }
+                }
+                while(!operacoes.isEmpty()){
+                    operacoes.pop();
+                }
+                isOperation = false;
+
                 break;
             
-            case 18: 
             
-                System.out.println("CASE 18: " + token.getLexeme());
         }
 
     }

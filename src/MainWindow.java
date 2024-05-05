@@ -10,8 +10,6 @@ import java.awt.Image;
 import javax.swing.table.DefaultTableModel;
 
 public class MainWindow extends javax.swing.JFrame {
-    private String lastSavedFilePath; // Variável para armazenar o último caminho do arquivo salvo
-
     /**
      * Creates new form MainWindow
      */
@@ -28,7 +26,6 @@ public class MainWindow extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated
     // Code">//GEN-BEGIN:initComponents
     private void initComponents() {
-
         jScrollPane1 = new javax.swing.JScrollPane();
         sourceInput = new javax.swing.JTextArea();
         jScrollPane2 = new javax.swing.JScrollPane();
@@ -39,50 +36,46 @@ public class MainWindow extends javax.swing.JFrame {
         buttonSaveAs = Button.createButton(this, "icons/saveAs.png", 30, 30);
         buttonDarkMode = Button.createButton(this, "icons/dark.png", 30, 30);
         buttonCustomCode = Button.createButton(this, "icons/code.png", 30, 30);
-
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("IDE do Professor");
 
         buttonSave.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                buttonSaveActionPerformed(evt);
+                Button.buttonSaveActionPerformed(evt, console, sourceInput);
             }
         });
-
         buttonSaveAs.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                buttonSaveAsActionPerformed(evt);
+                Button.buttonSaveAsActionPerformed(evt, console, sourceInput);
             }
         });
-
         buttonOpen.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                buttonOpenActionPerformed(evt);
+                Button.buttonOpenActionPerformed(evt, console, sourceInput);
             }
         });
-
         buttonCompile.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                buttonCompileActionPerformed(evt);
+                Button.buttonCompileActionPerformed(evt, sourceInput, sem, symbols, console, table);
             }
         });
-
         buttonDarkMode.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
                 toggleDarkMode();
             }
         });
-
         buttonCustomCode.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent evt) {
-                buttonPasteCustomCode(evt);
+                Button.buttonPasteCustomCode(evt, sourceInput);
             }
         });
 
         sourceInput.setColumns(20);
         sourceInput.setFont(new java.awt.Font("Helvetica Neue", 0, 18));
         sourceInput.setRows(5);
+
         jScrollPane1.setViewportView(sourceInput);
+        jScrollPane2.setViewportView(console);
 
         console.setEditable(false);
         console.setColumns(20);
@@ -90,7 +83,7 @@ public class MainWindow extends javax.swing.JFrame {
         console.setLineWrap(true);
         console.setRows(5);
         console.setTabSize(4);
-        jScrollPane2.setViewportView(console);
+
 
         symbols = sem.symbolTableShow.getSymbols();
         
@@ -157,110 +150,6 @@ public class MainWindow extends javax.swing.JFrame {
         pack();
     }
 
-    private void buttonCompileActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_buttonCompileActionPerformed
-        Lexico lex = new Lexico();
-        Sintatico sint = new Sintatico();
-        lex.setInput(new StringReader(sourceInput.getText()));
-        sem.symbolTableShow.clearTable();
-        sem.symbolTable.clearTable();
-
-        symbols.clear();
-
-        try {
-            sint.parse(lex, sem);
-            String mensagem = verificarVariaveisNaoInicializadas(sem.symbolTableShow);
-            if (!mensagem.contains("Variáveis não inicializadas")) {
-                mensagem = "Compilado com sucesso!";
-            }
-            console.setText("Compilado com sucesso!\n" + mensagem);
-
-            updateTable();
-        } catch (LexicalError | SyntaticError | SemanticError ex) {
-            console.setText("Problema na compilação: " + ex.getLocalizedMessage());
-            symbols.clear();
-            updateTable();
-
-        }
-
-    }// GEN-LAST:event_buttonCompileActionPerformed
-
-    private void buttonSaveActionPerformed(java.awt.event.ActionEvent evt) {
-        JFileChooser fileChooser = new JFileChooser();
-        if (lastSavedFilePath != null) {
-            console.setText("Arquivo foi salvo com sucesso!\n" + lastSavedFilePath);
-            fileChooser.setCurrentDirectory(new File(lastSavedFilePath).getParentFile());
-            File selectedFile = new File(lastSavedFilePath);
-            try (BufferedWriter writer = new BufferedWriter(new FileWriter(selectedFile))) {
-                writer.write(sourceInput.getText());
-                lastSavedFilePath = selectedFile.getAbsolutePath();
-                console.setText("Arquivo foi salvo com sucesso!\n" + lastSavedFilePath);
-                setTitle(selectedFile.getName() + " - IDE do Professor");
-
-            } catch (IOException e) {
-                console.setText("Erro ao salvar o arquivo: " + e.getMessage());
-            }
-
-        } else {
-            buttonSaveAsActionPerformed(evt);
-        }
-    }
-
-    private void buttonSaveAsActionPerformed(java.awt.event.ActionEvent evt) {
-        JFileChooser fileChooser = new JFileChooser();
-        int returnValue = fileChooser.showSaveDialog(null);
-        if (returnValue == JFileChooser.APPROVE_OPTION) {
-            File selectedFile = fileChooser.getSelectedFile();
-            String filePath = selectedFile.getAbsolutePath();
-
-            if (!filePath.contains(".")) {
-                selectedFile = new File(filePath + ".clz");
-            } else if (!filePath.endsWith(".clz")) {
-                JOptionPane.showMessageDialog(null, "A extensão do arquivo deve ser .clz", "Erro de Extensão",
-                        JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            try (BufferedWriter writer = new BufferedWriter(new FileWriter(selectedFile))) {
-                writer.write(sourceInput.getText());
-                lastSavedFilePath = selectedFile.getAbsolutePath();
-                setTitle(selectedFile.getName() + " - IDE do Professor");
-                console.setText("Arquivo salvo com sucesso!");
-            } catch (IOException e) {
-                console.setText("Erro ao salvar o arquivo: " + e.getMessage());
-            }
-        }
-    }
-
-    private void buttonOpenActionPerformed(java.awt.event.ActionEvent evt) {
-        JFileChooser fileChooser = new JFileChooser();
-        int returnValue = fileChooser.showOpenDialog(null);
-
-        if (returnValue == JFileChooser.APPROVE_OPTION) {
-            File selectedFile = fileChooser.getSelectedFile();
-
-            if (!selectedFile.getName().endsWith(".clz")) {
-                JOptionPane.showMessageDialog(null, "A extensão do arquivo deve ser .clz", "Erro de Extensão",
-                        JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            try (BufferedReader reader = new BufferedReader(new FileReader(selectedFile))) {
-                StringBuilder content = new StringBuilder();
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    content.append(line).append("\n");
-                }
-                sourceInput.setText(content.toString());
-                console.setText("Arquivo aberto com sucesso!");
-                setTitle(selectedFile.getName() + " - IDE do Professor");
-                lastSavedFilePath = selectedFile.getAbsolutePath();
-
-            } catch (IOException e) {
-                console.setText("Erro ao abrir o arquivo: " + e.getMessage());
-            }
-        }
-    }
-
 
     private void setComponentColors(Container container, JButton[] buttons) {
         Color backgroundColor;
@@ -289,20 +178,6 @@ public class MainWindow extends javax.swing.JFrame {
         console.setForeground(foregroundColor);
     }
 
-    private void buttonPasteCustomCode(ActionEvent evt) {
-        List<String> codigos = codigosPadroes.getCodigosPadroes();
-    
-        if (!codigos.isEmpty()) {
-            // Obtém o código atual baseado no índice atual
-            String codigoAtual = codigos.get(codigoAtualIndex);
-            sourceInput.setText(codigoAtual);
-            
-            // Incrementa o índice para obter o próximo código na próxima vez que o botão for clicado
-            codigoAtualIndex = (codigoAtualIndex + 1) % codigos.size();
-        } else {
-            sourceInput.setText("Nenhum código padrão disponível.");
-        }
-    }
 
     private void toggleDarkMode() {
         isDarkMode = !isDarkMode;
@@ -310,36 +185,7 @@ public class MainWindow extends javax.swing.JFrame {
                 new JButton[] { buttonSave, buttonSaveAs, buttonOpen, buttonCompile, buttonDarkMode });
     }
 
-    private void updateTable() {
-        List<Symbol> symbols = sem.symbolTableShow.getSymbols();
-        String[] columnNames = { "ID", "Tipo", "Inicializado", "Usado", "Escopo", "Parametro", "Posição", "Vetor",
-                "Matriz", "Referência", "Função", "Procedimento" };
-        Object[][] data = new Object[symbols.size()][columnNames.length];
-    
-        for (int i = 0; i < symbols.size(); i++) {
-            Symbol symbol = symbols.get(i);
-            data[i] = new Object[] { symbol.getId(), symbol.getTipo(), symbol.isIni(), symbol.isUsada(),
-                    symbol.getEscopo(), symbol.isParam(), symbol.getPos(), symbol.isVet(), symbol.isMatriz(),
-                    symbol.isRef(), symbol.isFunc(), symbol.isProc() };
-        }
-    
-        DefaultTableModel model = new DefaultTableModel(data, columnNames);
-        table.setModel(model);
-    }
 
-    private String verificarVariaveisNaoInicializadas(SymbolTable symbolTable) {
-        StringBuilder variaveisNaoInicializadas = new StringBuilder("Variáveis não inicializadas: ");
-        for (Symbol symbol : symbolTable.getSymbols()) {
-            if (!symbol.isIni() && !symbol.isFunc()) {
-                variaveisNaoInicializadas.append(symbol.getId()).append(", ");
-            }
-        }
-        if (variaveisNaoInicializadas.toString().equals("Variáveis não inicializadas: ")) {
-            return "Compilado com sucesso!";
-        } else {
-            return variaveisNaoInicializadas.toString();
-        }
-    }
 
     /**
      * @param args the command line arguments
@@ -401,8 +247,6 @@ public class MainWindow extends javax.swing.JFrame {
     private boolean isDarkMode = false;
     private Semantico sem = new Semantico();
     private List<Symbol> symbols;
-    private CodigosPadroes codigosPadroes = new CodigosPadroes();
-    private int codigoAtualIndex = 0;
 
     // End of variables declaration//GEN-END:variables
 }
