@@ -39,26 +39,35 @@ public class Button {
         lex.setInput(new StringReader(sourceInput.getText()));
         sem.symbolTableShow.clearTable();
         sem.symbolTable.clearTable();
-
+    
         symbols.clear();
-
+    
         try {
             sint.parse(lex, sem);
-            String mensagem = WarningVerification.verificarVariaveisNaoInicializadas(sem.symbolTableShow);
-            if (!mensagem.contains("Variáveis não inicializadas")) {
-                mensagem = "Compilado com sucesso!";
+            
+            String mensagemNaoUtilizadas = WarningVerification.verificarVariaveisNaoUtilizadas(sem.symbolTableShow);
+            String mensagemNaoInicializadas = WarningVerification.verificarVariaveisNaoInicializadas(sem.symbolTableShow);
+            
+            StringBuilder mensagem = new StringBuilder("Compilado com sucesso!\n");
+            
+            if (!mensagemNaoUtilizadas.equals("Compilado com sucesso!\n")) {
+                mensagem.append(mensagemNaoUtilizadas).append("\n");
             }
-            console.setText("Compilado com sucesso!\n" + mensagem);
-
+            if (!mensagemNaoInicializadas.equals("Compilado com sucesso!\n")) {
+                mensagem.append(mensagemNaoInicializadas);
+            }
+            
+            console.setText(mensagem.toString());
+            
             updateTable(sem, table);
         } catch (LexicalError | SyntaticError | SemanticError ex) {
             console.setText("Problema na compilação: " + ex.getLocalizedMessage());
             symbols.clear();
             updateTable(sem, table);
-
         }
-
+        
     }// GEN-LAST:event_buttonCompileActionPerformed
+    
 
 
     public static void buttonPasteCustomCode(ActionEvent evt, javax.swing.JTextArea sourceInput) {

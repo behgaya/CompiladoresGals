@@ -30,70 +30,61 @@ public class Semantico implements Constants {
 
         switch (action) {
             case 1:
+                // Abre um novo escopo
                 contadorEscopo++;
                 escopo.push(contadorEscopo);
-                // System.out.println("abre escopo");
                 break;
-
+    
             case 2:
+                // Fecha o escopo atual e remove os símbolos associados a ele
                 contadorEscopo--;
-                int escopoDesejado = escopo.peek(); // Obtém o escopo desejado (o topo da pilha)
+                int escopoDesejado = escopo.peek(); 
                 symbolTable.removeSymbolsByScope(escopoDesejado);
                 escopo.pop();
                 break;
-            // Tipo
+    
             case 3:
-                // System.out.println("Tipo:" + token.getLexeme());
+                // Define o tipo da variável
                 tipo = token.getLexeme();
                 break;
-
-            // Nome e criação variavel
+    
             case 4:
-                // System.out.println("Nome:" + token.getLexeme());
-
+                // Cria uma nova variável com o tipo definido
                 if (!symbolTable.symbolExists(token.getLexeme(), escopo.peek())) {
                     variable = new Symbol(token.getLexeme(), tipo, false, false, escopo.peek(), false, 0, false, false,
                             false, false, false);
                 }
-
                 break;
-
-            // Vetor
+    
             case 5:
-                // System.out.println("Vetor:" + token.getLexeme());
+                // Define a variável como um vetor
                 variable.setVet(true);
                 break;
-
-            // Função
+    
             case 6:
-                // System.out.println("Funcao:" + token.getLexeme());
+                // Declaração de uma função
                 if (!symbolTable.functionExists(variable)) {
                     variable.setFunc(true);
                     symbolTable.addSymbol(variable);
                     symbolTableShow.addSymbol(variable);
-
-
+    
                 } else {
-                    throw new SemanticError(
-                            String.format(
-                                    "Caro programador, a função de nome %s já foi previamente designada ao propósito em questão",
-                                    variable.getId()),
-                            token.getPosition());
+                    throw new SemanticError(String.format("Caro programador, a função de nome %s já foi previamente designada ao propósito em questão", variable.getId()));
                 }
-
                 break;
-
-            // Procedimento
+    
             case 7:
-                // System.out.println("Procedimento:" + token.getLexeme());
+                // Define a variável como uma função
                 variable.setFunc(true);
                 break;
-
+    
             case 8:
+                // Inicia uma declaração de variável
                 declaracao = true;
                 break;
-
+    
             case 9:
+                // Finaliza uma declaração de variável e a adiciona à tabela de símbolos
                 if (symbolTable.variableExists(variable, escopo.peek())) {
                     throw new SemanticError(
                             String.format("Prezado desenvolvedor, a variável '%s' já foi declarada", variable.getId()),
@@ -101,93 +92,72 @@ public class Semantico implements Constants {
                 } else {
                     symbolTable.addSymbol(variable);
                     symbolTableShow.addSymbol(variable);
-
+    
                     declaracao = false;
                 }
-
                 break;
+    
             case 10:
-                if (declaracao) { // Verifica se está em modo de declaração
+                // Verifica se a variável está sendo declarada ou usada e adiciona à tabela de símbolos
+                if (declaracao) {
                     if (symbolTable.symbolExists(token.getLexeme(), escopo.peek())) {
-                        throw new SemanticError(
-                                String.format("Prezado desenvolvedor, a variável '%s' já foi declarada",
-                                        variable.getId()),
-                                token.getPosition());
-                    } else {
-                        // System.out.println("Variável declarada: " + variable.getId());
-                        // Atualiza o estado de declaração
-                        declaracao = false;
-
-                        while(operacoes.size() > 1) {
-                            String tipo1 = operacoes.pop();
-                            String tipo2 = operacoes.pop();
-                            System.out.println("TIPO 1: " + tipo1 + "\t TIPO 2: " + tipo2);
-    
-                            int resultadoAtribuicao = SemanticTable.atribType(tipo1, tipo2);
-                            if (resultadoAtribuicao == SemanticTable.ERR) {
-                                throw new SemanticError(
-                                    String.format("Prezado desenvolvedor, a soma das variaveis " + tipo1 + " e " + tipo2 + " não é possivel"),
-                                    token.getPosition()); 
-    
-                            } else if (resultadoAtribuicao == SemanticTable.WAR) {
-                                
-                            } else {
-                                operacoes.push(tipo1);
-                            }
-                        } 
-    
-                        // Adiciona o símbolo à tabela
-                        symbolTable.addSymbol(variable);
-                        symbolTableShow.addSymbol(variable);
-
-
+                        throw new SemanticError(String.format("Prezado desenvolvedor, a variável '%s' já foi declarada",
+                                variable.getId()));
                     }
-
+                    declaracao = false;
+                    symbolTable.addSymbol(variable);
+                    symbolTableShow.addSymbol(variable);
                 } else {
                     variable = symbolTable.getSymbol(token.getLexeme());
-                    // Verifica a existência da variável apenas quando não está em modo de
-                    // declaração
                     if (!symbolTable.symbolExists(token.getLexeme(), escopo.peek())) {
                         throw new SemanticError(
                                 String.format("Prezado desenvolvedor, a variável '%s' não foi declarada.",
                                         token.getLexeme()),
                                 token.getPosition());
                     }
-
-                    while(operacoes.size() > 1) {
+                }
+                break;
+    
+            case 11:
+                // Define a variável como inicializada e realiza operações de atribuição se houver
+                if (variable != null) {
+                    variable.setIni(true);
+                }   
+    
+                if(isOperation){
+                    // Realiza operações de atribuição
+                    while (operacoes.size() >= 2) {
                         String tipo1 = operacoes.pop();
+                        String op = operacoes.pop();
                         String tipo2 = operacoes.pop();
-                        System.out.println("TIPO 1: " + tipo1 + "\t TIPO 2: " + tipo2);
-
-                        int resultadoAtribuicao = SemanticTable.atribType(tipo1, tipo2);
+                        int resultadoAtribuicao = SemanticTable.resultType(tipo1, tipo2, op);
+    
                         if (resultadoAtribuicao == SemanticTable.ERR) {
                             throw new SemanticError(
-                                String.format("Prezado desenvolvedor, a soma das variaveis " + tipo1 + " e " + tipo2 + " não é possivel"),
-                                token.getPosition()); 
-
+                                    String.format("Prezado desenvolvedor, a soma das variáveis " + tipo1 + " e " + tipo2
+                                            + " não é possível"),
+                                    token.getPosition());
                         } else if (resultadoAtribuicao == SemanticTable.WAR) {
-                            
                         } else {
                             operacoes.push(tipo1);
                         }
-                    } 
-
-                    //semanticTable.atribType(, escopoDesejado)
-                    // System.out.println("Variável já declarada: " + variable.getId());
+                    }
+                    isOperation = false;
                 }
-
+    
+                // Verifica o tipo da variável atribuída
+                if (!operacoes.isEmpty() && !variable.getTipo().equals(operacoes.peek())) {
+                    throw new SemanticError(
+                        String.format(
+                                "Prezado desenvolvedor, a variável " + variable.getId() + " de tipo " + variable.getTipo() + " não pode ser declarada como " + operacoes.pop()
+                        )
+                    );
+                } 
+                operacoes.clear();
                 break;
-
-            case 11:
-                if (variable != null) {
-                    // System.out.println("CASE 11: " + variable.getId());
-                    variable.setIni(true);
-
-                }
-
-                break;
-
+    
             case 12:
+                // Verifica se o identificador foi declarado no escopo atual
                 if (!symbolTable.symbolExists(token.getLexeme(), escopo.peek())) {
                     throw new SemanticError(
                             String.format("Prezado desenvolvedor, o identificador '%s' não foi declarado neste escopo.",
@@ -195,109 +165,107 @@ public class Semantico implements Constants {
                             token.getPosition());
                 }
                 break;
+    
             case 13:
+                // Verifica o tipo da variável na expressão
                 if (!symbolTable.symbolExists(token.getLexeme(), escopo.peek())) {
                     throw new SemanticError(
                             String.format("Prezado desenvolvedor, o identificador '%s' não foi declarado neste escopo.",
                                     token.getLexeme()),
                             token.getPosition());
                 }
-
+    
                 Symbol variableExp = symbolTable.getSymbol(token.getLexeme());
+                variableExp.setUsada(true);
                 operacoes.push(variableExp.getTipo());
-                isOperation = false; // Define isOperation como false após processar um identificador
+                isOperation = false;
+    
                 break;
-            
+    
             case 14:
-                //System.out.println(token.getLexeme() + " é uma STRING");
+                // Define o tipo da operação como string
                 operacoes.push("string");
                 break;
-            
+    
             case 15:
-                System.out.println(token.getLexeme() + " é um int");
+                // Define o tipo da operação como int
                 operacoes.push("int");
-
                 break;
-                
+    
             case 16:
-                System.out.println(token.getLexeme() + " é um float");
-
+                // Define o tipo da operação como float
                 operacoes.push("float");
-
                 break;
-
+    
             case 17:
-                //System.out.println(token.getLexeme() + " é um bool");
-
+                // Define o tipo da operação como bool
                 operacoes.push("bool");
-
                 break;
+    
             case 18:
-                //System.out.println(token.getLexeme() + " é um bool");
-
+                // Define o tipo da operação como char
                 operacoes.push("char");
-
                 break;
-            case 19: 
+    
+            case 19:
+                // Define o tipo da operação como REL (relacional) e indica que uma operação está sendo realizada
                 operacoes.push("REL");
-                System.out.println("CASE 19: " + token.getLexeme());
-                isOperation = true; 
+                isOperation = true;
                 break;
-            case 20: 
+    
+            case 20:
+                // Define o tipo da operação como SUM (soma) e indica que uma operação está sendo realizada
                 operacoes.push("SUM");
-                System.out.println("CASE 20: " + token.getLexeme());
-                isOperation = true; 
+                isOperation = true;
                 break;
-            case 21: 
+    
+            case 21:
+                // Define o tipo da operação como SUB (subtração) e indica que uma operação está sendo realizada
                 operacoes.push("SUB");
-                System.out.println("CASE 21: " + token.getLexeme());
-                isOperation = true; 
-            case 22: 
+                isOperation = true;
+                break;
+    
+            case 22:
+                // Define o tipo da operação como MUL (multiplicação) e indica que uma operação está sendo realizada
                 operacoes.push("MUL");
-                System.out.println("CASE 22: " + token.getLexeme());
-                isOperation = true; 
+                isOperation = true;
                 break;
-            case 23: 
+    
+            case 23:
+                // Define o tipo da operação como DIV (divisão) e indica que uma operação está sendo realizada
                 operacoes.push("DIV");
-                System.out.println("CASE 22: " + token.getLexeme());
-                isOperation = true; 
+                isOperation = true;
                 break;
+    
             case 24:
-                if(isOperation){
-                
-                // Verifica se há pelo menos três elementos na pilha
+                // Finaliza uma operação de atribuição e verifica os tipos
+                if (isOperation) {
                     while (operacoes.size() > 3) {
-                        // Remove os três elementos da pilha
                         String tipo1 = operacoes.pop();
                         String op = operacoes.pop();
                         String tipo2 = operacoes.pop();
                         System.out.println("TIPO 1: " + tipo1 + "\t TIPO 2: " + tipo2 + "\t OP : " + op);
-                
-                        // Verifica o tipo de resultado da operação na tabela semântica
                         int resultadoAtribuicao = SemanticTable.resultType(tipo1, tipo2, op);
-
-
                         if (resultadoAtribuicao == SemanticTable.ERR) {
                             throw new SemanticError(
-                                String.format("Prezado desenvolvedor, a soma das variáveis " + tipo1 + " e " + tipo2 + " não é possível"),
-                                token.getPosition());
+                                    String.format("Prezado desenvolvedor, a soma das variáveis " + tipo1 + " e " + tipo2
+                                            + " não é possível"),
+                                    token.getPosition());
                         } else if (resultadoAtribuicao == SemanticTable.WAR) {
-                            // Se houver um aviso, faça o tratamento necessário
                         } else {
-                            // Se não houver erro nem aviso, empilhe o resultado da operação
                             operacoes.push(tipo1);
                         }
                     }
                 }
-                while(!operacoes.isEmpty()){
+                // Limpa a pilha de operações
+                while (!operacoes.isEmpty()) {
                     operacoes.pop();
                 }
                 isOperation = false;
-
                 break;
-            
-            
+    
         }
-
+    
     }
+    
 }

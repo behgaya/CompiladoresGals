@@ -50,7 +50,7 @@ public class SemanticTable {
         int newTP2 = convertTypeToNumber(TP2);
         int newOP = convertOperationToNumber(OP);
 
-        System.out.println("TIPO 1: " + newTP1 + "\t TIPO 2: " + newTP2 + "\t OP : " + newOP);
+        System.out.println("SEMANTICO TABLE\nTIPO 1: " + newTP1 + "\t TIPO 2: " + newTP2 + "\t OP : " + newOP);
         return (expTable[newTP1][newTP2][newOP]);
     }
 

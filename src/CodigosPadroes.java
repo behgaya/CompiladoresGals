@@ -10,7 +10,7 @@ public class CodigosPadroes {
                 // Adicione os códigos padrões desejados aqui
                 codigosPadroes.add("int main() {\n" +
                                 "    int x;\n" +
-                                "    if(teste){\n" +
+                                "    if(x){\n" +
                                 "         x = x + 1;\n" +
                                 "    }\n" +
                                 "    x = 3;\n" +
