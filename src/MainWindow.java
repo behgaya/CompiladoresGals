@@ -33,12 +33,12 @@ public class MainWindow extends javax.swing.JFrame {
         sourceInput = new javax.swing.JTextArea();
         jScrollPane2 = new javax.swing.JScrollPane();
         console = new javax.swing.JTextArea();
-        buttonCompile = createButton("icons/compile.png", 30, 30);
-        buttonSave = createButton("icons/save.png", 30, 30);
-        buttonOpen = createButton("icons/openFile.png", 30, 30);
-        buttonSaveAs = createButton("icons/saveAs.png", 30, 30);
-        buttonDarkMode = createButton("icons/dark.png", 30, 30);
-        buttonCustomCode = createButton("icons/code.png", 30, 30);
+        buttonCompile = Button.createButton(this, "icons/compile.png", 30, 30);
+        buttonSave = Button.createButton(this, "icons/save.png", 30, 30);
+        buttonOpen = Button.createButton(this, "icons/openFile.png", 30, 30);
+        buttonSaveAs = Button.createButton(this, "icons/saveAs.png", 30, 30);
+        buttonDarkMode = Button.createButton(this, "icons/dark.png", 30, 30);
+        buttonCustomCode = Button.createButton(this, "icons/code.png", 30, 30);
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("IDE do Professor");
@@ -261,20 +261,6 @@ public class MainWindow extends javax.swing.JFrame {
         }
     }
 
-    private JButton createButton(String iconPath, int width, int height) {
-        JButton button = new JButton();
-
-        java.net.URL imgUrl = getClass().getResource(iconPath);
-        Icon icon = new ImageIcon(imgUrl);
-        Image img = ((ImageIcon) icon).getImage();
-        Image newImg = img.getScaledInstance(width, height, java.awt.Image.SCALE_SMOOTH);
-        Icon newIcon = new ImageIcon(newImg);
-
-        button.setIcon(newIcon);
-        button.setFont(new java.awt.Font("Helvetica Neue", 0, 14)); // Configuração do botão Abrir
-
-        return button;
-    }
 
     private void setComponentColors(Container container, JButton[] buttons) {
         Color backgroundColor;
