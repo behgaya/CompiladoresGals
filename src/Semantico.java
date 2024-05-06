@@ -104,14 +104,12 @@ public class Semantico implements Constants {
 
             case 9:
                 // Finaliza uma declaração de variável e a adiciona à tabela de símbolos
-
                 if (symbolTable.symbolExists(token.getLexeme(), escopo.peek())) {
                     throw new SemanticError(
                             String.format("Prezado desenvolvedor, a variável \"%s\" já foi declarada",
                                     token.getLexeme()),
                             token.getPosition());
                 }
-
                 else {
                     if (!variable.isFunc()) {
                         symbolTable.addSymbol(variable);
@@ -283,8 +281,6 @@ public class Semantico implements Constants {
                 // Finaliza uma operação de atribuição e verifica os tipos
                 if (isFunctionCall) {
                     contadorCallParam++;
-                    System.out.println("ENTREI: " + contadorParam);
-
                 }
                 if (isOperation) {
                     while (operacoes.size() > 3) {
