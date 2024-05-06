@@ -2,6 +2,7 @@ import java.awt.Color;
 import java.awt.Container;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -11,6 +12,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.List;
 
+
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -19,7 +21,14 @@ import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 
-public class Button {
+public class Button{
+    private static MainWindow mainWindow;
+
+    public Button(MainWindow mainWindow) {
+        Button.mainWindow = mainWindow;
+    }
+
+
     public static JButton createButton(MainWindow mainWindow, String iconPath, int width, int height) {
         JButton button = new JButton();
 
@@ -31,7 +40,7 @@ public class Button {
         Icon newIcon = new ImageIcon(newImg);
 
         button.setIcon(newIcon);
-        button.setFont(new java.awt.Font("Helvetica Neue", 0, 14)); // Configuração do botão Abrir
+        button.setFont(new java.awt.Font("Helvetica Neue", 0, 14)); 
 
         return button;
     }
@@ -42,6 +51,7 @@ public class Button {
         lex.setInput(new StringReader(sourceInput.getText()));
         sem.symbolTableShow.clearTable();
         sem.symbolTable.clearTable();
+        sem.resetScope();
 
 
         symbols.clear();
@@ -67,6 +77,7 @@ public class Button {
         } catch (LexicalError | SyntaticError | SemanticError ex) {
             console.setText("Problema na compilação: " + ex.getLocalizedMessage());
             symbols.clear();
+
             updateTable(sem, table);
 
         }
@@ -80,11 +91,8 @@ public class Button {
         List<String> codigos = codigosPadroes.getCodigosPadroes();
     
         if (!codigos.isEmpty()) {
-            // Obtém o código atual baseado no índice atual
             String codigoAtual = codigos.get(codigoAtualIndex);
             sourceInput.setText(codigoAtual);
-            
-            // Incrementa o índice para obter o próximo código na próxima vez que o botão for clicado
             codigoAtualIndex = (codigoAtualIndex + 1) % codigos.size();
         } else {
             sourceInput.setText("Nenhum código padrão disponível.");
@@ -101,7 +109,7 @@ public class Button {
                 writer.write(sourceInput.getText());
                 lastSavedFilePath = selectedFile.getAbsolutePath();
                 console.setText("Arquivo foi salvo com sucesso!\n" + lastSavedFilePath);
-                //setTitle(selectedFile.getName() + " - IDE do Professor");
+                mainWindow.setTitle(selectedFile.getName() + " - IDE do Professor");
 
             } catch (IOException e) {
                 console.setText("Erro ao salvar o arquivo: " + e.getMessage());
@@ -130,7 +138,7 @@ public class Button {
             try (BufferedWriter writer = new BufferedWriter(new FileWriter(selectedFile))) {
                 writer.write(sourceInput.getText());
                 lastSavedFilePath = selectedFile.getAbsolutePath();
-                //setTitle(selectedFile.getName() + " - IDE do Professor");
+                mainWindow.setTitle(selectedFile.getName() + " - IDE do Professor");
                 console.setText("Arquivo salvo com sucesso!");
             } catch (IOException e) {
                 console.setText("Erro ao salvar o arquivo: " + e.getMessage());
@@ -170,16 +178,23 @@ public class Button {
 
 
     private static void updateTable(Semantico sem, JTable table) {
-        List<Symbol> symbols = sem.symbolTableShow.getSymbols();
+        List<Symbol> symbols;
+
+        if (currentTableIndex == 0) {
+            symbols = sem.symbolTableShow.getSymbols();
+        } else {
+            symbols = sem.symbolTable.getSymbols();
+        }
+
         String[] columnNames = { "ID", "Tipo", "Inicializado", "Usado", "Escopo", "Parametro", "Posição", "Vetor",
-                "Matriz", "Referência", "Função", "Procedimento" };
+                "Matriz", "Referência", "Função", "Procedimento", "Qtd Parametros" };
         Object[][] data = new Object[symbols.size()][columnNames.length];
     
         for (int i = 0; i < symbols.size(); i++) {
             Symbol symbol = symbols.get(i);
             data[i] = new Object[] { symbol.getId(), symbol.getTipo(), symbol.isIni(), symbol.isUsada(),
                     symbol.getEscopo(), symbol.isParam(), symbol.getPos(), symbol.isVet(), symbol.isMatriz(),
-                    symbol.isRef(), symbol.isFunc(), symbol.isProc() };
+                    symbol.isRef(), symbol.isFunc(), symbol.isProc(), symbol.getQuantparam() };
         }
     
         DefaultTableModel model = new DefaultTableModel(data, columnNames);
@@ -220,10 +235,16 @@ public class Button {
         console.setForeground(foregroundColor);
     }
 
+    
+    public static void changeTable() {
+        // Altera o índice da tabela atualmente selecionada
+        currentTableIndex = (currentTableIndex + 1) % 2;
+    }
 
     private static int codigoAtualIndex = 0;
     private static CodigosPadroes codigosPadroes = new CodigosPadroes();
     private static String lastSavedFilePath; // Variável para armazenar o último caminho do arquivo salvo
     private static boolean isDarkMode = false;
+    private static int currentTableIndex = 0; // Índice da tabela atualmente selecionada
 
 }

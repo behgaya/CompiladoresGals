@@ -11,6 +11,8 @@ public class Symbol {
     private boolean ref;     // Indica se o identificador é passado por referência
     private boolean func;    // Indica se o identificador é uma função
     private boolean proc;    // Indica se o identificador é um procedimento
+    private int quantparam;         // Posição do identificador em relação aos parâmetros da função
+
 
     public Symbol(){}
 
@@ -28,7 +30,7 @@ public class Symbol {
         this.ref = ref;
         this.func = func;
         this.proc = proc;
-
+        this.quantparam = 0;
     }
 
     public String getId() {
@@ -160,5 +162,13 @@ public class Symbol {
         return id == null;// Supondo que id, tipo e valor sejam os campos relevantes
     }
     
+    public int getQuantparam() {
+        return quantparam;
+    }
+
+    public void setQuantparam(int quantparam) {
+        this.quantparam = quantparam;
+    }
+
 
 }

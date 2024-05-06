@@ -37,7 +37,6 @@ KEYWORD_ELSE = ID : "else"
 KEYWORD_WHILE = ID : "while"
 KEYWORD_DO = ID : "do"
 KEYWORD_WRITE = ID : "write"
-//KEYWORD_MAIN = ID : "main"
 KEYWORD_INT = ID : "int"
 KEYWORD_LONG = ID : "long"
 KEYWORD_FLOAT = ID : "float"
@@ -129,6 +128,7 @@ HASH_SIGN: "#"
 <declaracao_funcao>
 <lista_cmd>
 <cmd>
+<declaracao>
 <declaracao1>
 <repeticao_while>
 <chamar_funcao>
@@ -179,9 +179,9 @@ HASH_SIGN: "#"
 <rotina> ::= <funcao> | <procedimento>; 
 
 
-<funcao> ::= <tipo> <id>#6  OPEN_PARENTHESES <parenteses_funcao> CLOSE_PARENTHESES <bloco> | <tipo> <id>#6 OPEN_PARENTHESES CLOSE_PARENTHESES <bloco>;
+<funcao> ::= <tipo> <id>#6  OPEN_PARENTHESES <parenteses_funcao> CLOSE_PARENTHESES#27 <bloco>#2 | <tipo> <id>#6 OPEN_PARENTHESES CLOSE_PARENTHESES#27 <bloco>#2;
 <procedimento> ::= <void>#7 <id> OPEN_PARENTHESES <parenteses_funcao> CLOSE_PARENTHESES <bloco> | <void>#7 <id> OPEN_PARENTHESES CLOSE_PARENTHESES <bloco>;
-<parenteses_funcao> ::= <declaracao1>;
+<parenteses_funcao> ::= <declaracao>#26 | <declaracao>#26 COMMA <parenteses_funcao>;
 
 
 <bloco> ::= OPEN_BRACES#1 CLOSE_BRACES#2 | OPEN_BRACES#1 <lista_cmd> CLOSE_BRACES#2;
@@ -201,6 +201,7 @@ HASH_SIGN: "#"
 <block_comment> ::= BLOCK_COMMENTARY;
 
 
+<declaracao> ::= <tipo>#8 <variavel>#9;
 <declaracao1> ::= <tipo>#8 <variavel>#9 | <declaracao2>;
 <declaracao2> ::= <tipo>#8 <atribuicao> | <declaracao3>;
 <declaracao3> ::= <declaracao1> COMMA <variavel>#9 | <declaracao4>;

@@ -9,7 +9,6 @@ public class SymbolTable {
         return symbolTable;
     }
 
-    // Method to add a symbol to the table
     public void addSymbol(Symbol symbol) {
         symbolTable.add(symbol);
     }
@@ -26,16 +25,16 @@ public class SymbolTable {
     
     public boolean variableExists(Symbol addedSymbol, int escopo) {
         for (Symbol symbol : symbolTable) {
-            if (symbol.getEscopo() == escopo && symbol.getId().equals(addedSymbol.getId()) && !symbol.isFunc()) {
+            if (symbol.getEscopo() <= escopo && symbol.getId().equals(addedSymbol.getId()) && !symbol.isFunc()) {
                 return true;
             }
         }
         return false;
     }
+    
     public boolean functionExists(String id) {
         for (Symbol symbol : symbolTable) {
             if (symbol.isFunc() && symbol.getId().equals(id)) {
-                // Verifica se o símbolo é uma função e se possui a mesma assinatura (nome, tipo e parâmetros)
                 return true;
             }
         }
@@ -44,8 +43,7 @@ public class SymbolTable {
 
     public boolean functionExists(Symbol addedFunction) {
         for (Symbol symbol : symbolTable) {
-            if (symbol.isFunc() && symbol.getId().equals(addedFunction.getId()) && symbol.getTipo().equals(addedFunction.getTipo())) {
-                // Verifica se o símbolo é uma função e se possui a mesma assinatura (nome, tipo e parâmetros)
+            if (symbol.isFunc() && symbol.getId().equals(addedFunction.getId())) {
                 return true;
             }
         }
@@ -68,7 +66,6 @@ public class SymbolTable {
     public boolean updateSymbol(Symbol updatedSymbol) {
         for (Symbol symbol : symbolTable) {
             if (symbol.getId().equals(updatedSymbol.getId())) {
-                // Atualizar os atributos do símbolo existente com base no símbolo atualizado
                 symbol.setTipo(updatedSymbol.getTipo());
                 symbol.setIni(updatedSymbol.isIni());
                 symbol.setUsada(updatedSymbol.isUsada());
@@ -79,10 +76,10 @@ public class SymbolTable {
                 symbol.setMatriz(updatedSymbol.isMatriz());
                 symbol.setRef(updatedSymbol.isRef());
                 symbol.setFunc(updatedSymbol.isFunc());
-                return true; // Indica que o símbolo foi atualizado com sucesso
+                return true; 
             }
         }
-        return false; // Indica que o símbolo com o ID fornecido não foi encontrado na tabela
+        return false; 
     }
 
     public Symbol getSymbol(String id) {
@@ -91,13 +88,13 @@ public class SymbolTable {
                 return symbol;
             }
         }
-        return null; // Retorna null se o símbolo com o ID fornecido não for encontrado na tabela
+        return null; 
     }
 
     public void removeSymbolsByScope(int scope) {
         List<Symbol> symbolsToRemove = new ArrayList<>();
         for (Symbol symbol : symbolTable) {
-            if (symbol.getEscopo() == scope) {
+            if (symbol.getEscopo() == scope && !symbol.isFunc()) {
                 symbolsToRemove.add(symbol);
             }
         }
@@ -113,13 +110,18 @@ public class SymbolTable {
             }
         }
 
+        
         return symbolsInScope;
     }
 
-    public void resetScope(){
-        for (Symbol symbol : symbolTable) {
-            symbol.setEscopo(0); // ou qualquer valor inicial desejado
+    public Symbol getLastFunction() {
+        for (int i = symbolTable.size() - 1; i >= 0; i--) {
+            Symbol symbol = symbolTable.get(i);
+            if (symbol.isFunc()) {
+                return symbol;
+            }
         }
+        return null; 
     }
 
 }

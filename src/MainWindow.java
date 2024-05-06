@@ -25,7 +25,8 @@ public class MainWindow extends javax.swing.JFrame {
         sourceInput = new javax.swing.JTextArea();
         jScrollPane2 = new javax.swing.JScrollPane();
         console = new javax.swing.JTextArea();
-        
+        Button buttonFunction = new Button(this);
+
         buttonCompile = Button.createButton(this, "icons/compile.png", 30, 30);
         buttonSave = Button.createButton(this, "icons/save.png", 30, 30);
         buttonOpen = Button.createButton(this, "icons/openFile.png", 30, 30);
@@ -81,15 +82,16 @@ public class MainWindow extends javax.swing.JFrame {
         console.setTabSize(4);
         jScrollPane2.setViewportView(console);
 
+        TableKeyListener keyHandler = new TableKeyListener(this);
+        sourceInput.addKeyListener(keyHandler);
         symbols = sem.symbolTableShow.getSymbols();
         
-        String[] columnNames = { "ID", "Tipo", "Inicializado", "Usado", "Escopo", "Parametro", "Posição", "Vetor", "Matriz", "Referência", "Função","Procedimento" };
-        Object[][] data = new Object[symbols.size()][12];
+        String[] columnNames = { "ID", "Tipo", "Inicializado", "Usado", "Escopo", "Parametro", "Posição", "Vetor", "Matriz", "Referência", "Função","Procedimento", "Qtd Parametros" };
+        Object[][] data = new Object[symbols.size()][13];
 
         DefaultTableModel model = new DefaultTableModel(data, columnNames);
         table = new JTable(model);
 
-        // Adiciona a tabela a um JScrollPane
         JScrollPane scrollPane = new JScrollPane(table);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -104,18 +106,18 @@ public class MainWindow extends javax.swing.JFrame {
                     .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                     .addComponent(buttonOpen)
                     .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(buttonCustomCode) // Adiciona o novo botão aqui
+                    .addComponent(buttonCustomCode)
                     .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                     .addComponent(buttonCompile)
                     .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                    .addComponent(buttonDarkMode) // Adiciona o botão Modo Escuro
+                    .addComponent(buttonDarkMode) 
                     .addContainerGap())
                 .addGroup(layout.createSequentialGroup()
                     .addContainerGap()
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 457, Short.MAX_VALUE)
                         .addComponent(jScrollPane2)
-                        .addComponent(scrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 457, Short.MAX_VALUE)) // Adiciona o JScrollPane aqui
+                        .addComponent(scrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 457, Short.MAX_VALUE)) 
                     .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -127,8 +129,8 @@ public class MainWindow extends javax.swing.JFrame {
                         .addComponent(buttonSaveAs)
                         .addComponent(buttonOpen)
                         .addComponent(buttonCompile)
-                        .addComponent(buttonDarkMode) // Adiciona o botão Modo Escuro
-                        .addComponent(buttonCustomCode) // Adiciona o novo botão aqui
+                        .addComponent(buttonDarkMode) 
+                        .addComponent(buttonCustomCode)
 
                     )
                     .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -137,7 +139,7 @@ public class MainWindow extends javax.swing.JFrame {
                     .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                     .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 87, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                    .addComponent(scrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE) // Adiciona o JScrollPane aqui
+                    .addComponent(scrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE) 
                     .addContainerGap()
                 )
         );

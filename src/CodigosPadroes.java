@@ -2,24 +2,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CodigosPadroes {
-        // Lista para armazenar os códigos padrões
         private List<String> codigosPadroes = new ArrayList<>();
 
-        // Construtor para inicializar alguns códigos padrões
         public CodigosPadroes() {
-                // Adicione os códigos padrões desejados aqui
-                codigosPadroes.add("int funcao() {\n" +
-                "\n" +
-                "}\n" +
-                "\n" +
-                "int main() {\n" +
-                "    int x;\n" +
-                "    int funcao;\n" +
-                "    if(x) {\n" +
-                "        x = x + 1;\n" +
-                "    }\n" +
-                "    x = 3;\n" +
-                "}");
+                codigosPadroes.add("int funcao(int x) {\n" +
+                                "    return 4;\n" +
+                                "}\n" +
+                                "\n" +
+                                "int main() {\n" +
+                                "    int x;\n" +
+                                "    if(x == 2) {\n" +
+                                "        x = funcao(x);\n" +
+                                "    }\n" +
+                                "    x = 3;\n" +
+                                "}");
 
                 codigosPadroes.add("int main() {\n" +
                                 "    int x = 5;\n" +
@@ -78,20 +74,16 @@ public class CodigosPadroes {
                 // Adicione mais códigos padrões conforme necessário
         }
 
-        // Método para obter todos os códigos padrões
         public List<String> getCodigosPadroes() {
                 return codigosPadroes;
         }
 
-        // Método para adicionar um novo código padrão à lista
         public void adicionarCodigoPadrao(String codigo) {
                 codigosPadroes.add(codigo);
         }
 
-        // Método para remover um código padrão da lista
         public void removerCodigoPadrao(String codigo) {
                 codigosPadroes.remove(codigo);
         }
 
-        // Outros métodos conforme necessário...
 }
