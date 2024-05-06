@@ -349,6 +349,12 @@ public class Semantico implements Constants {
                 isFunctionCall = false;
                 contadorCallParam = 0;
                 break;
+
+            case 30:
+                contadorParam = 0;
+                escopo.push(contadorEscopo);
+                break;
+
         }
 
     }

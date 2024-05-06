@@ -23,7 +23,7 @@ public class WarningVerification {
     }
     
     public static String verificarVariaveisNaoInicializadas(SymbolTable symbolTable) {
-        StringBuilder variaveisNaoInicializadas = new StringBuilder();
+        StringBuilder variaveisNaoInicializadas = new StringBuilder("Avisos: Identificadores que não estão inicializados: ");
         
         for (Symbol symbol : symbolTable.getSymbols()) {
             if (!symbol.isIni() && !symbol.isFunc()) {

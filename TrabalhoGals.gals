@@ -135,6 +135,7 @@ HASH_SIGN: "#"
 <desvio_if>
 <print>
 <return>
+<lista_comentarios>
 <comment>
 <block_comment>
 <read_line>
@@ -176,7 +177,7 @@ HASH_SIGN: "#"
 
 
 <lista_rotina> ::= <rotina> | <lista_rotina> <rotina>;
-<rotina> ::= <funcao> | <procedimento>; 
+<rotina> ::= <funcao> | <procedimento> | <lista_comentarios>; 
 
 
 <funcao> ::= <tipo> <id>#6  OPEN_PARENTHESES <parenteses_funcao> CLOSE_PARENTHESES#27 <bloco>#2 | <tipo> <id>#6 OPEN_PARENTHESES CLOSE_PARENTHESES#27 <bloco>#2;
@@ -193,10 +194,11 @@ HASH_SIGN: "#"
 <return> ::= KEYWORD_RETURN <exp>#24;
 
 
-<chamar_funcao> ::= <id>#25 OPEN_PARENTHESES CLOSE_PARENTHESES | <id>#25 OPEN_PARENTHESES <parametros_chamar> CLOSE_PARENTHESES;
+<chamar_funcao> ::= <id>#25 OPEN_PARENTHESES#28 CLOSE_PARENTHESES#29 | <id>#25 OPEN_PARENTHESES#28 <parametros_chamar> CLOSE_PARENTHESES#29;
 <parametros_chamar> ::= <exp>#24 | <parametros_chamar> COMMA <exp>#24;
 
 
+<lista_comentarios> ::= <comment> | <block_comment>;
 <comment> ::= COMMENTARY;
 <block_comment> ::= BLOCK_COMMENTARY;
 
@@ -213,16 +215,16 @@ HASH_SIGN: "#"
 <vetor> ::= <id>#5 OPEN_BRACKETS CLOSE_BRACKETS | <id>#5 OPEN_BRACKETS <exp> CLOSE_BRACKETS;
 
 
-<repeticao_while> ::= KEYWORD_WHILE <exp>#24 <bloco> | <repeticao_for>;
-<repeticao_for> ::= KEYWORD_FOR OPEN_PARENTHESES <declaracao_controle> SEMICOLON <exp>#24 SEMICOLON <operacao_incremento> CLOSE_PARENTHESES <bloco>;
+<repeticao_while> ::= KEYWORD_WHILE#30 <exp>#24 <bloco>#2 | <repeticao_for>;
+<repeticao_for> ::= KEYWORD_FOR#30 OPEN_PARENTHESES <declaracao_controle> SEMICOLON <exp>#24 SEMICOLON <operacao_incremento> CLOSE_PARENTHESES <bloco>#2;
 <declaracao_controle> ::= <declaracao1> | <atribuicao> | <declaracao1> <atribuicao>;
-<operacao_incremento> ::= <atribuicao>;
-<repeticao_do> ::= KEYWORD_DO <bloco> KEYWORD_WHILE <exp>#24;
+<operacao_incremento> ::= <atribuicao> | <incremento>;
+<repeticao_do> ::= KEYWORD_DO#30 <bloco>#2 KEYWORD_WHILE <exp>#24;
 
 
 <incremento> ::= <id>#12 <op_incremento>;
 
-<desvio_if> ::= KEYWORD_IF <exp>#24 <bloco> | KEYWORD_IF <exp>#24 <bloco> <desvio_else>;
+<desvio_if> ::= KEYWORD_IF#30 <exp>#24 <bloco>#2 | KEYWORD_IF#30 <exp>#24 <bloco>#2 <desvio_else>;
 <desvio_else> ::= KEYWORD_ELSE <bloco>;
 
 
@@ -257,5 +259,8 @@ HASH_SIGN: "#"
 <op_arit_alta> ::= MULTIPLICATION#22 | DIVISION#23 | MODULO#23;
 <op_incremento> ::= PLUS_PLUS | MINUS_MINUS;
 <op_atribuicao> ::= EQUALS | PLUS_EQUALS | MINUS_EQUALS | TIMES_EQUALS | DIVIDE_EQUALS;
+
+
+
 
 
