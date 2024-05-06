@@ -5,21 +5,27 @@ public class Semantico implements Constants {
     public SymbolTable symbolTableShow;
     public SemanticTable semanticTable;
     public Symbol variable = new Symbol();
+    public Symbol functionVariable = new Symbol();
+    public Symbol functionSymbol = new Symbol();
+
     public boolean declaracao = false;
     public boolean isInit = false;
     public boolean isOperation = false;
+    public boolean isFunctionCall = false;
+
     public Stack<Integer> escopo = new Stack<>();
     public Stack<String> operacoes = new Stack<>();
     public int contadorEscopo;
     public int contadorParam;
+    public int contadorCallParam;
     public String tipo;
-
 
     public Semantico() {
         this.symbolTable = new SymbolTable();
         this.symbolTableShow = new SymbolTable();
         contadorEscopo = 0;
         contadorParam = 0;
+        contadorCallParam = 0;
         escopo.clear();
         escopo.push(contadorEscopo);
     }
@@ -58,7 +64,7 @@ public class Semantico implements Constants {
                 // Cria uma nova variável com o tipo definido
                 if (!symbolTable.symbolExists(token.getLexeme(), escopo.peek())) {
                     variable = new Symbol(token.getLexeme(), tipo, false, false, escopo.peek(), false, 0, false, false,
-                            false, false, false);
+                            false, false, false, 0);
                 }
                 break;
 
@@ -108,7 +114,7 @@ public class Semantico implements Constants {
                     if (!variable.isFunc()) {
                         symbolTable.addSymbol(variable);
                         symbolTableShow.addSymbol(variable);
-                    } 
+                    }
 
                     declaracao = false;
                 }
@@ -270,6 +276,11 @@ public class Semantico implements Constants {
 
             case 24:
                 // Finaliza uma operação de atribuição e verifica os tipos
+                if (isFunctionCall) {
+                    contadorCallParam++;
+                    System.out.println("ENTREI: " + contadorParam);
+
+                }
                 if (isOperation) {
                     while (operacoes.size() > 3) {
                         String tipo1 = operacoes.pop();
@@ -299,8 +310,8 @@ public class Semantico implements Constants {
                             variable.getId()));
 
                 } else {
-                    variable.setFunc(true);
-
+                    functionSymbol = new Symbol(variable); // Criar uma cópia do objeto variable
+                    functionSymbol.setFunc(true);
                 }
                 break;
             case 26:
@@ -309,14 +320,35 @@ public class Semantico implements Constants {
                     contadorParam++;
                     variable.setPos(contadorParam);
                 }
-                    
+
                 break;
 
             case 27:
                 Symbol lastFunction = symbolTable.getLastFunction();
                 lastFunction.setQuantparam(contadorParam);
+
                 break;
 
+            case 28:
+                isFunctionCall = true;
+                contadorCallParam = 0;
+                break;
+
+            case 29:
+                functionSymbol = symbolTable.getFunctionById(functionSymbol.getId());
+
+                if (functionSymbol.getQuantparam() > contadorCallParam) {
+                    throw new SemanticError(String.format(
+                            "Caro programador, a função de nome \"%s\" Necessita de mais parametros",
+                            variable.getId()));
+                } else if (functionSymbol.getQuantparam() < contadorCallParam) {
+                    throw new SemanticError(String.format(
+                            "Caro programador, a função de nome \"%s\" Possui parametros que não foram expostos",
+                            variable.getId()));
+                }
+                isFunctionCall = false;
+                contadorCallParam = 0;
+                break;
         }
 
     }

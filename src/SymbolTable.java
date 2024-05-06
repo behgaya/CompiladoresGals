@@ -124,4 +124,15 @@ public class SymbolTable {
         return null; 
     }
 
+    public Symbol getFunctionById(String id) {
+        for (Symbol symbol : symbolTable) {
+            if (symbol.isFunc() && symbol.getId().equals(id)) {
+                return symbol;
+            }
+        }
+        return null;
+    }
+
+    
+
 }

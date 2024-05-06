@@ -16,8 +16,24 @@ public class Symbol {
 
     public Symbol(){}
 
+    public Symbol(Symbol symbol) {
+        this.id = symbol.getId();
+        this.tipo = symbol.getTipo();
+        this.ini = symbol.isIni();
+        this.usada = symbol.isUsada();
+        this.escopo = symbol.getEscopo();
+        this.param = symbol.isParam();
+        this.pos = symbol.getPos();
+        this.vet = symbol.isVet();
+        this.matriz = symbol.isMatriz();
+        this.ref = symbol.isRef();
+        this.func = symbol.isFunc();
+        this.proc = symbol.isProc();
+        this.quantparam = symbol.getQuantparam();
+    }
+    
     // Construtor
-    public Symbol(String id, String tipo, boolean ini, boolean usada, int escopo, boolean param, int pos, boolean vet, boolean matriz, boolean ref, boolean func, boolean proc) {
+    public Symbol(String id, String tipo, boolean ini, boolean usada, int escopo, boolean param, int pos, boolean vet, boolean matriz, boolean ref, boolean func, boolean proc, int quantparam) {
         this.id = id;
         this.tipo = tipo;
         this.ini = ini;
@@ -30,7 +46,7 @@ public class Symbol {
         this.ref = ref;
         this.func = func;
         this.proc = proc;
-        this.quantparam = 0;
+        this.quantparam = quantparam;
     }
 
     public String getId() {
