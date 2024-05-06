@@ -4,8 +4,6 @@
  * Professor Eduardo Alves da Silva.
  */
 
-import java.util.HashMap;
-import java.util.Map;
 
 public class SemanticTable {
 
