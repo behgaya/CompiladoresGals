@@ -23,15 +23,15 @@ public class WarningVerification {
     }
     
     public static String verificarVariaveisNaoInicializadas(SymbolTable symbolTable) {
-        StringBuilder variaveisNaoInicializadas = new StringBuilder("Avisos: Identificadores usados sem estar inicializados: ");
+        StringBuilder variaveisNaoInicializadas = new StringBuilder();
         
         for (Symbol symbol : symbolTable.getSymbols()) {
-            if (!symbol.isIni() && symbol.isUsada() && !symbol.isFunc()) {
+            if (!symbol.isIni() && !symbol.isFunc()) {
                 variaveisNaoInicializadas.append(symbol.getId()).append(", ");
             }
         }
         
-        if (variaveisNaoInicializadas.toString().equals("Avisos: Identificadores usados sem estar inicializados: ")) {
+        if (variaveisNaoInicializadas.toString().equals("Avisos: Identificadores que não estão inicializados: ")) {
             return "";
         } else {
             return variaveisNaoInicializadas.toString();

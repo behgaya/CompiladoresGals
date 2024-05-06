@@ -1,11 +1,7 @@
 import javax.swing.*;
 
 import java.awt.event.*;
-import java.io.*;
 import java.util.List;
-import java.awt.Color;
-import java.awt.Container;
-import java.awt.Image;
 
 import javax.swing.table.DefaultTableModel;
 
@@ -30,6 +26,7 @@ public class MainWindow extends javax.swing.JFrame {
         sourceInput = new javax.swing.JTextArea();
         jScrollPane2 = new javax.swing.JScrollPane();
         console = new javax.swing.JTextArea();
+        
         buttonCompile = Button.createButton(this, "icons/compile.png", 30, 30);
         buttonSave = Button.createButton(this, "icons/save.png", 30, 30);
         buttonOpen = Button.createButton(this, "icons/openFile.png", 30, 30);
@@ -59,12 +56,13 @@ public class MainWindow extends javax.swing.JFrame {
                 Button.buttonCompileActionPerformed(evt, sourceInput, sem, symbols, console, table);
             }
         });
+        MainWindow mainWindow = this;
         buttonDarkMode.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
-                toggleDarkMode();
+                Button.ButtonToggleDarkMode(mainWindow, buttonSave, buttonSaveAs, buttonOpen, buttonCompile, buttonDarkMode, buttonCustomCode, sourceInput, console);
             }
         });
-        buttonCustomCode.addActionListener(new ActionListener() {
+        buttonCustomCode.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent evt) {
                 Button.buttonPasteCustomCode(evt, sourceInput);
             }
@@ -75,7 +73,6 @@ public class MainWindow extends javax.swing.JFrame {
         sourceInput.setRows(5);
 
         jScrollPane1.setViewportView(sourceInput);
-        jScrollPane2.setViewportView(console);
 
         console.setEditable(false);
         console.setColumns(20);
@@ -83,115 +80,72 @@ public class MainWindow extends javax.swing.JFrame {
         console.setLineWrap(true);
         console.setRows(5);
         console.setTabSize(4);
+        jScrollPane2.setViewportView(console);
 
         symbols = sem.symbolTableShow.getSymbols();
-
-        String[] columnNames = { "ID", "Tipo", "Inicializado", "Usado", "Escopo", "Parametro", "Posição", "Vetor",
-                "Matriz", "Referência", "Função", "Procedimento" };
+        
+        String[] columnNames = { "ID", "Tipo", "Inicializado", "Usado", "Escopo", "Parametro", "Posição", "Vetor", "Matriz", "Referência", "Função","Procedimento" };
         Object[][] data = new Object[symbols.size()][12];
 
-        DefaultTableModel model = new DefaultTableModel(data, columnNames) {
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                return false; // torna todas as células não editáveis
-            }
-        };
-
+        DefaultTableModel model = new DefaultTableModel(data, columnNames);
         table = new JTable(model);
-        table.setDefaultEditor(Object.class, null); // torna a tabela inteira não editável
+
         // Adiciona a tabela a um JScrollPane
         JScrollPane scrollPane = new JScrollPane(table);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
-                layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addGroup(layout.createSequentialGroup()
-                                .addContainerGap()
-                                .addComponent(buttonSave)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(buttonSaveAs)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(buttonOpen)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED,
-                                        javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(buttonCompile)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(buttonDarkMode) // Adiciona o botão Modo Escuro
-                                .addContainerGap())
-                        .addGroup(layout.createSequentialGroup()
-                                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(buttonCustomCode) // Adiciona o novo botão aqui
-                                .addContainerGap())
-                        .addGroup(layout.createSequentialGroup()
-                                .addContainerGap()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 457,
-                                                Short.MAX_VALUE)
-                                        .addComponent(jScrollPane2)
-                                        .addComponent(scrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 457,
-                                                Short.MAX_VALUE)) // Adiciona o JScrollPane aqui
-                                .addContainerGap()));
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(layout.createSequentialGroup()
+                    .addContainerGap()
+                    .addComponent(buttonSave)
+                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                    .addComponent(buttonSaveAs)
+                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                    .addComponent(buttonOpen)
+                    .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(buttonCustomCode) // Adiciona o novo botão aqui
+                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                    .addComponent(buttonCompile)
+                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                    .addComponent(buttonDarkMode) // Adiciona o botão Modo Escuro
+                    .addContainerGap())
+                .addGroup(layout.createSequentialGroup()
+                    .addContainerGap()
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 457, Short.MAX_VALUE)
+                        .addComponent(jScrollPane2)
+                        .addComponent(scrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 457, Short.MAX_VALUE)) // Adiciona o JScrollPane aqui
+                    .addContainerGap())
+        );
         layout.setVerticalGroup(
-                layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addGroup(layout.createSequentialGroup()
-                                .addContainerGap()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                        .addComponent(buttonSave)
-                                        .addComponent(buttonSaveAs)
-                                        .addComponent(buttonOpen)
-                                        .addComponent(buttonCompile)
-                                        .addComponent(buttonDarkMode) // Adiciona o botão Modo Escuro
-                                )
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(buttonCustomCode) // Adiciona o novo botão aqui
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 221, Short.MAX_VALUE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 87,
-                                        javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(scrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE) // Adiciona
-                                                                                                                      // o
-                                                                                                                      // JScrollPane
-                                                                                                                      // aqui
-                                .addContainerGap()));
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(layout.createSequentialGroup()
+                    .addContainerGap()
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(buttonSave)
+                        .addComponent(buttonSaveAs)
+                        .addComponent(buttonOpen)
+                        .addComponent(buttonCompile)
+                        .addComponent(buttonDarkMode) // Adiciona o botão Modo Escuro
+                        .addComponent(buttonCustomCode) // Adiciona o novo botão aqui
 
+                    )
+                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 221, Short.MAX_VALUE)
+                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 87, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                    .addComponent(scrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE) // Adiciona o JScrollPane aqui
+                    .addContainerGap()
+                )
+        );
+        
         pack();
     }
 
-    private void setComponentColors(Container container, JButton[] buttons) {
-        Color backgroundColor;
-        Color foregroundColor;
-
-        if (isDarkMode) {
-            backgroundColor = Color.darkGray;
-            foregroundColor = Color.white;
-
-        } else {
-            backgroundColor = null;
-            foregroundColor = Color.black;
-        }
-
-        container.setBackground(backgroundColor);
-
-        for (JButton button : buttons) {
-            button.setBackground(backgroundColor);
-            button.setForeground(foregroundColor);
-        }
-
-        sourceInput.setBackground(backgroundColor);
-        sourceInput.setForeground(foregroundColor);
-
-        console.setBackground(backgroundColor);
-        console.setForeground(foregroundColor);
-    }
-
-    private void toggleDarkMode() {
-        isDarkMode = !isDarkMode;
-        setComponentColors(this.getContentPane(),
-                new JButton[] { buttonSave, buttonSaveAs, buttonOpen, buttonCompile, buttonDarkMode });
-    }
 
     /**
      * @param args the command line arguments
@@ -250,7 +204,6 @@ public class MainWindow extends javax.swing.JFrame {
     private JButton buttonDarkMode;
     private JButton buttonCustomCode;
 
-    private boolean isDarkMode = false;
     private Semantico sem = new Semantico();
     private List<Symbol> symbols;
 

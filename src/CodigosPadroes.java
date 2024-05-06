@@ -8,13 +8,19 @@ public class CodigosPadroes {
         // Construtor para inicializar alguns códigos padrões
         public CodigosPadroes() {
                 // Adicione os códigos padrões desejados aqui
-                codigosPadroes.add("int main() {\n" +
-                                "    int x;\n" +
-                                "    if(x){\n" +
-                                "         x = x + 1;\n" +
-                                "    }\n" +
-                                "    x = 3;\n" +
-                                "}");
+                codigosPadroes.add("int funcao() {\n" +
+                "\n" +
+                "}\n" +
+                "\n" +
+                "int main() {\n" +
+                "    int x;\n" +
+                "    int funcao;\n" +
+                "    if(x) {\n" +
+                "        x = x + 1;\n" +
+                "    }\n" +
+                "    x = 3;\n" +
+                "}");
+
                 codigosPadroes.add("int main() {\n" +
                                 "    int x = 5;\n" +
                                 "    return 0;\n" +

@@ -38,11 +38,11 @@ public class SemanticTable {
     // atribuicoes compativeis
     // 5 x 5 = TIPO X TIPO
     static int atribTable[][] = { /* INT FLO CHA STR BOO */
-            /* INT */ { OK_, WAR, ERR, ERR, ERR },
-            /* FLO */ { OK_, OK_, ERR, ERR, ERR },
-            /* CHA */ { ERR, ERR, OK_, ERR, ERR },
-            /* STR */ { ERR, ERR, OK_, OK_, ERR },
-            /* BOO */ { ERR, ERR, ERR, ERR, OK_ }
+                        /* INT */ { OK_, WAR, ERR, ERR, ERR },
+                        /* FLO */ { OK_, OK_, ERR, ERR, ERR },
+                        /* CHA */ { ERR, ERR, OK_, ERR, ERR },
+                        /* STR */ { ERR, ERR, OK_, OK_, ERR },
+                        /* BOO */ { ERR, ERR, ERR, ERR, OK_ }
     };
 
     static int resultType(String TP1, String TP2, String OP) {
@@ -50,7 +50,6 @@ public class SemanticTable {
         int newTP2 = convertTypeToNumber(TP2);
         int newOP = convertOperationToNumber(OP);
 
-        System.out.println("SEMANTICO TABLE\nTIPO 1: " + newTP1 + "\t TIPO 2: " + newTP2 + "\t OP : " + newOP);
         return (expTable[newTP1][newTP2][newOP]);
     }
 
@@ -61,31 +60,38 @@ public class SemanticTable {
         return (atribTable[newTP1][newTP2]);
     }
 
-    private static final Map<String, Integer> typeMap = new HashMap<>();
-    static {
-        typeMap.put("int", INT);
-        typeMap.put("float", FLO);
-        typeMap.put("char", CHA);
-        typeMap.put("string", STR);
-        typeMap.put("bool", BOO);
+    private static final int convertTypeToNumber(String TP1) {
+        switch (TP1) {
+            case "int":
+                return INT;
+            case "float":
+                return FLO;
+            case "char":
+                return CHA;
+            case "string":
+                return STR;
+            case "bool":
+                return BOO;
+            default:
+                return ERR;
+        }
     }
+    
+    private static final int convertOperationToNumber(String TP1) {
 
-    private static final Map<String, Integer> operationMap = new HashMap<>();
-    static {
-        operationMap.put("REL", REL);
-        operationMap.put("SUM", SUM);
-        operationMap.put("SUB", SUB);
-        operationMap.put("MUL", MUL);
-        operationMap.put("DIV", DIV);
-    }
-
-    // Função para converter o tipo de dados em número
-    static int convertTypeToNumber(String TP1) {
-        return typeMap.getOrDefault(TP1, ERR);
-    }
-
-    // Função para converter o tipo de dados em número
-    static int convertOperationToNumber(String TP1) {
-        return operationMap.getOrDefault(TP1, ERR);
+        switch (TP1) {
+            case "REL":
+                return REL;
+            case "SUM":
+                return SUM;
+            case "SUB":
+                return SUB;
+            case "MUL":
+                return MUL;
+            case "DIV":
+                return DIV;
+            default:
+                return ERR;
+        }
     }
 }

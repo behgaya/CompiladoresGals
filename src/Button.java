@@ -1,3 +1,5 @@
+import java.awt.Color;
+import java.awt.Container;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.io.BufferedReader;
@@ -22,6 +24,7 @@ public class Button {
         JButton button = new JButton();
 
         java.net.URL imgUrl = mainWindow.getClass().getResource(iconPath);
+        
         Icon icon = new ImageIcon(imgUrl);
         Image img = ((ImageIcon) icon).getImage();
         Image newImg = img.getScaledInstance(width, height, java.awt.Image.SCALE_SMOOTH);
@@ -164,7 +167,7 @@ public class Button {
 
 
     private static void updateTable(Semantico sem, JTable table) {
-        List<Symbol> symbols = sem.symbolTableShow.getSymbols();
+        List<Symbol> symbols = sem.symbolTable.getSymbols();
         String[] columnNames = { "ID", "Tipo", "Inicializado", "Usado", "Escopo", "Parametro", "Posição", "Vetor",
                 "Matriz", "Referência", "Função", "Procedimento" };
         Object[][] data = new Object[symbols.size()][columnNames.length];
@@ -180,8 +183,44 @@ public class Button {
         table.setModel(model);
     }
 
+    
+    public static void ButtonToggleDarkMode(MainWindow mainWindow, JButton buttonSave, JButton buttonSaveAs, JButton buttonOpen, JButton buttonCompile, JButton buttonDarkMode, JButton buttonCustomCode, javax.swing.JTextArea sourceInput, javax.swing.JTextArea console) {
+        isDarkMode = !isDarkMode;
+        setComponentColors(mainWindow.getContentPane(),
+                new JButton[] { buttonSave, buttonSaveAs, buttonOpen, buttonCompile, buttonDarkMode, buttonCustomCode }, sourceInput, console);
+    }
+    
+    public static void setComponentColors(Container container, JButton[] buttons, javax.swing.JTextArea sourceInput, javax.swing.JTextArea console) {
+        Color backgroundColor;
+        Color foregroundColor;
+    
+        if (isDarkMode) {
+            backgroundColor = Color.darkGray;
+            foregroundColor = Color.white;
+    
+        } else {
+            backgroundColor = null;
+            foregroundColor = Color.black;
+        }
+    
+        container.setBackground(backgroundColor);
+    
+        for (JButton button : buttons) {
+            button.setBackground(backgroundColor);
+            button.setForeground(foregroundColor);
+        }
+    
+        sourceInput.setBackground(backgroundColor);
+        sourceInput.setForeground(foregroundColor);
+    
+        console.setBackground(backgroundColor);
+        console.setForeground(foregroundColor);
+    }
+
+
     private static int codigoAtualIndex = 0;
     private static CodigosPadroes codigosPadroes = new CodigosPadroes();
     private static String lastSavedFilePath; // Variável para armazenar o último caminho do arquivo salvo
+    private static boolean isDarkMode = false;
 
 }

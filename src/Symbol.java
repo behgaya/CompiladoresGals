@@ -1,4 +1,3 @@
-import java.util.Stack;
 public class Symbol {
     private String id;       // Nome do identificador
     private String tipo;     // Tipo do identificador (inteiro, real, etc.)

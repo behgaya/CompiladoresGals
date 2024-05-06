@@ -16,7 +16,7 @@ binary: 0b[0-1]+
 hexadecimal: 0x[0-9A-Fa-f]+
 int: [\+\-]?[0-9]+
 float: [\+\-]?[0-9]+[\.][0-9]+
-char: [\\'][a-zA-Z][\\']
+char: [\\'][a-zA-Z0-9][\\']
 string: [\"][^\n\r\"]*[\"]
 
 comment: [/][/][^\n\r]*
@@ -190,11 +190,11 @@ HASH_SIGN: "#"
 	<return> SEMICOLON | <comment> | <block_comment> | <read_line> SEMICOLON | <atribuicao> SEMICOLON | <incremento> SEMICOLON ;
 
 
-<return> ::= KEYWORD_RETURN <exp>;
+<return> ::= KEYWORD_RETURN <exp>#24;
 
 
-<chamar_funcao> ::= KEYWORD_CALL <id> OPEN_PARENTHESES CLOSE_PARENTHESES | KEYWORD_CALL <id> OPEN_PARENTHESES <parametros_chamar> CLOSE_PARENTHESES;
-<parametros_chamar> ::= <exp> | <parametros_chamar> COMMA <exp>;
+<chamar_funcao> ::= <id>#25 OPEN_PARENTHESES CLOSE_PARENTHESES | <id>#25 OPEN_PARENTHESES <parametros_chamar> CLOSE_PARENTHESES;
+<parametros_chamar> ::= <exp>#24 | <parametros_chamar> COMMA <exp>#24;
 
 
 <comment> ::= COMMENTARY;
@@ -212,20 +212,20 @@ HASH_SIGN: "#"
 <vetor> ::= <id>#5 OPEN_BRACKETS CLOSE_BRACKETS | <id>#5 OPEN_BRACKETS <exp> CLOSE_BRACKETS;
 
 
-<repeticao_while> ::= KEYWORD_WHILE <exp> <bloco> | <repeticao_for>;
-<repeticao_for> ::= KEYWORD_FOR OPEN_PARENTHESES <declaracao_controle> SEMICOLON <exp> SEMICOLON <operacao_incremento> CLOSE_PARENTHESES <bloco>;
+<repeticao_while> ::= KEYWORD_WHILE <exp>#24 <bloco> | <repeticao_for>;
+<repeticao_for> ::= KEYWORD_FOR OPEN_PARENTHESES <declaracao_controle> SEMICOLON <exp>#24 SEMICOLON <operacao_incremento> CLOSE_PARENTHESES <bloco>;
 <declaracao_controle> ::= <declaracao1> | <atribuicao> | <declaracao1> <atribuicao>;
 <operacao_incremento> ::= <atribuicao>;
-<repeticao_do> ::= KEYWORD_DO <bloco> KEYWORD_WHILE <exp>;
+<repeticao_do> ::= KEYWORD_DO <bloco> KEYWORD_WHILE <exp>#24;
 
 
 <incremento> ::= <id>#12 <op_incremento>;
 
-<desvio_if> ::= KEYWORD_IF <exp> <bloco> | KEYWORD_IF <exp>  <bloco> <desvio_else>;
+<desvio_if> ::= KEYWORD_IF <exp>#24 <bloco> | KEYWORD_IF <exp>#24 <bloco> <desvio_else>;
 <desvio_else> ::= KEYWORD_ELSE <bloco>;
 
 
-<print> ::= KEYWORD_PRINT <exp>;
+<print> ::= KEYWORD_PRINT <exp>#24;
 <read_line> ::= <declaracao1> COLON <read>;
 <read> ::= KEYWORD_READ OPEN_PARENTHESES CLOSE_PARENTHESES;
 
