@@ -90,7 +90,12 @@ public class Semantico implements Constants {
                     throw new SemanticError(
                             String.format("Prezado desenvolvedor, a variável \"%s\" já foi declarada", variable.getId()),
                             token.getPosition());
-                } else {
+                } else if(symbolTable.functionExists(variable)){
+                    throw new SemanticError(
+                        String.format("Prezado desenvolvedor, uma função de nome \"%s\" já foi declarada", variable.getId()),
+                        token.getPosition());
+                } 
+                else {
                     symbolTable.addSymbol(variable);
                     symbolTableShow.addSymbol(variable);
 
@@ -133,7 +138,6 @@ public class Semantico implements Constants {
                         String tipo1 = operacoes.pop();
                         String op = operacoes.pop();
                         String tipo2 = operacoes.pop();
-                        System.out.println("SEMANTICO\nTIPO 1: " + tipo1 + "\t TIPO 2: " + tipo2 + "\t OP : " + op);
                         int resultadoAtribuicao = SemanticTable.resultType(tipo1, tipo2, op);
 
                         if (Integer.valueOf(resultadoAtribuicao).equals(SemanticTable.ERR)) {
@@ -144,7 +148,6 @@ public class Semantico implements Constants {
                         } else if (resultadoAtribuicao == SemanticTable.WAR) {
                         }
 
-                        System.out.println("TIPO DO FUDIDO: " + tipo1);
                         operacoes.push(tipo1);
 
                     }

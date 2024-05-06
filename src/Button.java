@@ -42,7 +42,8 @@ public class Button {
         lex.setInput(new StringReader(sourceInput.getText()));
         sem.symbolTableShow.clearTable();
         sem.symbolTable.clearTable();
-    
+
+
         symbols.clear();
     
         try {
@@ -61,13 +62,15 @@ public class Button {
             }
             
             console.setText(mensagem.toString());
-            
             updateTable(sem, table);
+
         } catch (LexicalError | SyntaticError | SemanticError ex) {
             console.setText("Problema na compilação: " + ex.getLocalizedMessage());
             symbols.clear();
             updateTable(sem, table);
+
         }
+
         
     }// GEN-LAST:event_buttonCompileActionPerformed
     
@@ -167,7 +170,7 @@ public class Button {
 
 
     private static void updateTable(Semantico sem, JTable table) {
-        List<Symbol> symbols = sem.symbolTable.getSymbols();
+        List<Symbol> symbols = sem.symbolTableShow.getSymbols();
         String[] columnNames = { "ID", "Tipo", "Inicializado", "Usado", "Escopo", "Parametro", "Posição", "Vetor",
                 "Matriz", "Referência", "Função", "Procedimento" };
         Object[][] data = new Object[symbols.size()][columnNames.length];
