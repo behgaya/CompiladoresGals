@@ -1,24 +1,25 @@
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Stack;
 
 public class Semantico implements Constants {
     public final SymbolTable symbolTable;
-    public SymbolTable symbolTableShow;
     public SemanticTable semanticTable;
-    public Symbol variable = new Symbol();
-    public Symbol functionVariable = new Symbol();
-    public Symbol functionSymbol = new Symbol();
-
+    public SymbolTable symbolTableShow;
     public boolean declaracao = false;
     public boolean isInit = false;
     public boolean isOperation = false;
     public boolean isFunctionCall = false;
-
+    public Symbol variable = new Symbol();
+    public Symbol functionVariable = new Symbol();
+    public Symbol functionSymbol = new Symbol();
+    public String tipo;
     public Stack<Integer> escopo = new Stack<>();
     public Stack<String> operacoes = new Stack<>();
+    public List<String> warningList = new ArrayList<>();
     public int contadorEscopo;
     public int contadorParam;
     public int contadorCallParam;
-    public String tipo;
 
     public Semantico() {
         this.symbolTable = new SymbolTable();
@@ -166,13 +167,14 @@ public class Semantico implements Constants {
                                             + " não é possível"),
                                     token.getPosition());
                         } else if (resultadoAtribuicao == SemanticTable.WAR) {
+                            warningList.add("Caro programador, a operação \"" + op + " entre \"" + tipo1 + "\" e \"" + tipo2 + "\" pode causar perca de precisão");
                         }
 
                         operacoes.push(tipo1);
 
                     }
                     isOperation = false;
-                }
+                } 
 
                 // Verifica o tipo da variável atribuída
                 if (!operacoes.isEmpty() && SemanticTable.atribType(variable.getTipo(), operacoes.peek()) == -1) {
@@ -180,6 +182,8 @@ public class Semantico implements Constants {
                             String.format(
                                     "Prezado desenvolvedor, a variável " + variable.getId() + " de tipo "
                                             + variable.getTipo() + " não pode ser declarada como " + operacoes.pop()));
+                } else if(!operacoes.isEmpty() && SemanticTable.atribType(variable.getTipo(), operacoes.peek()) == 1){
+                    warningList.add("A atribuição de variavel de tipo \"" + variable.getTipo() + "\" como \"" + operacoes.peek() + "\" pode causar perca de precisão");
                 }
                 operacoes.clear();
                 break;
@@ -293,6 +297,7 @@ public class Semantico implements Constants {
                                             + " não é possível"),
                                     token.getPosition());
                         } else if (resultadoAtribuicao == SemanticTable.WAR) {
+                            warningList.add("Caro programador, a operação \"" + op + " entre \"" + tipo1 + "\" e \"" + tipo2 + "\" pode causar perca de precisão");
                         } else {
                             operacoes.push(tipo1);
                         }

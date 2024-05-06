@@ -70,6 +70,10 @@ public class Button{
             if (!mensagemNaoInicializadas.equals("Compilado com sucesso!\n")) {
                 mensagem.append(mensagemNaoInicializadas);
             }
+            for (String warning : sem.warningList) {
+                // Faça algo com cada aviso (warning)
+                mensagem.append(warning);
+            }
             
             console.setText(mensagem.toString());
             updateTable(sem, table);

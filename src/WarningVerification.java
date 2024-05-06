@@ -37,4 +37,6 @@ public class WarningVerification {
             return variaveisNaoInicializadas.toString();
         }
     }
+
+    
 }
