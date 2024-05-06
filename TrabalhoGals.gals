@@ -215,16 +215,16 @@ HASH_SIGN: "#"
 <vetor> ::= <id>#5 OPEN_BRACKETS CLOSE_BRACKETS | <id>#5 OPEN_BRACKETS <exp> CLOSE_BRACKETS;
 
 
-<repeticao_while> ::= KEYWORD_WHILE#30 <exp>#24 <bloco>#2 | <repeticao_for>;
+<repeticao_while> ::= KEYWORD_WHILE#1 <exp>#24 <bloco>#2 | <repeticao_for>;
 <repeticao_for> ::= KEYWORD_FOR#30 OPEN_PARENTHESES <declaracao_controle> SEMICOLON <exp>#24 SEMICOLON <operacao_incremento> CLOSE_PARENTHESES <bloco>#2;
 <declaracao_controle> ::= <declaracao1> | <atribuicao> | <declaracao1> <atribuicao>;
 <operacao_incremento> ::= <atribuicao> | <incremento>;
-<repeticao_do> ::= KEYWORD_DO#30 <bloco>#2 KEYWORD_WHILE <exp>#24;
+<repeticao_do> ::= KEYWORD_DO#1 <bloco>#2 KEYWORD_WHILE <exp>#24;
 
 
 <incremento> ::= <id>#12 <op_incremento>;
 
-<desvio_if> ::= KEYWORD_IF#30 <exp>#24 <bloco>#2 | KEYWORD_IF#30 <exp>#24 <bloco>#2 <desvio_else>;
+<desvio_if> ::= KEYWORD_IF#1 <exp>#24 <bloco>#2 | KEYWORD_IF#1 <exp>#24 <bloco>#2 <desvio_else>;
 <desvio_else> ::= KEYWORD_ELSE <bloco>;
 
 

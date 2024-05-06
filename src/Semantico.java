@@ -36,6 +36,7 @@ public class Semantico implements Constants {
         while (escopo.size() > 1) {
             escopo.pop();
         }
+        warningList.clear();
     }
 
     public void executeAction(int action, Token token) throws SemanticError {
@@ -167,7 +168,7 @@ public class Semantico implements Constants {
                                             + " não é possível"),
                                     token.getPosition());
                         } else if (resultadoAtribuicao == SemanticTable.WAR) {
-                            warningList.add("Caro programador, a operação \"" + op + " entre \"" + tipo1 + "\" e \"" + tipo2 + "\" pode causar perca de precisão");
+                            warningList.add("\nA operação \"" + op + " entre \"" + tipo1 + "\" e \"" + tipo2 + "\" pode causar perca de precisão");
                         }
 
                         operacoes.push(tipo1);
@@ -183,7 +184,7 @@ public class Semantico implements Constants {
                                     "Prezado desenvolvedor, a variável " + variable.getId() + " de tipo "
                                             + variable.getTipo() + " não pode ser declarada como " + operacoes.pop()));
                 } else if(!operacoes.isEmpty() && SemanticTable.atribType(variable.getTipo(), operacoes.peek()) == 1){
-                    warningList.add("A atribuição de variavel de tipo \"" + variable.getTipo() + "\" como \"" + operacoes.peek() + "\" pode causar perca de precisão");
+                    warningList.add("\nA atribuição de variavel de tipo \"" + variable.getTipo() + "\" como \"" + operacoes.peek() + "\" pode causar perca de precisão");
                 }
                 operacoes.clear();
                 break;
@@ -297,7 +298,7 @@ public class Semantico implements Constants {
                                             + " não é possível"),
                                     token.getPosition());
                         } else if (resultadoAtribuicao == SemanticTable.WAR) {
-                            warningList.add("Caro programador, a operação \"" + op + " entre \"" + tipo1 + "\" e \"" + tipo2 + "\" pode causar perca de precisão");
+                            warningList.add("\nA operação \"" + op + " entre \"" + tipo1 + "\" e \"" + tipo2 + "\" pode causar perca de precisão");
                         } else {
                             operacoes.push(tipo1);
                         }
