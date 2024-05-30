@@ -63,13 +63,17 @@ public class Semantico implements Constants {
                 break;
 
             case 4:
+                System.out.println("ENTREI!!!!!!!!!!!!!!!!!!");
                 // Cria uma nova variável com o tipo definido
                 if (!symbolTable.symbolExists(token.getLexeme(), escopo.peek())) {
-                    variable = new Symbol(token.getLexeme(), tipo, false, false, escopo.peek(), false, 0, false, false,
-                            false, false, false, 0);
+                    variable = new Symbol(token.getLexeme(), tipo, false, false, escopo.peek(), false, 0, false, false, false, false, false, 0);
+                } else {
+                    throw new SemanticError(
+                            String.format("Prezado desenvolvedor, a variável \"%s\" já foi declarada no escopo %d",
+                                    token.getLexeme(), escopo.peek()));
                 }
                 break;
-
+            
             case 5:
                 // Define a variável como um vetor
                 variable.setVet(true);
@@ -102,23 +106,24 @@ public class Semantico implements Constants {
                 declaracao = true;
                 break;
 
-            case 9:
+                case 9:
+                System.out.println("ID:" + variable.getId());
                 // Finaliza uma declaração de variável e a adiciona à tabela de símbolos
-                if (symbolTable.symbolExists(token.getLexeme(), escopo.peek())) {
+                if (symbolTable.symbolExists(variable.getId(), escopo.peek())) {
                     throw new SemanticError(
                             String.format("Prezado desenvolvedor, a variável \"%s\" já foi declarada",
-                                    token.getLexeme()),
+                                    variable.getId()),
                             token.getPosition());
-                }
-                else {
+                } else {
                     if (!variable.isFunc()) {
                         symbolTable.addSymbol(variable);
                         symbolTableShow.addSymbol(variable);
                     }
-
+                    variable = new Symbol(); // Reset variable to avoid carrying over previous state
                     declaracao = false;
                 }
                 break;
+            
 
             case 10:
                 // Verifica se a variável está sendo declarada ou usada e adiciona à tabela de

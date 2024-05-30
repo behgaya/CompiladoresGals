@@ -188,7 +188,7 @@ HASH_SIGN: "#"
 <bloco> ::= OPEN_BRACES#1 CLOSE_BRACES#2 | OPEN_BRACES#1 <lista_cmd> CLOSE_BRACES#2;
 <lista_cmd> ::= <cmd> | <lista_cmd> <cmd>;
 <cmd> ::= <declaracao1> SEMICOLON | <repeticao_while> | <chamar_funcao> SEMICOLON | <desvio_if> | <print> SEMICOLON | 
-	<return> SEMICOLON | <comment> | <block_comment> | <read_line> SEMICOLON | <atribuicao> SEMICOLON | <incremento> SEMICOLON ;
+<return> SEMICOLON | <comment> | <block_comment> | <read_line> SEMICOLON | <atribuicao> SEMICOLON | <incremento> SEMICOLON ;
 
 
 <return> ::= KEYWORD_RETURN <exp>#24;

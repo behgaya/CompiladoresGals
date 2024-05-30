@@ -5,16 +5,12 @@ public class CodigosPadroes {
         private List<String> codigosPadroes = new ArrayList<>();
 
         public CodigosPadroes() {
-                codigosPadroes.add("int funcao(int x) {\n" +
-                                "    return 4;\n" +
-                                "}\n" +
-                                "\n" +
-                                "int main() {\n" +
-                                "    int x;\n" +
-                                "    if(x == 2) {\n" +
-                                "        x = funcao(x);\n" +
-                                "    }\n" +
-                                "    x = 3;\n" +
+                codigosPadroes.add(
+                                "int main(){\n" +
+                                        "int x[];\n" +
+                                        "int x[];\n" +
+                                        "int x[];\n" +
+                                        "int x[];\n" +
                                 "}");
 
                 codigosPadroes.add("int main() {\n" +
