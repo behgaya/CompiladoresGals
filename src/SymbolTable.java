@@ -14,8 +14,9 @@ public class SymbolTable {
     }
 
     public boolean symbolExists(String id, int escopo) {
-        for (Symbol symbol : symbolTable) {
-            if (symbol.getId().equals(id) && symbol.getEscopo() == escopo && !symbol.isFunc()) {
+        for (int i = symbolTable.size() - 1; i >= 0; i--) {
+            Symbol symbol = symbolTable.get(i);
+            if (symbol.getId().equals(id) && symbol.getEscopo() <= escopo && !symbol.isFunc()) {
                 return true;
             }
         }

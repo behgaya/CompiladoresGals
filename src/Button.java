@@ -10,42 +10,46 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.List;
-
 
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JTextArea;
 import javax.swing.table.DefaultTableModel;
+import java.awt.BorderLayout;
 
-public class Button{
+public class Button {
     private static MainWindow mainWindow;
 
     public Button(MainWindow mainWindow) {
         Button.mainWindow = mainWindow;
     }
 
-
     public static JButton createButton(MainWindow mainWindow, String iconPath, int width, int height) {
         JButton button = new JButton();
 
         java.net.URL imgUrl = mainWindow.getClass().getResource(iconPath);
-        
+
         Icon icon = new ImageIcon(imgUrl);
         Image img = ((ImageIcon) icon).getImage();
         Image newImg = img.getScaledInstance(width, height, java.awt.Image.SCALE_SMOOTH);
         Icon newIcon = new ImageIcon(newImg);
 
         button.setIcon(newIcon);
-        button.setFont(new java.awt.Font("Helvetica Neue", 0, 14)); 
+        button.setFont(new java.awt.Font("Helvetica Neue", 0, 14));
 
         return button;
     }
 
-    public static void buttonCompileActionPerformed(java.awt.event.ActionEvent evt, javax.swing.JTextArea sourceInput, Semantico sem, List<Symbol> symbols, javax.swing.JTextArea console, JTable table) {// GEN-FIRST:event_buttonCompileActionPerformed
+    public static void buttonCompileActionPerformed(java.awt.event.ActionEvent evt, javax.swing.JTextArea sourceInput,
+            Semantico sem, List<Symbol> symbols, javax.swing.JTextArea console, JTable table) {// GEN-FIRST:event_buttonCompileActionPerformed
         Lexico lex = new Lexico();
         Sintatico sint = new Sintatico();
         lex.setInput(new StringReader(sourceInput.getText()));
@@ -53,17 +57,18 @@ public class Button{
         sem.symbolTable.clearTable();
         sem.resetScope();
 
-
         symbols.clear();
-    
+        sem.resetCodeGenerator();
+
         try {
             sint.parse(lex, sem);
-            
+
             String mensagemNaoUtilizadas = WarningVerification.verificarVariaveisNaoUtilizadas(sem.symbolTableShow);
-            String mensagemNaoInicializadas = WarningVerification.verificarVariaveisNaoInicializadas(sem.symbolTableShow);
-            
+            String mensagemNaoInicializadas = WarningVerification
+                    .verificarVariaveisNaoInicializadas(sem.symbolTableShow);
+
             StringBuilder mensagem = new StringBuilder("Compilado com sucesso!\n");
-            
+
             if (!mensagemNaoUtilizadas.equals("Compilado com sucesso!\n")) {
                 mensagem.append(mensagemNaoUtilizadas).append("\n");
             }
@@ -74,7 +79,7 @@ public class Button{
                 // Faça algo com cada aviso (warning)
                 mensagem.append(warning);
             }
-            
+
             console.setText(mensagem.toString());
             updateTable(sem, table);
 
@@ -86,14 +91,11 @@ public class Button{
 
         }
 
-        
     }// GEN-LAST:event_buttonCompileActionPerformed
-    
-
 
     public static void buttonPasteCustomCode(ActionEvent evt, javax.swing.JTextArea sourceInput) {
         List<String> codigos = codigosPadroes.getCodigosPadroes();
-    
+
         if (!codigos.isEmpty()) {
             String codigoAtual = codigos.get(codigoAtualIndex);
             sourceInput.setText(codigoAtual);
@@ -103,7 +105,8 @@ public class Button{
         }
     }
 
-    public static void buttonSaveActionPerformed(java.awt.event.ActionEvent evt, javax.swing.JTextArea console, javax.swing.JTextArea sourceInput) {
+    public static void buttonSaveActionPerformed(java.awt.event.ActionEvent evt, javax.swing.JTextArea console,
+            javax.swing.JTextArea sourceInput) {
         JFileChooser fileChooser = new JFileChooser();
         if (lastSavedFilePath != null) {
             console.setText("Arquivo foi salvo com sucesso!\n" + lastSavedFilePath);
@@ -124,7 +127,8 @@ public class Button{
         }
     }
 
-    public static void buttonSaveAsActionPerformed(java.awt.event.ActionEvent evt, javax.swing.JTextArea console, javax.swing.JTextArea sourceInput) {
+    public static void buttonSaveAsActionPerformed(java.awt.event.ActionEvent evt, javax.swing.JTextArea console,
+            javax.swing.JTextArea sourceInput) {
         JFileChooser fileChooser = new JFileChooser();
         int returnValue = fileChooser.showSaveDialog(null);
         if (returnValue == JFileChooser.APPROVE_OPTION) {
@@ -150,7 +154,8 @@ public class Button{
         }
     }
 
-    public static void buttonOpenActionPerformed(java.awt.event.ActionEvent evt, javax.swing.JTextArea console, javax.swing.JTextArea sourceInput) {
+    public static void buttonOpenActionPerformed(java.awt.event.ActionEvent evt, javax.swing.JTextArea console,
+            javax.swing.JTextArea sourceInput) {
         JFileChooser fileChooser = new JFileChooser();
         int returnValue = fileChooser.showOpenDialog(null);
 
@@ -171,7 +176,7 @@ public class Button{
                 }
                 sourceInput.setText(content.toString());
                 console.setText("Arquivo aberto com sucesso!");
-                //setTitle(selectedFile.getName() + " - IDE do Professor");
+                // setTitle(selectedFile.getName() + " - IDE do Professor");
                 lastSavedFilePath = selectedFile.getAbsolutePath();
 
             } catch (IOException e) {
@@ -179,7 +184,6 @@ public class Button{
             }
         }
     }
-
 
     private static void updateTable(Semantico sem, JTable table) {
         List<Symbol> symbols;
@@ -193,56 +197,95 @@ public class Button{
         String[] columnNames = { "ID", "Tipo", "Inicializado", "Usado", "Escopo", "Parametro", "Posição", "Vetor",
                 "Matriz", "Referência", "Função", "Procedimento", "Qtd Parametros" };
         Object[][] data = new Object[symbols.size()][columnNames.length];
-    
+
         for (int i = 0; i < symbols.size(); i++) {
             Symbol symbol = symbols.get(i);
             data[i] = new Object[] { symbol.getId(), symbol.getTipo(), symbol.isIni(), symbol.isUsada(),
                     symbol.getEscopo(), symbol.isParam(), symbol.getPos(), symbol.isVet(), symbol.isMatriz(),
                     symbol.isRef(), symbol.isFunc(), symbol.isProc(), symbol.getQuantparam() };
         }
-    
+
         DefaultTableModel model = new DefaultTableModel(data, columnNames);
         table.setModel(model);
     }
 
-    
-    public static void ButtonToggleDarkMode(MainWindow mainWindow, JButton buttonSave, JButton buttonSaveAs, JButton buttonOpen, JButton buttonCompile, JButton buttonDarkMode, JButton buttonCustomCode, javax.swing.JTextArea sourceInput, javax.swing.JTextArea console) {
+    public static void ButtonToggleDarkMode(MainWindow mainWindow, JButton buttonSave, JButton buttonSaveAs,
+            JButton buttonOpen, JButton buttonCompile, JButton buttonDarkMode, JButton buttonCustomCode,
+            javax.swing.JTextArea sourceInput, javax.swing.JTextArea console) {
         isDarkMode = !isDarkMode;
         setComponentColors(mainWindow.getContentPane(),
-                new JButton[] { buttonSave, buttonSaveAs, buttonOpen, buttonCompile, buttonDarkMode, buttonCustomCode }, sourceInput, console);
+                new JButton[] { buttonSave, buttonSaveAs, buttonOpen, buttonCompile, buttonDarkMode, buttonCustomCode },
+                sourceInput, console);
     }
-    
-    public static void setComponentColors(Container container, JButton[] buttons, javax.swing.JTextArea sourceInput, javax.swing.JTextArea console) {
+
+    public static void setComponentColors(Container container, JButton[] buttons, javax.swing.JTextArea sourceInput,
+            javax.swing.JTextArea console) {
         Color backgroundColor;
         Color foregroundColor;
-    
+
         if (isDarkMode) {
             backgroundColor = Color.darkGray;
             foregroundColor = Color.white;
-    
+
         } else {
             backgroundColor = null;
             foregroundColor = Color.black;
         }
-    
+
         container.setBackground(backgroundColor);
-    
+
         for (JButton button : buttons) {
             button.setBackground(backgroundColor);
             button.setForeground(foregroundColor);
         }
-    
+
         sourceInput.setBackground(backgroundColor);
         sourceInput.setForeground(foregroundColor);
-    
+
         console.setBackground(backgroundColor);
         console.setForeground(foregroundColor);
     }
 
-    
     public static void changeTable() {
         // Altera o índice da tabela atualmente selecionada
         currentTableIndex = (currentTableIndex + 1) % 2;
+    }
+
+    public static void generateAssemblyActionPerformed(java.awt.event.ActionEvent evt, Semantico sem) {
+        
+        CodeGenerator codeGenerator = sem.getCodeGenerator();
+
+        List<String> assemblyCode = codeGenerator.getCodeLines();
+        // assemblyCode.add("MOV AX, 5"); // Exemplo de instrução assembly
+        // assemblyCode.add("ADD BX, AX"); // Outra instrução assembly
+
+        // Criar uma nova janela para exibir o código assembly
+        JFrame assemblyWindow = new JFrame("Assembly Code");
+        JTextArea assemblyTextArea = new JTextArea();
+        assemblyTextArea.setEditable(false);
+
+        assemblyTextArea.append(".data\n");
+        for (String line : assemblyCode) {
+            if (line.startsWith("VariableType")) {
+                String processedLine = line.replaceFirst("VariableType", "").trim();
+                assemblyTextArea.append("     " + processedLine + "\n");
+                // Remova a linha da lista de assemblyCode, se necessário
+            }
+        }
+        
+        assemblyTextArea.append(".text\n");
+        for (String line : assemblyCode) {
+            if (line.startsWith("Instruction")) {
+                String processedLine = line.replaceFirst("Instruction", "").trim();
+                assemblyTextArea.append("     " + processedLine + "\n");
+                // Remova a linha da lista de assemblyCode, se necessário
+            }
+        }
+        
+
+        assemblyWindow.add(new JScrollPane(assemblyTextArea), BorderLayout.CENTER);
+        assemblyWindow.setSize(500, 400);
+        assemblyWindow.setVisible(true);
     }
 
     private static int codigoAtualIndex = 0;

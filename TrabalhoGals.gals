@@ -249,7 +249,7 @@ HASH_SIGN: "#"
 <exp7> ::= <exp7> <op_arit_baixa> <exp8> | <exp8>;
 <exp8> ::= <exp8> <op_arit_alta> <exp9> | <exp9>;
 <exp9> ::= <op_neg>#19 <exp10> | <exp10>;
-<exp10> ::= STRING_VALUE#14 | INTEGER_NUMBER#15 | FLOAT_NUMBER#16 | <bool>#17 | CHAR_VALUE#18 | OPEN_PARENTHESES <exp> CLOSE_PARENTHESES | <id>#13 | <vetor> | <chamar_funcao>;
+<exp10> ::= STRING_VALUE#14 | INTEGER_NUMBER#15 | FLOAT_NUMBER#16 | <bool>#17 | CHAR_VALUE#18 | OPEN_PARENTHESES <exp> CLOSE_PARENTHESES | <variavel>#13 | <chamar_funcao>;
 
 
 <op_rel> ::= BIGGER_THAN | LESS_THAN | BIGGER_EQUAL | LESS_EQUAL | EQUALS | NOT_EQUAL | EQUAL_TO;

@@ -25,7 +25,7 @@ public class MainWindow extends javax.swing.JFrame {
         sourceInput = new javax.swing.JTextArea();
         jScrollPane2 = new javax.swing.JScrollPane();
         console = new javax.swing.JTextArea();
-        Button buttonFunction = new Button(this);
+        //Button buttonFunction = new Button(this);
 
         buttonCompile = Button.createButton(this, "icons/compile.png", 30, 30);
         buttonSave = Button.createButton(this, "icons/save.png", 30, 30);
@@ -33,6 +33,7 @@ public class MainWindow extends javax.swing.JFrame {
         buttonSaveAs = Button.createButton(this, "icons/saveAs.png", 30, 30);
         buttonDarkMode = Button.createButton(this, "icons/dark.png", 30, 30);
         buttonCustomCode = Button.createButton(this, "icons/code.png", 30, 30);
+        buttonGenerateAssembly = Button.createButton(this, "icons/assembly.png", 30, 30);
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("IDE do Professor");
 
@@ -65,6 +66,11 @@ public class MainWindow extends javax.swing.JFrame {
         buttonCustomCode.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent evt) {
                 Button.buttonPasteCustomCode(evt, sourceInput);
+            }
+        });
+        buttonGenerateAssembly.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                Button.generateAssemblyActionPerformed(evt, sem);
             }
         });
 
@@ -111,6 +117,8 @@ public class MainWindow extends javax.swing.JFrame {
                     .addComponent(buttonCompile)
                     .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                     .addComponent(buttonDarkMode) 
+                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                    .addComponent(buttonGenerateAssembly) 
                     .addContainerGap())
                 .addGroup(layout.createSequentialGroup()
                     .addContainerGap()
@@ -131,6 +139,7 @@ public class MainWindow extends javax.swing.JFrame {
                         .addComponent(buttonCompile)
                         .addComponent(buttonDarkMode) 
                         .addComponent(buttonCustomCode)
+                        .addComponent(buttonGenerateAssembly)
 
                     )
                     .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -145,6 +154,7 @@ public class MainWindow extends javax.swing.JFrame {
         );
         
         pack();
+        
     }
 
 
@@ -204,6 +214,7 @@ public class MainWindow extends javax.swing.JFrame {
     private JButton buttonSaveAs;
     private JButton buttonDarkMode;
     private JButton buttonCustomCode;
+    private JButton buttonGenerateAssembly;
 
     private Semantico sem = new Semantico();
     private List<Symbol> symbols;

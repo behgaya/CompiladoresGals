@@ -6,13 +6,16 @@ public class Semantico implements Constants {
     public final SymbolTable symbolTable;
     public SemanticTable semanticTable;
     public SymbolTable symbolTableShow;
-    public boolean declaracao = false;
+    public boolean auxDeclaracao = false;
+    public boolean declaracao = false;    
     public boolean isInit = false;
     public boolean isOperation = false;
     public boolean isFunctionCall = false;
     public Symbol variable = new Symbol();
     public Symbol functionVariable = new Symbol();
     public Symbol functionSymbol = new Symbol();
+    public String operation;
+    public String dotData;
     public String tipo;
     public Stack<Integer> escopo = new Stack<>();
     public Stack<String> operacoes = new Stack<>();
@@ -20,6 +23,7 @@ public class Semantico implements Constants {
     public int contadorEscopo;
     public int contadorParam;
     public int contadorCallParam;
+    private CodeGenerator codeGenerator = new CodeGenerator();
 
     public Semantico() {
         this.symbolTable = new SymbolTable();
@@ -29,6 +33,7 @@ public class Semantico implements Constants {
         contadorCallParam = 0;
         escopo.clear();
         escopo.push(contadorEscopo);
+
     }
 
     public void resetScope() {
@@ -37,6 +42,14 @@ public class Semantico implements Constants {
             escopo.pop();
         }
         warningList.clear();
+    }
+
+    public void resetCodeGenerator() {
+        this.codeGenerator.reset();
+    }
+
+    public CodeGenerator getCodeGenerator() {
+        return codeGenerator;
     }
 
     public void executeAction(int action, Token token) throws SemanticError {
@@ -53,7 +66,6 @@ public class Semantico implements Constants {
                 // Fecha o escopo atual e remove os símbolos associados a ele
                 int escopoDesejado = escopo.pop();
                 contadorEscopo--;
-
                 symbolTable.removeSymbolsByScope(escopoDesejado);
                 break;
 
@@ -63,17 +75,13 @@ public class Semantico implements Constants {
                 break;
 
             case 4:
-                System.out.println("ENTREI!!!!!!!!!!!!!!!!!!");
                 // Cria uma nova variável com o tipo definido
                 if (!symbolTable.symbolExists(token.getLexeme(), escopo.peek())) {
-                    variable = new Symbol(token.getLexeme(), tipo, false, false, escopo.peek(), false, 0, false, false, false, false, false, 0);
-                } else {
-                    throw new SemanticError(
-                            String.format("Prezado desenvolvedor, a variável \"%s\" já foi declarada no escopo %d",
-                                    token.getLexeme(), escopo.peek()));
+                    variable = new Symbol(token.getLexeme(), tipo, false, false, escopo.peek(), false, 0, false, false,
+                            false, false, false, 0);
                 }
                 break;
-            
+
             case 5:
                 // Define a variável como um vetor
                 variable.setVet(true);
@@ -106,37 +114,38 @@ public class Semantico implements Constants {
                 declaracao = true;
                 break;
 
-                case 9:
-                System.out.println("ID:" + variable.getId());
+            case 9:
                 // Finaliza uma declaração de variável e a adiciona à tabela de símbolos
                 if (symbolTable.symbolExists(variable.getId(), escopo.peek())) {
+                    System.out.println("ENTREI CASE 9");
                     throw new SemanticError(
                             String.format("Prezado desenvolvedor, a variável \"%s\" já foi declarada",
-                                    variable.getId()),
-                            token.getPosition());
+                                variable.getId()));
                 } else {
                     if (!variable.isFunc()) {
                         symbolTable.addSymbol(variable);
                         symbolTableShow.addSymbol(variable);
                     }
-                    variable = new Symbol(); // Reset variable to avoid carrying over previous state
+                    codeGenerator.declareVariable(variable.getId(), "0");
                     declaracao = false;
                 }
                 break;
-            
 
             case 10:
-                // Verifica se a variável está sendo declarada ou usada e adiciona à tabela de
-                // símbolos
+                // Verifica se a variável está sendo declarada ou usada e adiciona à tabela de símbolos
                 if (declaracao) {
                     if (symbolTable.symbolExists(token.getLexeme(), escopo.peek())) {
+                        System.out.println("ENTREI CASE 10");
                         throw new SemanticError(
                                 String.format("Prezado desenvolvedor, a variável \"%s\" já foi declarada",
                                         token.getLexeme()));
                     }
-                    declaracao = false;
+                               
+                    //declaracao = false;
                     symbolTable.addSymbol(variable);
                     symbolTableShow.addSymbol(variable);
+                    dotData = token.getLexeme();
+
                 } else {
                     variable = symbolTable.getSymbol(token.getLexeme());
                     if (!symbolTable.symbolExists(token.getLexeme(), escopo.peek())) {
@@ -145,38 +154,39 @@ public class Semantico implements Constants {
                                         token.getLexeme()),
                                 token.getPosition());
                     }
-                    declaracao = false;
-
+                    dotData = token.getLexeme();
                 }
                 break;
 
             case 11:
-                // Define a variável como inicializada e realiza operações de atribuição se
-                // houver
+                // Define a variável como inicializada e realiza operações de atribuição se houver
                 if (variable != null) {
                     variable.setIni(true);
                 }
+                if(!isOperation && declaracao){
+                    codeGenerator.declareVariable(dotData, token.getLexeme());
+                    auxDeclaracao = true;
+                    declaracao = false;
+                }
 
                 if (isOperation) {
-                    // Realiza operações de atribuição
+                    codeGenerator.declareVariable(dotData, "0");
                     while (operacoes.size() > 3) {
                         String tipo1 = operacoes.pop();
                         String op = operacoes.pop();
                         String tipo2 = operacoes.pop();
                         int resultadoAtribuicao = SemanticTable.resultType(tipo1, tipo2, op);
-
                         if (Integer.valueOf(resultadoAtribuicao).equals(SemanticTable.ERR)) {
                             throw new SemanticError(
                                     String.format("Prezado desenvolvedor, a soma das variáveis " + tipo1 + " e " + tipo2
                                             + " não é possível"),
                                     token.getPosition());
                         } else if (resultadoAtribuicao == SemanticTable.WAR) {
-                            warningList.add("\nA operação \"" + op + " entre \"" + tipo1 + "\" e \"" + tipo2 + "\" pode causar perca de precisão");
+                            warningList.add("\nA operação \"" + op + " entre \"" + tipo1 + "\" e \"" + tipo2
+                                    + "\" pode causar perca de precisão");
                         }
-
                         operacoes.push(tipo1);
-
-                    }
+                    }  
                     isOperation = false;
                 } 
 
@@ -186,8 +196,13 @@ public class Semantico implements Constants {
                             String.format(
                                     "Prezado desenvolvedor, a variável " + variable.getId() + " de tipo "
                                             + variable.getTipo() + " não pode ser declarada como " + operacoes.pop()));
-                } else if(!operacoes.isEmpty() && SemanticTable.atribType(variable.getTipo(), operacoes.peek()) == 1){
-                    warningList.add("\nA atribuição de variavel de tipo \"" + variable.getTipo() + "\" como \"" + operacoes.peek() + "\" pode causar perca de precisão");
+                } else if (!operacoes.isEmpty() && SemanticTable.atribType(variable.getTipo(), operacoes.peek()) == 1) {
+                    warningList.add("\nA atribuição de variavel de tipo \"" + variable.getTipo() + "\" como \""
+                            + operacoes.peek() + "\" pode causar perca de precisão");
+                }
+
+                if(!auxDeclaracao){
+                    codeGenerator.addInstruction("STO ", variable.getId());
                 }
                 operacoes.clear();
                 break;
@@ -213,6 +228,20 @@ public class Semantico implements Constants {
                             token.getPosition());
                 }
 
+                if(!isOperation){
+                    System.out.println("ENTREI if 1");
+                    codeGenerator.addInstruction("LD ", token.getLexeme());
+                } else {
+                    System.out.println("ENTREI if 2");
+
+                    if(operacoes.peek() == "SUM"){
+                        codeGenerator.addInstruction("ADD ", token.getLexeme());
+                    } 
+                    if(operacoes.peek() == "SUB"){
+                        codeGenerator.addInstruction("SUB ", token.getLexeme());
+                    } 
+                }
+
                 Symbol variableExp = symbolTable.getSymbol(token.getLexeme());
                 variableExp.setUsada(true);
                 operacoes.push(variableExp.getTipo());
@@ -221,41 +250,43 @@ public class Semantico implements Constants {
                 break;
 
             case 14:
-                // Define o tipo da operação como string
                 operacoes.push("string");
                 break;
 
             case 15:
-                // Define o tipo da operação como int
+                if(!isOperation && auxDeclaracao){
+                    codeGenerator.addInstruction("LDI ", token.getLexeme());
+                    auxDeclaracao = false;
+                } else if(isOperation) {
+                    if(operacoes.peek() == "SUM"){
+                        codeGenerator.addInstruction("ADDI ", token.getLexeme());
+                    } 
+                    if(operacoes.peek() == "SUB"){
+                        codeGenerator.addInstruction("SUBI ", token.getLexeme());
+                    } 
+                }
+
                 operacoes.push("int");
                 break;
 
             case 16:
-                // Define o tipo da operação como float
                 operacoes.push("float");
                 break;
 
             case 17:
-                // Define o tipo da operação como bool
                 operacoes.push("bool");
                 break;
 
             case 18:
-                // Define o tipo da operação como char
                 operacoes.push("char");
                 break;
 
             case 19:
-                // Define o tipo da operação como REL (relacional) e indica que uma operação
-                // está sendo realizada
                 operacoes.push("REL");
                 isOperation = true;
                 break;
 
             case 20:
-                // Define o tipo da operação como SUM (soma) e indica que uma operação está
-                // sendo realizada
-
                 operacoes.push("SUM");
                 isOperation = true;
 
@@ -287,6 +318,7 @@ public class Semantico implements Constants {
                 if (isFunctionCall) {
                     contadorCallParam++;
                 }
+
                 if (isOperation) {
                     while (operacoes.size() > 3) {
                         String tipo1 = operacoes.pop();
@@ -299,13 +331,14 @@ public class Semantico implements Constants {
                                             + " não é possível"),
                                     token.getPosition());
                         } else if (resultadoAtribuicao == SemanticTable.WAR) {
-                            warningList.add("\nA operação \"" + op + " entre \"" + tipo1 + "\" e \"" + tipo2 + "\" pode causar perca de precisão");
+                            warningList.add("\nA operação \"" + op + " entre \"" + tipo1 + "\" e \"" + tipo2
+                                    + "\" pode causar perca de precisão");
                         } else {
                             operacoes.push(tipo1);
                         }
                     }
                 }
-                // Limpa a pilha de operações
+
                 operacoes.clear();
                 isOperation = false;
                 break;
