@@ -7,8 +7,8 @@ public class CodigosPadroes {
         public CodigosPadroes() {
                 codigosPadroes.add(
                                 "int main(){\n" +
-                                        "\tint a = 2;\n" +
-                                        "\tint x = 1 + 1 + 1;\n" +
+                                        "\tint a;\n" +
+                                        "\tint a = 2 + 5;\n" +
                                 "}");
 
                 codigosPadroes.add("int main() {\n" +

@@ -147,6 +147,8 @@ HASH_SIGN: "#"
 <declaracao4>
 <op_atribuicao>
 <vetor>
+<vetor_atribuicao>
+<int_list>
 <repeticao_for>
 <declaracao_controle>
 <operacao_incremento>
@@ -213,8 +215,10 @@ HASH_SIGN: "#"
 <atribuicao> ::= <variavel>#10 <op_atribuicao> <exp>#11;
 <variavel> ::= <id> | <vetor>;
 <vetor> ::= <id>#5 OPEN_BRACKETS CLOSE_BRACKETS | <id>#5 OPEN_BRACKETS <exp> CLOSE_BRACKETS;
+<vetor_atribuicao> ::= OPEN_BRACKETS <int_list> CLOSE_BRACKETS;
 
 
+<int_list> ::= INTEGER_NUMBER | INTEGER_NUMBER COMMA <int_list>;
 <repeticao_while> ::= KEYWORD_WHILE#1 <exp>#24 <bloco>#2 | <repeticao_for>;
 <repeticao_for> ::= KEYWORD_FOR#30 OPEN_PARENTHESES <declaracao_controle> SEMICOLON <exp>#24 SEMICOLON <operacao_incremento> CLOSE_PARENTHESES <bloco>#2;
 <declaracao_controle> ::= <declaracao1> | <atribuicao> | <declaracao1> <atribuicao>;
@@ -228,7 +232,7 @@ HASH_SIGN: "#"
 <desvio_else> ::= KEYWORD_ELSE <bloco>;
 
 
-<print> ::= KEYWORD_PRINT <exp>#24;
+<print> ::= KEYWORD_PRINT#31 <exp>#24;
 <read_line> ::= <declaracao1> COLON <read>;
 <read> ::= KEYWORD_READ OPEN_PARENTHESES CLOSE_PARENTHESES;
 
@@ -249,7 +253,7 @@ HASH_SIGN: "#"
 <exp7> ::= <exp7> <op_arit_baixa> <exp8> | <exp8>;
 <exp8> ::= <exp8> <op_arit_alta> <exp9> | <exp9>;
 <exp9> ::= <op_neg>#19 <exp10> | <exp10>;
-<exp10> ::= STRING_VALUE#14 | INTEGER_NUMBER#15 | FLOAT_NUMBER#16 | <bool>#17 | CHAR_VALUE#18 | OPEN_PARENTHESES <exp> CLOSE_PARENTHESES | <variavel>#13 | <chamar_funcao>;
+<exp10> ::= <variavel>#13 | STRING_VALUE#14 | INTEGER_NUMBER#15 | FLOAT_NUMBER#16 | <bool>#17 | CHAR_VALUE#18 | OPEN_PARENTHESES <exp> CLOSE_PARENTHESES | <chamar_funcao> | <vetor_atribuicao>;
 
 
 <op_rel> ::= BIGGER_THAN | LESS_THAN | BIGGER_EQUAL | LESS_EQUAL | EQUALS | NOT_EQUAL | EQUAL_TO;
