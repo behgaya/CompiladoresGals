@@ -263,10 +263,15 @@ public class Button {
         JFrame assemblyWindow = new JFrame("Assembly Code");
         JTextArea assemblyTextArea = new JTextArea();
         assemblyTextArea.setEditable(false);
-
-        assemblyTextArea.append(".data\n");
+        boolean firstVariable = true;
         for (String line : assemblyCode) {
+
             if (line.startsWith("VariableType")) {
+                if(firstVariable){
+                    assemblyTextArea.append(".data\n");
+                    firstVariable = false;
+                }
+
                 String processedLine = line.replaceFirst("VariableType", "").trim();
                 assemblyTextArea.append("     " + processedLine + "\n");
                 // Remova a linha da lista de assemblyCode, se necessário
