@@ -7,7 +7,7 @@ ParserName = Sintatico
 SemanticName = Semantico
 ScannerCaseSensitive = false
 ScannerTable = Compact
-Input = String
+Input = Stream
 Parser = SLR
 #RegularDefinitions
 id: [a-zA-Z][a-zA-Z0-9_]*
@@ -217,10 +217,10 @@ HASH_SIGN: "#"
 
 
 //======================================================================
-<atribuicao> ::= <variavel>#10 <op_atribuicao> <exp>#11 | <variavel>#10 <op_atribuicao> OPEN_BRACKETS#34 <valores_vetor> CLOSE_BRACKETS#35;
+<atribuicao> ::= <variavel>#10 <op_atribuicao>#37 <exp>#11 | <variavel>#10 <op_atribuicao> OPEN_BRACKETS#34 <valores_vetor> CLOSE_BRACKETS#35;
 <valores_vetor> ::= <exp>#33 | <exp>#33 COMMA <valores_vetor>;
 <variavel> ::= <id> | <vetor>;
-<vetor> ::= <id>#5 OPEN_BRACKETS CLOSE_BRACKETS | <id>#5 OPEN_BRACKETS <exp>#36 CLOSE_BRACKETS;
+<vetor> ::= <id>#5 OPEN_BRACKETS CLOSE_BRACKETS | <id>#5 OPEN_BRACKETS <exp>#24 CLOSE_BRACKETS#36;
 //======================================================================
 
 

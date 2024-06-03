@@ -57,6 +57,7 @@ public class Button {
 
         symbols.clear();
         sem.resetCodeGenerator();
+        sem.resetAll();
 
         try {
             sint.parse(lex, sem);
