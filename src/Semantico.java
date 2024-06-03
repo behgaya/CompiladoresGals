@@ -366,7 +366,7 @@ public class Semantico implements Constants {
                     codeGenerator.addInstruction("LD ", "1000");
                     codeGenerator.addInstruction("STO ", "$indr");
                     codeGenerator.addInstruction("LD ", Integer.toString(valorTemporario));
-                    codeGenerator.addInstruction("STOV ", tokenAux);
+                    codeGenerator.addInstruction("STOV ", attributionValue);
                     valorTemporario++;
                 }
 
@@ -603,7 +603,7 @@ public class Semantico implements Constants {
                 if(variable.isVet()){
                     codeGenerator.addInstruction("STO ", "$indr");
                     codeGenerator.addInstruction("LD ", "$in_port");
-                    codeGenerator.addInstruction("STOV ", variable.getId());
+                    codeGenerator.addInstruction("STO ", variable.getId());
 
                     isRead = false;
                 } else {
