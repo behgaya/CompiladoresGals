@@ -97,6 +97,8 @@ public class Semantico implements Constants {
         isFunctionCall = false;
         isOperation = false;
         isPrint = false;
+        isRead = false;
+                    
         isAttribution = true;
         attribIsVector = false;
         lastIsVec = false;
@@ -510,6 +512,7 @@ public class Semantico implements Constants {
                         codeGenerator.addInstruction("STO ", "$out_port");
                         isPrint = false;
                     }
+
                 } else {
                     //System.out.println("isAttribution: " + isAttribution);
                     if (isPrint) {
@@ -519,6 +522,7 @@ public class Semantico implements Constants {
                         } else {
                             codeGenerator.addInstruction("STO ", "$out_port");
                             contPrint = 0;
+                            isPrint = false;
                         }
                     } else if (isAttribution) {
                         codeGenerator.addInstruction("STO ", "1000");
@@ -592,12 +596,21 @@ public class Semantico implements Constants {
                 break;
             case 32:
                 System.out.println("Case 32");
-                if (!symbolTable.symbolExists(token.getLexeme(), escopo.peek())) {
+                System.out.println(variable.getId());
+                if (!symbolTable.symbolExists(variable.getId(), escopo.peek())) {
                     semanticError("Caro programador, a variavel \"%s\" não foi designada", variable.getId());
                 }
+                if(variable.isVet()){
+                    codeGenerator.addInstruction("STO ", "$indr");
+                    codeGenerator.addInstruction("LD ", "$in_port");
+                    codeGenerator.addInstruction("STOV ", variable.getId());
 
-                codeGenerator.addInstruction("LD ", "$in_port");
-                codeGenerator.addInstruction("STO ", token.getLexeme());
+                    isRead = false;
+                } else {
+                    codeGenerator.addInstruction("LD ", "$in_port");
+                    codeGenerator.addInstruction("STO ", variable.getId());
+                }
+
                 break;
             case 33:
                 System.out.println("Case 33");
