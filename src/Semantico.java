@@ -177,18 +177,20 @@ public class Semantico implements Constants {
                             false, false, false, 0, 0);
                 } else {
                     variable = symbolTable.getSymbol(token.getLexeme());
+                    //variableAux = symbolTable.getSymbol(token.getLexeme());
                 }
                 System.out.println("Case 4\tvariable: " + variable.getId() + "\ttoken: " + token.getLexeme());
 
                 tokenAux = token.getLexeme();
-                variableAux = symbolTable.getSymbol(token.getLexeme());
                 break;
 
             case 5:
                 System.out.println("Case 5\tvariable: " + variable.getId() + "\ttoken: " + token.getLexeme());
                 variable.setVet(true);
                 tokenAux = token.getLexeme();
-                variableAux = symbolTable.getSymbol(token.getLexeme());
+                // if (symbolTable.symbolExists(token.getLexeme(), escopo.peek())) {
+                //     variableAux = symbolTable.getSymbol(token.getLexeme());
+                // }
 
                 break;
 
@@ -298,12 +300,12 @@ public class Semantico implements Constants {
                             + operacoes.peek() + "\" pode causar perca de precisão");
                 }
 
-                if (!isDeclarationNotOperation && isAttribution) {
+                if (!isDeclarationNotOperation) {
                     if (!variable.isVet()) {
                         codeGenerator.addInstruction("STO ", tokenAux);
-                    } else {
+                    } else if (variableAux.getId() != null) {
+                        System.out.println("STOV " + tokenAux + "\tvariableAux = " + variableAux.getId());
                         codeGenerator.addInstruction("STOV ", tokenAux);
-                        //isAttribution = false;
                     }
                 }
 
@@ -564,22 +566,25 @@ public class Semantico implements Constants {
                 break;
 
             case 36:
-                codeGenerator.addInstruction("STO ", Integer.toString(valorTemporario));
-                valorTemporario--;
-                codeGenerator.addInstruction("LD ", Integer.toString(valorTemporario));
-                valorTemporario++;
-                codeGenerator.addInstruction("ADD ", Integer.toString(valorTemporario));
-                System.out.println("STO " + tokenAux);
-                if(variable.isVet()){
-                    codeGenerator.addInstruction("STOV ", variable.getId());
-                } else {
-                    codeGenerator.addInstruction("STO ", variable.getId());
-
+                if(!isAttribution){
+                    codeGenerator.addInstruction("STO ", Integer.toString(valorTemporario));
+                    valorTemporario--;
+                    codeGenerator.addInstruction("LD ", Integer.toString(valorTemporario));
+                    valorTemporario++;
+                    codeGenerator.addInstruction("ADD ", Integer.toString(valorTemporario));
+                    System.out.println("STO " + tokenAux);
+                    if(variable.isVet()){
+                        codeGenerator.addInstruction("STOV ", variable.getId());
+                    } else {
+                        codeGenerator.addInstruction("STO ", variable.getId());
+    
+                    }
                 }
                 
                 break;
 
             case 37:
+                variableAux = new Symbol();
                 isAttribution = false;
                 break;
 
