@@ -27,10 +27,12 @@ public class Semantico implements Constants {
     public Stack<String> operacoes = new Stack<>();
     public List<String> warningList = new ArrayList<>();
     public List<String> vetorStrings = new ArrayList<>();
+    public int contadorCallParam;
     public int valorTemporario = 1001;
     public int contadorEscopo;
     public int contadorParam;
-    public int contadorCallParam;
+    public int tamahoVetor = 0;
+
     private CodeGenerator codeGenerator = new CodeGenerator();
 
     public Semantico() {
@@ -595,7 +597,15 @@ public class Semantico implements Constants {
                 if (isOperation) {
                     operationIsCompatible(token);
                 }
-                codeGenerator.popInstruction();
+
+                //codeGenerator.popInstruction();
+                codeGenerator.addInstruction("STO ", "1000");
+                codeGenerator.addInstruction("LDI ", Integer.toString(vetorStrings.size()));
+                codeGenerator.addInstruction("STO ", "$indr");
+                codeGenerator.addInstruction("LD ", "1000");
+
+                codeGenerator.addInstruction("STOV ", variable.getId());
+
                 vetorStrings.add(token.getLexeme());
                 break;
             case 34:
@@ -610,6 +620,7 @@ public class Semantico implements Constants {
 
             case 35:
                 System.out.println("Case 35");
+
                 codeGenerator.declareArray(variable.getId(), vetorStrings);
                 vetorStrings.clear();
                 variable.setIni(true);
