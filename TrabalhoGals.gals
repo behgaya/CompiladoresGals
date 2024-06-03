@@ -7,7 +7,7 @@ ParserName = Sintatico
 SemanticName = Semantico
 ScannerCaseSensitive = false
 ScannerTable = Compact
-Input = Stream
+Input = String
 Parser = SLR
 #RegularDefinitions
 id: [a-zA-Z][a-zA-Z0-9_]*
@@ -143,6 +143,7 @@ HASH_SIGN: "#"
 <parametros_chamar>
 <declaracao2>
 <atribuicao>
+<valores_vetor>
 <declaracao3>
 <declaracao4>
 <op_atribuicao>
@@ -177,24 +178,27 @@ HASH_SIGN: "#"
 #Grammar
 <programa> ::= <lista_rotina>;
 
-
+//======================================================================
 <lista_rotina> ::= <rotina> | <lista_rotina> <rotina>;
 <rotina> ::= <funcao> | <procedimento> | <lista_comentarios>; 
+//======================================================================
 
-
+//======================================================================
 <funcao> ::= <tipo> <id>#6  OPEN_PARENTHESES <parenteses_funcao> CLOSE_PARENTHESES#27 <bloco>#2 | <tipo> <id>#6 OPEN_PARENTHESES CLOSE_PARENTHESES#27 <bloco>#2;
 <procedimento> ::= <void>#7 <id> OPEN_PARENTHESES <parenteses_funcao> CLOSE_PARENTHESES <bloco> | <void>#7 <id> OPEN_PARENTHESES CLOSE_PARENTHESES <bloco>;
 <parenteses_funcao> ::= <declaracao>#26 | <declaracao>#26 COMMA <parenteses_funcao>;
+//======================================================================
 
-
+//======================================================================
 <bloco> ::= OPEN_BRACES#1 CLOSE_BRACES#2 | OPEN_BRACES#1 <lista_cmd> CLOSE_BRACES#2;
 <lista_cmd> ::= <cmd> | <lista_cmd> <cmd>;
 <cmd> ::= <declaracao1> SEMICOLON | <repeticao_while> | <chamar_funcao> SEMICOLON | <desvio_if> | <print> SEMICOLON | 
-<return> SEMICOLON | <comment> | <block_comment> | <read_line> SEMICOLON | <atribuicao> SEMICOLON | <incremento> SEMICOLON ;
+<return> SEMICOLON | <comment> | <block_comment> | <read> | <atribuicao> SEMICOLON | <incremento> SEMICOLON ;
+//======================================================================
 
-
+//======================================================================
 <return> ::= KEYWORD_RETURN <exp>#24;
-
+//======================================================================
 
 <chamar_funcao> ::= <id>#25 OPEN_PARENTHESES#28 CLOSE_PARENTHESES#29 | <id>#25 OPEN_PARENTHESES#28 <parametros_chamar> CLOSE_PARENTHESES#29;
 <parametros_chamar> ::= <exp>#24 | <parametros_chamar> COMMA <exp>#24;
@@ -212,13 +216,14 @@ HASH_SIGN: "#"
 <declaracao4> ::= <declaracao1> COMMA <atribuicao>;
 
 
-<atribuicao> ::= <variavel>#10 <op_atribuicao> <exp>#11;
+//======================================================================
+<atribuicao> ::= <variavel>#10 <op_atribuicao> <exp>#11 | <variavel>#10 <op_atribuicao> OPEN_BRACKETS#34 <valores_vetor> CLOSE_BRACKETS#35;
+<valores_vetor> ::= <exp>#33 | <exp>#33 COMMA <valores_vetor>;
 <variavel> ::= <id> | <vetor>;
-<vetor> ::= <id>#5 OPEN_BRACKETS CLOSE_BRACKETS | <id>#5 OPEN_BRACKETS <exp> CLOSE_BRACKETS;
-<vetor_atribuicao> ::= OPEN_BRACKETS <int_list> CLOSE_BRACKETS;
+<vetor> ::= <id>#5 OPEN_BRACKETS CLOSE_BRACKETS | <id>#5 OPEN_BRACKETS <exp>#36 CLOSE_BRACKETS;
+//======================================================================
 
 
-<int_list> ::= INTEGER_NUMBER | INTEGER_NUMBER COMMA <int_list>;
 <repeticao_while> ::= KEYWORD_WHILE#1 <exp>#24 <bloco>#2 | <repeticao_for>;
 <repeticao_for> ::= KEYWORD_FOR#30 OPEN_PARENTHESES <declaracao_controle> SEMICOLON <exp>#24 SEMICOLON <operacao_incremento> CLOSE_PARENTHESES <bloco>#2;
 <declaracao_controle> ::= <declaracao1> | <atribuicao> | <declaracao1> <atribuicao>;
@@ -233,8 +238,7 @@ HASH_SIGN: "#"
 
 
 <print> ::= KEYWORD_PRINT#31 <exp>#24;
-<read_line> ::= <declaracao1> COLON <read>;
-<read> ::= KEYWORD_READ OPEN_PARENTHESES CLOSE_PARENTHESES;
+<read> ::= KEYWORD_READ OPEN_PARENTHESES <variavel>#32 CLOSE_PARENTHESES SEMICOLON;
 
 
 <tipo> ::= KEYWORD_INT#3 | KEYWORD_FLOAT#3 | KEYWORD_CHAR#3 | KEYWORD_BOOL#3 | KEYWORD_STRING#3 | KEYWORD_CLASS#3;
@@ -253,7 +257,7 @@ HASH_SIGN: "#"
 <exp7> ::= <exp7> <op_arit_baixa> <exp8> | <exp8>;
 <exp8> ::= <exp8> <op_arit_alta> <exp9> | <exp9>;
 <exp9> ::= <op_neg>#19 <exp10> | <exp10>;
-<exp10> ::= <variavel>#13 | STRING_VALUE#14 | INTEGER_NUMBER#15 | FLOAT_NUMBER#16 | <bool>#17 | CHAR_VALUE#18 | OPEN_PARENTHESES <exp> CLOSE_PARENTHESES | <chamar_funcao> | <vetor_atribuicao>;
+<exp10> ::= <variavel>#13 | STRING_VALUE#14 | INTEGER_NUMBER#15 | FLOAT_NUMBER#16 | <bool>#17 | CHAR_VALUE#18 | OPEN_PARENTHESES <exp> CLOSE_PARENTHESES | <chamar_funcao>;
 
 
 <op_rel> ::= BIGGER_THAN | LESS_THAN | BIGGER_EQUAL | LESS_EQUAL | EQUALS | NOT_EQUAL | EQUAL_TO;

@@ -18,8 +18,26 @@ public class CodeGenerator {
         codeLines.clear(); // Limpa a lista de linhas de código
     }
 
-    public void declareVariable(String name, String declaration) {
-        codeLines.push("VariableType " + name + ": " + declaration);
+    public void declareVariable(String name, Token token) {
+
+        codeLines.push("VariableType " + name + ": " + token.getLexeme());
+    }
+
+    public void declareVariable(String name, String token) {
+
+        codeLines.push("VariableType " + name + ": " + token);
+    }
+
+    public void declareArray(String name, List<String> elements) {
+        StringBuilder arrayDeclaration = new StringBuilder();
+        arrayDeclaration.append("VariableType ");
+
+        arrayDeclaration.append(name).append(": ");
+    
+        // Adiciona os elementos do vetor separados por vírgula
+        arrayDeclaration.append(String.join(",", elements));
+    
+        codeLines.push(arrayDeclaration.toString());
     }
 
     public void addInstruction(String operation, String token) {

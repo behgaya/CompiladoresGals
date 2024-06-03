@@ -7,7 +7,6 @@ public class Symbol {
     private boolean param;   // Indica se o identificador é um parâmetro de função
     private int pos;         // Posição do identificador em relação aos parâmetros da função
     private boolean vet;     // Indica se o identificador é um vetor
-    private int tamvet;  // Novo campo para o tamanho do vetor
     private boolean matriz;  // Indica se o identificador é uma matriz
     private boolean ref;     // Indica se o identificador é passado por referência
     private boolean func;    // Indica se o identificador é uma função
@@ -31,7 +30,6 @@ public class Symbol {
         this.func = symbol.isFunc();
         this.proc = symbol.isProc();
         this.quantparam = symbol.getQuantparam();
-        this.tamvet = symbol.getTamVet();
 
     }
     
@@ -51,7 +49,6 @@ public class Symbol {
         this.func = func;
         this.proc = proc;
         this.quantparam = quantparam;
-        this.tamvet = tamvet;
     }
 
     public String getId() {
@@ -142,13 +139,6 @@ public class Symbol {
         this.func = func;
     }
 
-    public int getTamVet() {
-        return tamvet;
-    }
-
-    public void settamvet(int tamanho) {
-        this.tamvet = tamvet;
-    }
 
     public void printParameters() {
         System.out.println("ID: " + id);
@@ -162,7 +152,6 @@ public class Symbol {
         System.out.println("Matriz: " + matriz);
         System.out.println("Referência: " + ref);
         System.out.println("Função: " + func);
-        System.out.println("Tamanho do vetor: " + tamvet);
 
     }
 
@@ -179,7 +168,6 @@ public class Symbol {
         this.matriz = false;
         this.ref = false;
         this.func = false;
-        this.tamvet = 0;
 
     }
 

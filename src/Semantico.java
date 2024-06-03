@@ -11,16 +11,18 @@ public class Semantico implements Constants {
     public boolean isFunctionCall = false;
     public boolean isOperation = false;
     public boolean isPrint = false;
-    public boolean isInit = false;
+    public boolean isAttribution = true;
     public Symbol variable = new Symbol();
-    public Symbol functionVariable = new Symbol();
+
+    public String tokenAux;
     public Symbol functionSymbol = new Symbol();
-    public String operation;
     public String dotData;
     public String tipo;
     public Stack<Integer> escopo = new Stack<>();
     public Stack<String> operacoes = new Stack<>();
     public List<String> warningList = new ArrayList<>();
+    public List<String> vetorStrings = new ArrayList<>();
+    public int valorTemporario = 1000;
     public int contadorEscopo;
     public int contadorParam;
     public int contadorCallParam;
@@ -53,25 +55,44 @@ public class Semantico implements Constants {
         return codeGenerator;
     }
 
+    public void startBooleans() {
+        isDeclarationNotOperation = false;
+        declaracao = false;
+        isFunctionCall = false;
+        isOperation = false;
+        isPrint = false;
+        isAttribution = true;
+    }
+
     public void processImmediateOperation(String token) {
         if (!isOperation) {
             codeGenerator.addInstruction("LDI ", token);
+            System.out.println("processImmediateOperation: LDI " + token);
+
         }
         if (isOperation) {
-            if (operacoes.peek() == "SUM") {
+            
+            if (variable.isVet() && !operacoes.peek().isEmpty() && valorTemporario == 1000 ) {
+                codeGenerator.addInstruction("STO ", Integer.toString(valorTemporario));
+                codeGenerator.addInstruction("LDI ", token);
+                valorTemporario++;
+            } else if (operacoes.peek() == "SUM") {
+                System.out.println("processImmediateOperation: ADDI " + token);
                 codeGenerator.addInstruction("ADDI ", token);
-            }
-            if (operacoes.peek() == "SUB") {
+            } else if (operacoes.peek() == "SUB") {
+                System.out.println("processImmediateOperation: SUBI " + token);
                 codeGenerator.addInstruction("SUBI ", token);
             }
         }
     }
 
     public void operationIsCompatible(Token token) throws SemanticError {
+        System.out.println("operationIsCompatible");
         while (operacoes.size() > 3) {
             String tipo1 = operacoes.pop();
             String op = operacoes.pop();
             String tipo2 = operacoes.pop();
+            // System.out.println("tipo 1: " + tipo1 + "\top: " + op + "\ttipo 2:" + tipo2);
             int resultadoAtribuicao = SemanticTable.resultType(tipo1, tipo2, op);
             if (resultadoAtribuicao == SemanticTable.ERR) {
                 throw new SemanticError(
@@ -85,9 +106,11 @@ public class Semantico implements Constants {
             }
             operacoes.push(tipo1);
         }
+
     }
 
     public void semanticError(String msg, String id) throws SemanticError {
+        startBooleans();
         throw new SemanticError(String.format(msg, id));
     }
 
@@ -95,6 +118,7 @@ public class Semantico implements Constants {
 
         switch (action) {
             case 1:
+                System.out.println("Case 1");
                 // Abre um novo escopo
                 contadorEscopo++;
                 contadorParam = 0;
@@ -102,6 +126,7 @@ public class Semantico implements Constants {
                 break;
 
             case 2:
+                System.out.println("Case 2");
                 // Fecha o escopo atual e remove os símbolos associados a ele
                 int escopoDesejado = escopo.pop();
                 contadorEscopo--;
@@ -109,24 +134,28 @@ public class Semantico implements Constants {
                 break;
 
             case 3:
+                System.out.println("Case 3");
                 // Define o tipo da variável
                 tipo = token.getLexeme();
                 break;
 
             case 4:
-                // Cria uma nova variável com o tipo definido
+                System.out.println("Case 4");
                 if (!symbolTable.symbolExists(token.getLexeme(), escopo.peek())) {
                     variable = new Symbol(token.getLexeme(), tipo, false, false, escopo.peek(), false, 0, false, false,
                             false, false, false, 0, 0);
                 }
+                tokenAux = token.getLexeme();
                 break;
 
             case 5:
-                // Define a variável como um vetor
+                System.out.println("Case 5");
                 variable.setVet(true);
+                tokenAux = token.getLexeme();
                 break;
 
             case 6:
+                System.out.println("Case 6");
                 // Declaração de uma função
                 if (symbolTable.functionExists(variable)) {
                     semanticError(
@@ -143,16 +172,19 @@ public class Semantico implements Constants {
                 break;
 
             case 7:
+                System.out.println("Case 7");
                 // Define a variável como uma função
                 variable.setFunc(true);
                 break;
 
             case 8:
+                System.out.println("Case 8");
                 // Inicia uma declaração de variável
                 declaracao = true;
                 break;
 
             case 9:
+                System.out.println("Case 9");
                 // Finaliza uma declaração de variável e a adiciona à tabela de símbolos
                 if (symbolTable.symbolExists(variable.getId(), escopo.peek())) {
                     semanticError("Prezado desenvolvedor, a variável \"%s\" já foi declarada", variable.getId());
@@ -161,48 +193,43 @@ public class Semantico implements Constants {
                 if (!variable.isFunc()) {
                     symbolTable.addSymbol(variable);
                     symbolTableShow.addSymbol(variable);
-                    System.out.println("Variavel> " + variable.getId());
                     codeGenerator.declareVariable(variable.getId(), "0");
                 }
 
                 declaracao = false;
                 break;
             case 10:
-                // Verifica se a variável está sendo declarada ou usada e adiciona à tabela de
-                // símbolos
+                System.out.println("Case 10");
                 if (declaracao) {
-                    if (symbolTable.symbolExists(token.getLexeme(), escopo.peek())) {
-                        semanticError("Prezado desenvolvedor, a variável \"%s\" já foi declarada", token.getLexeme());
+                    if (symbolTable.symbolExists(variable.getId(), escopo.peek())) {
+                        semanticError("Prezado desenvolvedor, a variável \"%s\" já foi declarada", variable.getId());
                     }
 
                     symbolTable.addSymbol(variable);
                     symbolTableShow.addSymbol(variable);
-                    dotData = token.getLexeme();
+                    dotData = tokenAux;
 
                 } else {
-                    variable = symbolTable.getSymbol(token.getLexeme());
-                    if (!symbolTable.symbolExists(token.getLexeme(), escopo.peek())) {
-                        semanticError("Prezado desenvolvedor, a variável \"%s\" não foi declarada.", token.getLexeme());
+                    if (!symbolTable.symbolExists(variable.getId(), escopo.peek())) {
+                        semanticError("Prezado desenvolvedor, a variável \"%s\" não foi declarada.", variable.getId());
                     }
 
-                    dotData = token.getLexeme();
+                    dotData = tokenAux;
                 }
+                isAttribution = true;
                 break;
-
             case 11:
+                System.out.println("Case 11");
                 // Define a variável como inicializada e realiza operações de atribuição se
                 // houver
                 if (variable != null) {
                     variable.setIni(true);
                 }
 
-                if(variable.isVet()){
-
-                }
                 // int x = 1; <==== Exemplo
                 if (!isOperation && declaracao) {
                     codeGenerator.popInstruction();
-                    codeGenerator.declareVariable(dotData, token.getLexeme());
+                    codeGenerator.declareVariable(dotData, token);
                     isDeclarationNotOperation = true;
                 }
                 // int x = 1 + 1; <==== Exemplo
@@ -224,82 +251,124 @@ public class Semantico implements Constants {
                     warningList.add("\nA atribuição de variavel de tipo \"" + variable.getTipo() + "\" como \""
                             + operacoes.peek() + "\" pode causar perca de precisão");
                 }
+
                 if (!isDeclarationNotOperation) {
-                    codeGenerator.addInstruction("STO ", variable.getId());
+                    if (!variable.isVet()) {
+                        codeGenerator.addInstruction("STO ", tokenAux);
+                    } else {
+                        if (variable.isVet()) {
+                            if(!isAttribution){
+                                codeGenerator.addInstruction("STO ", "1000");
+                                codeGenerator.addInstruction("LD ", "1002");
+                                codeGenerator.addInstruction("STO ", "$indr");
+                                codeGenerator.addInstruction("LD ", "1000");
+                                codeGenerator.addInstruction("STOV ", tokenAux);
+                            } else {
+                                codeGenerator.addInstruction("STO ", Integer.toString(valorTemporario)); // Carrega vetor
+                                valorTemporario--;
+                                codeGenerator.addInstruction("LD ", Integer.toString(valorTemporario));
+                                valorTemporario++;
+                                codeGenerator.addInstruction("ADD ", Integer.toString(valorTemporario));
+                                System.out.println("STO " + tokenAux);
+                                codeGenerator.addInstruction("STO ", variable.getId());
+                            }
+                            //isAttribution = false;
+                        }
+                    }
                 }
                 isDeclarationNotOperation = false;
+                isAttribution = true;
                 declaracao = false;
                 operacoes.clear();
+                isOperation = false;
                 break;
 
             case 12:
+                System.out.println("Case 12");
                 // Verifica se o identificador foi declarado no escopo atual
-                if (!symbolTable.symbolExists(token.getLexeme(), escopo.peek())) {
+                if (!symbolTable.symbolExists(tokenAux, escopo.peek())) {
                     semanticError("Prezado desenvolvedor, o identificador \"%s\" não foi declarado neste escopo.",
-                            token.getLexeme());
+                            tokenAux);
                 }
                 break;
 
             case 13:
+                System.out.println("Case 13");
                 // Verifica o tipo da variável na expressão
-                if (!symbolTable.symbolExists(token.getLexeme(), escopo.peek())) {
+                if (!symbolTable.symbolExists(tokenAux, escopo.peek())) {
                     semanticError("Prezado desenvolvedor, o identificador \"%s\" não foi declarado neste escopo.",
-                            token.getLexeme());
+                            tokenAux);
                 }
-
+                Symbol variableAux = symbolTable.getSymbol(tokenAux);
 
                 if (!isOperation) {
-                    codeGenerator.addInstruction("LD ", token.getLexeme());
+
+                    // Verifica se a variável é um vetor
+                    if (symbolTable.getSymbol(tokenAux).isVet()) {
+                        //System.out.println("LDV: " + tokenAux);
+                        codeGenerator.addInstruction("LDV ", tokenAux); // Carrega vetor
+                        //valorTemporario++;
+
+                    } else {
+                        codeGenerator.addInstruction("LD ", tokenAux); // Carrega variável normal
+                    }
                 } else {
                     if (operacoes.peek() == "SUM") {
-                        codeGenerator.addInstruction("ADD ", token.getLexeme());
+                        codeGenerator.addInstruction("ADD ", tokenAux);
                     }
                     if (operacoes.peek() == "SUB") {
-                        codeGenerator.addInstruction("SUB ", token.getLexeme());
+                        codeGenerator.addInstruction("SUB ", tokenAux);
                     }
                 }
 
-
-                Symbol variableExp = symbolTable.getSymbol(token.getLexeme());
+                Symbol variableExp = symbolTable.getSymbol(variableAux.getId());
                 variableExp.setUsada(true);
                 operacoes.push(variableExp.getTipo());
-                isOperation = false;
+                isOperation = true;
                 break;
 
             case 14:
+                System.out.println("Case 14");
                 operacoes.push("string");
                 break;
 
             case 15:
+                System.out.println("Case 15");
                 processImmediateOperation(token.getLexeme());
                 operacoes.push("int");
+
                 break;
 
             case 16:
+                System.out.println("Case 16");
                 processImmediateOperation(token.getLexeme());
                 operacoes.push("float");
                 break;
 
             case 17:
+                System.out.println("Case 17");
                 operacoes.push("bool");
                 break;
 
             case 18:
+                System.out.println("Case 18");
                 operacoes.push("char");
                 break;
 
             case 19:
+                System.out.println("Case 19");
                 operacoes.push("REL");
                 isOperation = true;
                 break;
 
             case 20:
+                System.out.println("Case 20");
                 operacoes.push("SUM");
                 isOperation = true;
-
                 break;
 
             case 21:
+                System.out.println("Case 21");
                 // Define o tipo da operação como SUB (subtração) e indica que uma operação está
                 // sendo realizada
                 operacoes.push("SUB");
@@ -307,6 +376,7 @@ public class Semantico implements Constants {
                 break;
 
             case 22:
+                System.out.println("Case 22");
                 // Define o tipo da operação como MUL (multiplicação) e indica que uma operação
                 // está sendo realizada
                 operacoes.push("MUL");
@@ -314,6 +384,7 @@ public class Semantico implements Constants {
                 break;
 
             case 23:
+                System.out.println("Case 23");
                 // Define o tipo da operação como DIV (divisão) e indica que uma operação está
                 // sendo realizada
                 operacoes.push("DIV");
@@ -321,6 +392,7 @@ public class Semantico implements Constants {
                 break;
 
             case 24:
+                System.out.println("Case 24");
                 // Finaliza uma operação de atribuição e verifica os tipos
                 if (isFunctionCall) {
                     contadorCallParam++;
@@ -335,12 +407,12 @@ public class Semantico implements Constants {
                     isPrint = false;
                 }
 
-                
                 operacoes.clear();
                 isOperation = false;
                 break;
 
             case 25:
+                System.out.println("Case 25");
                 if (!symbolTable.functionExists(variable)) {
                     semanticError("Caro programador, a função de nome \"%s\" não foi designada", variable.getId());
                 }
@@ -349,26 +421,28 @@ public class Semantico implements Constants {
                 functionSymbol.setFunc(true);
                 break;
             case 26:
+                System.out.println("Case 26");
                 if (symbolTable.symbolExists(token.getLexeme(), escopo.peek())) {
                     variable.setParam(true);
                     contadorParam++;
                     variable.setPos(contadorParam);
                 }
-
                 break;
 
             case 27:
+                System.out.println("Case 27");
                 Symbol lastFunction = symbolTable.getLastFunction();
                 lastFunction.setQuantparam(contadorParam);
-
                 break;
 
             case 28:
+                System.out.println("Case 28");
                 isFunctionCall = true;
                 contadorCallParam = 0;
                 break;
 
             case 29:
+                System.out.println("Case 29");
                 functionSymbol = symbolTable.getFunctionById(functionSymbol.getId());
 
                 if (functionSymbol.getQuantparam() > contadorCallParam) {
@@ -380,28 +454,83 @@ public class Semantico implements Constants {
                     semanticError("Caro programador, a função de nome \"%s\" Possui parametros que não foram expostos",
                             variable.getId());
                 }
+
                 isFunctionCall = false;
                 contadorCallParam = 0;
                 break;
 
             case 30:
+                System.out.println("Case 30");
                 contadorParam = 0;
                 escopo.push(contadorEscopo);
                 break;
 
             case 31:
+                System.out.println("Case 31");
                 isPrint = true;
                 break;
             case 32:
-                if(!symbolTable.symbolExists(token.getLexeme(), escopo.peek())){
+                System.out.println("Case 32");
+                if (!symbolTable.symbolExists(token.getLexeme(), escopo.peek())) {
                     semanticError("Caro programador, a variavel \"%s\" não foi designada", variable.getId());
                 }
 
                 codeGenerator.addInstruction("LD ", "$in_port");
                 codeGenerator.addInstruction("STO ", token.getLexeme());
                 break;
-            
+            case 33:
+                System.out.println("Case 33");
+                if (isOperation) {
+                    operationIsCompatible(token);
+                }
+                codeGenerator.popInstruction();
+                vetorStrings.add(token.getLexeme());
+                break;
+            case 34:
+                System.out.println("Case 34");
+                if (!variable.isVet()) {
+                    semanticError("Não é possivel adicionar um vetor a variável \"%s\"", dotData);
+                }
+                if (variable.isIni()) {
+                    semanticError("A variavel \"%s\" já foi inicializada", variable.getId());
+                }
+                break;
 
+            case 35:
+                System.out.println("Case 35");
+                codeGenerator.declareArray(variable.getId(), vetorStrings);
+                vetorStrings.clear();
+                variable.setIni(true);
+                declaracao = false;
+                operacoes.clear();
+                isOperation = false;
+                break;
+
+            case 36:
+                System.out.println("Case 36");
+                if (isOperation) {
+                    operationIsCompatible(token);
+                }
+
+                System.out.println(isPrint);
+                if(isAttribution || isPrint){
+                    codeGenerator.addInstruction("STO ", "1002");
+                } else {
+                    codeGenerator.addInstruction("STO ", "$indr");
+
+                }
+
+                //valorTemporario = 1000;
+                isAttribution = true;
+                isOperation = false;
+                operacoes.clear();
+                break;
+
+            // case 37:
+            //     isAttribution = false;
+            //     break;
+            // case 38:
+            //     break;
         }
 
     }

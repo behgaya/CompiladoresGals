@@ -7,8 +7,10 @@ public class CodigosPadroes {
         public CodigosPadroes() {
                 codigosPadroes.add(
                                 "int main(){\n" +
-                                        "\tint a;\n" +
-                                        "\tint a = 2 + 5;\n" +
+                                        "\tint a[] = [5,5,5,5,5];\n" +
+                                        "\tint b = 2 + 9;\n" +
+                                        "\ta[5 - 1] = 5;\n" +
+
                                 "}");
 
                 codigosPadroes.add("int main() {\n" +
