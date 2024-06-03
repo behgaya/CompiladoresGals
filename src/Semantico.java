@@ -13,6 +13,8 @@ public class Semantico implements Constants {
     public boolean isFunctionCall = false;
     public boolean isOperation = false;
     public boolean isPrint = false;
+    public boolean isRead = false;
+
     public boolean isAttribution = true;
     public boolean attribIsVector = false;
     public boolean lastIsVec = false;
@@ -32,6 +34,8 @@ public class Semantico implements Constants {
     public int contadorEscopo;
     public int contadorParam;
     public int tamahoVetor = 0;
+    public int contPrint = 0;
+
 
     private CodeGenerator codeGenerator = new CodeGenerator();
 
@@ -509,10 +513,13 @@ public class Semantico implements Constants {
                 } else {
                     //System.out.println("isAttribution: " + isAttribution);
                     if (isPrint) {
-                        //System.out.println("ENTREEEEEEI");
-                        //codeGenerator.addInstruction("STO ", "$indr");
-                        //codeGenerator.addInstruction("LDV ", tokenAux);
-                        //codeGenerator.addInstruction("STO ", "$out_port");
+                        if(contPrint == 0){
+                            codeGenerator.addInstruction("STO ", "$indr");
+                            contPrint++;
+                        } else {
+                            codeGenerator.addInstruction("STO ", "$out_port");
+                            contPrint = 0;
+                        }
                     } else if (isAttribution) {
                         codeGenerator.addInstruction("STO ", "1000");
                     } else if (!isAttribution) {
@@ -630,6 +637,7 @@ public class Semantico implements Constants {
                 break;
 
             case 36:
+
                 break;
 
             case 37:
