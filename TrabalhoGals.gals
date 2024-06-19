@@ -184,9 +184,9 @@ HASH_SIGN: "#"
 //======================================================================
 
 //======================================================================
-<funcao> ::= <tipo> <id>#6  OPEN_PARENTHESES <parenteses_funcao> CLOSE_PARENTHESES#27 <bloco>#2 | <tipo> <id>#6 OPEN_PARENTHESES CLOSE_PARENTHESES#27 <bloco>#2;
-<procedimento> ::= <void>#7 <id> OPEN_PARENTHESES <parenteses_funcao> CLOSE_PARENTHESES <bloco> | <void>#7 <id> OPEN_PARENTHESES CLOSE_PARENTHESES <bloco>;
-<parenteses_funcao> ::= <declaracao>#26 | <declaracao>#26 COMMA <parenteses_funcao>;
+<funcao> ::= <tipo>#6 <id>#7  OPEN_PARENTHESES <parenteses_funcao> CLOSE_PARENTHESES#24 <bloco>#2 | <tipo>#6 <id>#7 OPEN_PARENTHESES CLOSE_PARENTHESES#24 <bloco>#2;
+<procedimento> ::= <void>#6 <id>#7 OPEN_PARENTHESES <parenteses_funcao> CLOSE_PARENTHESES <bloco> | <void>#6 <id>#7 OPEN_PARENTHESES CLOSE_PARENTHESES <bloco>;
+<parenteses_funcao> ::= <declaracao>#23 | <declaracao>#23 COMMA <parenteses_funcao>;
 //======================================================================
 
 //======================================================================
@@ -197,11 +197,11 @@ HASH_SIGN: "#"
 //======================================================================
 
 //======================================================================
-<return> ::= KEYWORD_RETURN <exp>#24;
+<return> ::= KEYWORD_RETURN <exp>#21;
 //======================================================================
 
-<chamar_funcao> ::= <id>#25 OPEN_PARENTHESES#28 CLOSE_PARENTHESES#29 | <id>#25 OPEN_PARENTHESES#28 <parametros_chamar> CLOSE_PARENTHESES#29;
-<parametros_chamar> ::= <exp>#24 | <parametros_chamar> COMMA <exp>#24;
+<chamar_funcao> ::= <id>#22 OPEN_PARENTHESES#25 CLOSE_PARENTHESES#26 | <id>#22 OPEN_PARENTHESES#25 <parametros_chamar> CLOSE_PARENTHESES#26;
+<parametros_chamar> ::= <exp>#21 | <parametros_chamar> COMMA <exp>#21;
 
 
 <lista_comentarios> ::= <comment> | <block_comment>;
@@ -217,28 +217,28 @@ HASH_SIGN: "#"
 
 
 //======================================================================
-<atribuicao> ::= <variavel>#10 <op_atribuicao>#37 <exp>#11 | <variavel>#10 <op_atribuicao> OPEN_BRACKETS#34 <valores_vetor> CLOSE_BRACKETS#35;
-<valores_vetor> ::= <exp>#33 | <exp>#33 COMMA <valores_vetor>;
+<atribuicao> ::= <variavel>#10 <op_atribuicao>#33 <exp>#11 | <variavel>#10 <op_atribuicao> OPEN_BRACKETS#31 <valores_vetor> CLOSE_BRACKETS#32;
+<valores_vetor> ::= <exp>#30 | <exp>#30 COMMA <valores_vetor>;
 <variavel> ::= <id> | <vetor>;
-<vetor> ::= <id>#5 OPEN_BRACKETS CLOSE_BRACKETS | <id>#5 OPEN_BRACKETS <exp>#24 CLOSE_BRACKETS#36;
+<vetor> ::= <id>#5 OPEN_BRACKETS CLOSE_BRACKETS | <id>#5 OPEN_BRACKETS <exp>#21 CLOSE_BRACKETS#36;
 //======================================================================
 
 
-<repeticao_while> ::= KEYWORD_WHILE#1 <exp>#24 <bloco>#2 | <repeticao_for>;
-<repeticao_for> ::= KEYWORD_FOR#30 OPEN_PARENTHESES <declaracao_controle> SEMICOLON <exp>#24 SEMICOLON <operacao_incremento> CLOSE_PARENTHESES <bloco>#2;
+<repeticao_while> ::= KEYWORD_WHILE#1 <exp>#21 <bloco>#2 | <repeticao_for>;
+<repeticao_for> ::= KEYWORD_FOR#27 OPEN_PARENTHESES <declaracao_controle> SEMICOLON <exp>#21 SEMICOLON <operacao_incremento> CLOSE_PARENTHESES <bloco>#2;
 <declaracao_controle> ::= <declaracao1> | <atribuicao> | <declaracao1> <atribuicao>;
 <operacao_incremento> ::= <atribuicao> | <incremento>;
-<repeticao_do> ::= KEYWORD_DO#1 <bloco>#2 KEYWORD_WHILE <exp>#24;
+<repeticao_do> ::= KEYWORD_DO#1 <bloco>#2 KEYWORD_WHILE <exp>#21;
 
 
 <incremento> ::= <id>#12 <op_incremento>;
 
-<desvio_if> ::= KEYWORD_IF#1 <exp>#24 <bloco>#2 | KEYWORD_IF#1 <exp>#24 <bloco>#2 <desvio_else>;
+<desvio_if> ::= KEYWORD_IF#1 <exp>#21 <bloco>#2 | KEYWORD_IF#1 <exp>#21 <bloco>#2 <desvio_else>;
 <desvio_else> ::= KEYWORD_ELSE <bloco>;
 
 
-<print> ::= KEYWORD_PRINT#31 <exp>#24;
-<read> ::= KEYWORD_READ#36 OPEN_PARENTHESES <variavel>#32 CLOSE_PARENTHESES SEMICOLON;
+<print> ::= KEYWORD_PRINT#28 <exp>#21;
+<read> ::= KEYWORD_READ#36 OPEN_PARENTHESES <variavel>#29 CLOSE_PARENTHESES SEMICOLON;
 
 
 <tipo> ::= KEYWORD_INT#3 | KEYWORD_FLOAT#3 | KEYWORD_CHAR#3 | KEYWORD_BOOL#3 | KEYWORD_STRING#3 | KEYWORD_CLASS#3;
@@ -247,24 +247,24 @@ HASH_SIGN: "#"
 <id> ::= ID#4;
 
 
-<exp> ::= <exp> OR#19 <exp1> | <exp1>;
-<exp1> ::= <exp1> AND#19 <exp2> | <exp2>;
-<exp2> ::= <exp2> BITWISE_OR#19 <exp3> | <exp3>;
-<exp3> ::= <exp3> BITWISE_XOR#19 <exp4> | <exp4>;
-<exp4> ::= <exp4> BITWISE_AND#19 <exp5> | <exp5>;
+<exp> ::= <exp> OR <exp1> | <exp1>;
+<exp1> ::= <exp1> AND <exp2> | <exp2>;
+<exp2> ::= <exp2> BITWISE_OR <exp3> | <exp3>;
+<exp3> ::= <exp3> BITWISE_XOR <exp4> | <exp4>;
+<exp4> ::= <exp4> BITWISE_AND <exp5> | <exp5>;
 <exp5> ::= <exp5> <op_rel>#19 <exp6> | <exp6>;
-<exp6> ::= <exp6> <op_bitwise>#19 <exp7> | <exp7>;
+<exp6> ::= <exp6> <op_bitwise> <exp7> | <exp7>;
 <exp7> ::= <exp7> <op_arit_baixa> <exp8> | <exp8>;
 <exp8> ::= <exp8> <op_arit_alta> <exp9> | <exp9>;
-<exp9> ::= <op_neg>#19 <exp10> | <exp10>;
+<exp9> ::= <op_neg> <exp10> | <exp10>;
 <exp10> ::= <variavel>#13 | STRING_VALUE#14 | INTEGER_NUMBER#15 | FLOAT_NUMBER#16 | <bool>#17 | CHAR_VALUE#18 | OPEN_PARENTHESES <exp> CLOSE_PARENTHESES | <chamar_funcao>;
 
 
 <op_rel> ::= BIGGER_THAN | LESS_THAN | BIGGER_EQUAL | LESS_EQUAL | EQUALS | NOT_EQUAL | EQUAL_TO;
 <op_neg> ::= SUBTRACTION | BITWISE_NOT | NOT;
 <op_bitwise> ::= LEFT_SHIFT | RIGHT_SHIFT;
-<op_arit_baixa> ::= ADDITION#20 | SUBTRACTION#21;
-<op_arit_alta> ::= MULTIPLICATION#22 | DIVISION#23 | MODULO#23;
+<op_arit_baixa> ::= ADDITION#20 | SUBTRACTION#20;
+<op_arit_alta> ::= MULTIPLICATION#20 | DIVISION#20 | MODULO#20;
 <op_incremento> ::= PLUS_PLUS | MINUS_MINUS;
 <op_atribuicao> ::= EQUALS | PLUS_EQUALS | MINUS_EQUALS | TIMES_EQUALS | DIVIDE_EQUALS;
 

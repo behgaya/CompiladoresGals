@@ -6,12 +6,12 @@ public class CodigosPadroes {
 
         public CodigosPadroes() {
                 codigosPadroes.add(
-                                "int main(){\n" +
-                                        "\tint a[] = [5,5,5,5,5];\n" +
-                                        "\tint b = 2 + 9;\n" +
-                                        "\ta[5 - 1] = 5;\n" +
-
-                                "}");
+                        "int main(){\n"+
+                        "       int b\n"+
+                        "       if(b > 10){\n"+
+                        "       }\n"+
+                        "}\n"
+                        );
 
                 codigosPadroes.add("int main() {\n" +
                                 "    int x = 5;\n" +
