@@ -7,7 +7,7 @@ public class CodigosPadroes {
         public CodigosPadroes() {
                 codigosPadroes.add(
                         "int main(){\n"+
-                        "       int b\n"+
+                        "       int b;\n"+
                         "       if(b > 10){\n"+
                         "       }\n"+
                         "}\n"

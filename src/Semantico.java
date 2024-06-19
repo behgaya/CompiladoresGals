@@ -14,8 +14,11 @@ public class Semantico implements Constants {
     public boolean declaracao = false;
     public boolean isFunctionCall = false;
     public boolean isOperation = false;
+    public boolean isCondition = false;
+
     public boolean isPrint = false;
     public boolean isRead = false;
+    public boolean isElse = false;
 
     public boolean isAttribution = true;
     public boolean attribIsVector = false;
@@ -29,6 +32,8 @@ public class Semantico implements Constants {
     public String tipo;
     public String tempEsq;
     public String tempDir;
+    public String oprel;
+    public String rotFim;
 
     public Stack<Integer> escopo = new Stack<>();
     public Stack<String> operacoes = new Stack<>();
@@ -177,9 +182,32 @@ public class Semantico implements Constants {
                 // Abre um novo escopo
                 contadorEscopo++;
                 contadorParam = 0;
-                // if(token.getLexeme().equals("if")){
-                //     isOperation = true;
-                // }
+                if(isCondition && !isElse){
+                    String rotIf = codeGenerator.generateLabel();
+
+                    switch (oprel) {
+                        case ">":
+                            codeGenerator.addInstruction("BLE ", rotIf);
+                            break;
+                        case "<":
+                            codeGenerator.addInstruction("BGE ", rotIf);
+                            break;
+                        case "==":
+                            codeGenerator.addInstruction("BNE ", rotIf);
+                            break;
+                        case "!=":
+                            codeGenerator.addInstruction("BEQ ", rotIf);
+                            break;
+                        case ">=":
+                            codeGenerator.addInstruction("BLT ", rotIf);
+                            break;
+                        case "<=":
+                            codeGenerator.addInstruction("BGT ", rotIf);
+                            break;
+                        default:
+                            throw new IllegalArgumentException("Operador relacional desconhecido: " + oprel);
+                    }
+                }
                 escopo.push(contadorEscopo);
                 break;
 
@@ -188,6 +216,15 @@ public class Semantico implements Constants {
                 // Fecha o escopo atual e remove os símbolos associados a ele
                 int escopoDesejado = escopo.pop();
                 contadorEscopo--;
+                if(isCondition){
+                    rotFim = codeGenerator.popLabel();
+                    codeGenerator.addLabel(rotFim);
+                    System.out.println("rotFim\t" + rotFim);
+                    if(codeGenerator.peekLabel() == null){
+                        isCondition = false;
+                        isElse = false;
+                    }
+                }
                 symbolTable.removeSymbolsByScope(escopoDesejado);
                 break;
 
@@ -447,7 +484,10 @@ public class Semantico implements Constants {
                             tokenAux);
                 }
                 variableAux = symbolTable.getSymbol(tokenAux);
-                if (!isOperation) {
+                if (isCondition) {
+                    
+                }
+                else if (!isOperation) {
                     if (symbolTable.getSymbol(tokenAux).isVet()) {
                         codeGenerator.addInstruction("LDV ", tokenAux); // Carrega vetor
                         // valorTemporario++;
@@ -456,7 +496,8 @@ public class Semantico implements Constants {
                         codeGenerator.addInstruction("LD ", tokenAux); // Carrega variável normal
                     }
 
-                } else {
+                } 
+                else {    
                     if (operacoes.peek() == "SUM") {
                         codeGenerator.addInstruction("ADD ", tokenAux);
                     }
@@ -480,7 +521,6 @@ public class Semantico implements Constants {
                 System.out.println("Case 15");
                 processImmediateOperation(token.getLexeme());
                 operacoes.push("int");
-                
 
                 break;
 
@@ -505,6 +545,9 @@ public class Semantico implements Constants {
                 operacoes.push("REL");
                 // codeGenerator.addInstruction("STO ", variable.getId());
                 tempEsq = variable.getId();
+                codeGenerator.addInstruction("LD ", tempEsq);
+                codeGenerator.addInstruction("STO ", "1001");
+                oprel = token.getLexeme();
                 isOperation = true;
                 break;
 
@@ -514,7 +557,6 @@ public class Semantico implements Constants {
                     lastIsVec = true;
                 }
                 if ((token.getLexeme()).equals("+")) {
-                    System.out.println(token.getLexeme() + "TESTJHAWUIOHRTFUSAFD");
                     variableAux = new Symbol();
                     operarit.push("SUM");
                     operacoes.push("SUM");
@@ -693,18 +735,30 @@ public class Semantico implements Constants {
             case 34:
                 System.out.println("Case 34");
                 tempDir = token.getLexeme();
-                codeGenerator.addInstruction("STO ", tempDir);
-                codeGenerator.addInstruction("LD ", tempEsq);
-                codeGenerator.addInstruction("SUB ", tempDir);
+                codeGenerator.addInstruction("LD ", tempDir);
 
+                codeGenerator.addInstruction("STO ", "1002");
+                codeGenerator.addInstruction("LD ", "1001");
+                codeGenerator.addInstruction("SUB ", "1002");
 
                 break;
 
             case 35:
                 System.out.println("Case 35");
+                isCondition = true;
                 break;
 
             case 36:
+                isCondition = true;
+                isElse = true;
+                codeGenerator.popInstruction();
+                String rotIf = codeGenerator.generateLabel();
+                rotFim = codeGenerator.generateLabel();
+                codeGenerator.addInstruction("JMP ", rotFim);
+                codeGenerator.addLabel(rotIf);
+                isElse = true;
+
+
                 break;
 
             case 37:

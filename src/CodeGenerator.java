@@ -7,15 +7,22 @@ import java.util.Stack;
 
 public class CodeGenerator {
     private Stack<String> codeLines;
+    private int labelCounter;
+    private List<String> labels;
+
 
     public CodeGenerator() {
         codeLines = new Stack<>();
+        labelCounter = 0;
+        labels = new ArrayList<>();
     }
+
 
 
 
     public void reset() {
         codeLines.clear(); // Limpa a lista de linhas de código
+        labelCounter = 0;  // Reinicia o contador de rótulos
     }
 
     public void declareVariable(String name, Token token) {
@@ -76,4 +83,31 @@ public class CodeGenerator {
     public List<String> getCodeLines() {
         return new ArrayList<>(codeLines);
     }
+
+    public String generateLabel() {
+        String label = "R" + labelCounter++;
+        labels.add(label);
+        return label;
+    }
+    
+    public String popLabel(){
+        if (!labels.isEmpty()) {
+            labelCounter--;
+            return labels.remove(labels.size() - 1);
+        }
+        return null;
+    }
+    public void addLabel(String token) {
+        codeLines.push("Label " + token + ":");
+        labels.remove(token);
+    }
+
+    public String peekLabel() {
+        if (!labels.isEmpty()) {
+            return labels.get(labels.size() - 1);
+        } else {
+            return null;
+        }
+    }
+    
 }

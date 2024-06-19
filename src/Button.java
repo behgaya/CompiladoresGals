@@ -284,6 +284,11 @@ public class Button {
                 assemblyTextArea.append("     " + processedLine + "\n");
                 // Remova a linha da lista de assemblyCode, se necessário
             }
+            if (line.startsWith("Label")) {
+                String processedLine = line.replaceFirst("Label", "").trim();
+                assemblyTextArea.append(processedLine + "\n");
+                // Remova a linha da lista de assemblyCode, se necessário
+            }
         }
         
 
