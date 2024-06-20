@@ -22,6 +22,8 @@ public class CodeGenerator {
 
     public void reset() {
         codeLines.clear(); // Limpa a lista de linhas de código
+        labels.clear(); // Limpa a lista de linhas de código
+
         labelCounter = 0;  // Reinicia o contador de rótulos
     }
 
@@ -100,6 +102,11 @@ public class CodeGenerator {
     public void addLabel(String token) {
         codeLines.push("Label " + token + ":");
         labels.remove(token);
+    }
+
+    public void addLabelNotRemove(String token) {
+        codeLines.push("Label " + token + ":");
+        //labels.remove(token);
     }
 
     public String peekLabel() {

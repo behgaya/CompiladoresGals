@@ -193,7 +193,7 @@ HASH_SIGN: "#"
 <bloco> ::= OPEN_BRACES#1 CLOSE_BRACES#2 | OPEN_BRACES#1 <lista_cmd> CLOSE_BRACES#2;
 <lista_cmd> ::= <cmd> | <lista_cmd> <cmd>;
 <cmd> ::= <declaracao1> SEMICOLON | <repeticao_while> | <chamar_funcao> SEMICOLON | <desvio_if> | <print> SEMICOLON | 
-<return> SEMICOLON | <comment> | <block_comment> | <read> | <atribuicao> SEMICOLON | <incremento> SEMICOLON ;
+<return> SEMICOLON | <comment> | <block_comment> | <read> | <atribuicao> SEMICOLON | <incremento> SEMICOLON | <repeticao_do> SEMICOLON ;
 //======================================================================
 
 //======================================================================
@@ -220,7 +220,7 @@ HASH_SIGN: "#"
 <atribuicao> ::= <variavel>#10 <op_atribuicao>#33 <exp>#11 | <variavel>#10 <op_atribuicao> OPEN_BRACKETS#31 <valores_vetor> CLOSE_BRACKETS#32;
 <valores_vetor> ::= <exp>#30 | <exp>#30 COMMA <valores_vetor>;
 <variavel> ::= <id> | <vetor>;
-<vetor> ::= <id>#5 OPEN_BRACKETS CLOSE_BRACKETS | <id>#5 OPEN_BRACKETS <exp>#21 CLOSE_BRACKETS#36;
+<vetor> ::= <id>#5 OPEN_BRACKETS CLOSE_BRACKETS | <id>#5 OPEN_BRACKETS <exp>#21 CLOSE_BRACKETS;
 //======================================================================
 
 
@@ -228,13 +228,13 @@ HASH_SIGN: "#"
 <repeticao_for> ::= KEYWORD_FOR#27 OPEN_PARENTHESES <declaracao_controle> SEMICOLON <exp>#21 SEMICOLON <operacao_incremento> CLOSE_PARENTHESES <bloco>#2;
 <declaracao_controle> ::= <declaracao1> | <atribuicao> | <declaracao1> <atribuicao>;
 <operacao_incremento> ::= <atribuicao> | <incremento>;
-<repeticao_do> ::= KEYWORD_DO#1 <bloco>#2 KEYWORD_WHILE <exp>#21;
+<repeticao_do> ::= KEYWORD_DO#37 <bloco> KEYWORD_WHILE#38 <exp>#21;
 
 
 <incremento> ::= <id>#12 <op_incremento>;
 
-<desvio_if> ::= KEYWORD_IF#1 <exp>#21 <bloco>#2 | KEYWORD_IF#1 <exp>#21 <bloco>#2 <desvio_else>;
-<desvio_else> ::= KEYWORD_ELSE <bloco>;
+<desvio_if> ::= KEYWORD_IF#35 <exp>#21 <bloco> | KEYWORD_IF#35 <exp>#21 <bloco> <desvio_else>;
+<desvio_else> ::= KEYWORD_ELSE#36 <bloco>;
 
 
 <print> ::= KEYWORD_PRINT#28 <exp>#21;

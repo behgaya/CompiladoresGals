@@ -19,6 +19,7 @@ public class Semantico implements Constants {
     public boolean isPrint = false;
     public boolean isRead = false;
     public boolean isElse = false;
+    public boolean isDo = false;
 
     public boolean isAttribution = true;
     public boolean attribIsVector = false;
@@ -38,6 +39,7 @@ public class Semantico implements Constants {
     public Stack<Integer> escopo = new Stack<>();
     public Stack<String> operacoes = new Stack<>();
     public Stack<String> operarit = new Stack<>();
+    public Stack<String> labelDo = new Stack<>();
 
     public List<String> warningList = new ArrayList<>();
     public List<String> vetorStrings = new ArrayList<>();
@@ -124,7 +126,6 @@ public class Semantico implements Constants {
             System.out.println("processImmediateOperation: LDI " + token);
         }
         if (isOperation) {
-            System.out.println("TESTETESTE: " + variableAux.getId());
             if (variableAux != null && variableAux.isVet() && !isAttribution) {
                 codeGenerator.addInstruction("STO ", Integer.toString(valorTemporario));
                 codeGenerator.addInstruction("LDI ", token);
@@ -484,7 +485,7 @@ public class Semantico implements Constants {
                             tokenAux);
                 }
                 variableAux = symbolTable.getSymbol(tokenAux);
-                if (isCondition) {
+                if (isCondition || isDo) {
                     
                 }
                 else if (!isOperation) {
@@ -609,6 +610,33 @@ public class Semantico implements Constants {
                         codeGenerator.addInstruction("STO ", "$indr");
                         // codeGenerator.addInstruction("LDV ", tokenAux);
                     }
+                }
+                if(isDo){
+                    String rotIni = labelDo.pop();
+
+                    switch (oprel) {
+                        case ">":
+                            codeGenerator.addInstruction("BLE ", rotIni);
+                            break;
+                        case "<":
+                            codeGenerator.addInstruction("BGE ", rotIni);
+                            break;
+                        case "==":
+                            codeGenerator.addInstruction("BNE ", rotIni);
+                            break;
+                        case "!=":
+                            codeGenerator.addInstruction("BEQ ", rotIni);
+                            break;
+                        case ">=":
+                            codeGenerator.addInstruction("BLT ", rotIni);
+                            break;
+                        case "<=":
+                            codeGenerator.addInstruction("BGT ", rotIni);
+                            break;
+                        default:
+                            throw new IllegalArgumentException("Operador relacional desconhecido: " + oprel);
+                    }
+                    isDo = false;
                 }
 
                 operacoes.clear();
@@ -750,7 +778,6 @@ public class Semantico implements Constants {
 
             case 36:
                 isCondition = true;
-                isElse = true;
                 codeGenerator.popInstruction();
                 String rotIf = codeGenerator.generateLabel();
                 rotFim = codeGenerator.generateLabel();
@@ -762,8 +789,14 @@ public class Semantico implements Constants {
                 break;
 
             case 37:
+                System.out.println("Case 37");
+                String rotIni = codeGenerator.generateLabel();
+                labelDo.push(rotIni);
+                codeGenerator.addLabel(rotIni);
                 break;
-
+            case 38:
+                isDo = true;
+                break;
         }
 
     }
