@@ -19,7 +19,7 @@ public class Semantico implements Constants {
     public boolean isPrint = false;
     public boolean isRead = false;
     public boolean isElse = false;
-    public boolean isDo = false;
+    public String loopType = "";
 
     public boolean isAttribution = true;
     public boolean attribIsVector = false;
@@ -35,7 +35,7 @@ public class Semantico implements Constants {
     public String tempDir;
     public String oprel;
     public String rotFim;
-
+    public String rotIni;
     public Stack<Integer> escopo = new Stack<>();
     public Stack<String> operacoes = new Stack<>();
     public Stack<String> operarit = new Stack<>();
@@ -175,6 +175,36 @@ public class Semantico implements Constants {
         throw new SemanticError(String.format(msg, id));
     }
 
+    public void translateRelationalOperator(String oprel, String rotIni) {
+        switch (oprel) {
+            case ">":
+                codeGenerator.addInstruction("BLE ", rotIni);
+                break;
+            case "<":
+                codeGenerator.addInstruction("BGE ", rotIni);
+                break;
+            case "==":
+                codeGenerator.addInstruction("BNE ", rotIni);
+                break;
+            case "!=":
+                codeGenerator.addInstruction("BEQ ", rotIni);
+                break;
+            case ">=":
+                codeGenerator.addInstruction("BLT ", rotIni);
+                break;
+            case "<=":
+                codeGenerator.addInstruction("BGT ", rotIni);
+                break;
+            default:
+                throw new IllegalArgumentException("Operador relacional desconhecido: " + oprel);
+        }
+    }
+
+    public void addInstruction(String operation, String token){
+        codeGenerator.addInstruction(operation, token);
+    }
+    
+
     public void executeAction(int action, Token token) throws SemanticError {
 
         switch (action) {
@@ -184,31 +214,10 @@ public class Semantico implements Constants {
                 contadorEscopo++;
                 contadorParam = 0;
                 if(isCondition && !isElse){
-                    String rotIf = codeGenerator.generateLabel();
-
-                    switch (oprel) {
-                        case ">":
-                            codeGenerator.addInstruction("BLE ", rotIf);
-                            break;
-                        case "<":
-                            codeGenerator.addInstruction("BGE ", rotIf);
-                            break;
-                        case "==":
-                            codeGenerator.addInstruction("BNE ", rotIf);
-                            break;
-                        case "!=":
-                            codeGenerator.addInstruction("BEQ ", rotIf);
-                            break;
-                        case ">=":
-                            codeGenerator.addInstruction("BLT ", rotIf);
-                            break;
-                        case "<=":
-                            codeGenerator.addInstruction("BGT ", rotIf);
-                            break;
-                        default:
-                            throw new IllegalArgumentException("Operador relacional desconhecido: " + oprel);
-                    }
+                    String rotIf = codeGenerator.generateLabel("R");
+                    translateRelationalOperator(oprel, rotIf);
                 }
+
                 escopo.push(contadorEscopo);
                 break;
 
@@ -368,104 +377,98 @@ public class Semantico implements Constants {
 
                 if (!isDeclarationNotOperation) {
                     while (valorTemporario > 1001) {
-                        codeGenerator.addInstruction("STO ", Integer.toString(valorTemporario));
+                        addInstruction("STO ", Integer.toString(valorTemporario));
                         valorTemporario--;
-                        codeGenerator.addInstruction("LD ", Integer.toString(valorTemporario));
+                        addInstruction("LD ", Integer.toString(valorTemporario));
                         valorTemporario++;
                         System.out.println("operarit.peek()" + operarit.peek());
                         if (operarit.peek().equals("SUM")) {
                             System.out.println("ENtrei SOma");
                             operarit.pop();
                             if (operarit.peek().equals("SUB")) {
-                                codeGenerator.addInstruction("SUB ", Integer.toString(valorTemporario));
+                                addInstruction("SUB ", Integer.toString(valorTemporario));
                             } else {
-                                codeGenerator.addInstruction("ADD ", Integer.toString(valorTemporario));
+                                addInstruction("ADD ", Integer.toString(valorTemporario));
                             }
                         } else if (operarit.peek().equals("SUB")) {
-                            System.out.println("ENtrei sub");
-                            codeGenerator.addInstruction("SUB ", Integer.toString(valorTemporario));
+                            addInstruction("SUB ", Integer.toString(valorTemporario));
                             operarit.pop();
                         }
                         valorTemporario--;
                     }
                     if (!attribIsVector) {
                         if (symbolTable.getSymbol(attributionValue).isVet()) {
-                            codeGenerator.addInstruction("STOV ", attributionValue);
+                            addInstruction("STOV ", attributionValue);
                         } else {
-                            codeGenerator.addInstruction("STO ", attributionValue);
+                            addInstruction("STO ", attributionValue);
                         }
                     }
                 }
 
                 if (lastIsVec && valorTemporario > 1001) {
                     while (valorTemporario > 1001) {
-                        codeGenerator.addInstruction("STO ", Integer.toString(valorTemporario));
+                        addInstruction("STO ", Integer.toString(valorTemporario));
                         valorTemporario--;
-                        codeGenerator.addInstruction("LD ", Integer.toString(valorTemporario));
+                        addInstruction("LD ", Integer.toString(valorTemporario));
                         valorTemporario++;
                         System.out.println("operarit.peek()" + operarit.peek());
                         if (operarit.peek().equals("SUM")) {
                             System.out.println("ENtrei SOma");
                             operarit.pop();
                             if (operarit.peek().equals("SUB")) {
-                                codeGenerator.addInstruction("SUB ", Integer.toString(valorTemporario));
+                                addInstruction("SUB ", Integer.toString(valorTemporario));
                             } else {
-                                codeGenerator.addInstruction("ADD ", Integer.toString(valorTemporario));
+                                addInstruction("ADD ", Integer.toString(valorTemporario));
                             }
                         } else if (operarit.peek().equals("SUB")) {
                             System.out.println("ENtrei sub");
-                            codeGenerator.addInstruction("SUB ", Integer.toString(valorTemporario));
+                            addInstruction("SUB ", Integer.toString(valorTemporario));
                             operarit.pop();
 
                         }
                         valorTemporario--;
                     }
-                    codeGenerator.addInstruction("STO ", Integer.toString(valorTemporario));
+                    addInstruction("STO ", Integer.toString(valorTemporario));
                     valorTemporario--;
-                    codeGenerator.addInstruction("LD ", Integer.toString(valorTemporario));
+                    addInstruction("LD ", Integer.toString(valorTemporario));
                     valorTemporario++;
                     System.out.println("operarit.peek()" + operarit.peek());
                     if (operarit.peek().equals("SUM")) {
                         System.out.println("ENtrei SOma");
                         operarit.pop();
                         if (operarit.peek().equals("SUB")) {
-                            codeGenerator.addInstruction("SUB ", Integer.toString(valorTemporario));
+                            addInstruction("SUB ", Integer.toString(valorTemporario));
                         } else {
-                            codeGenerator.addInstruction("ADD ", Integer.toString(valorTemporario));
+                            addInstruction("ADD ", Integer.toString(valorTemporario));
                         }
                     } else if (operarit.peek().equals("SUB")) {
                         System.out.println("ENtrei sub");
-                        codeGenerator.addInstruction("SUB ", Integer.toString(valorTemporario));
+                        addInstruction("SUB ", Integer.toString(valorTemporario));
                         operarit.pop();
 
                     }
                     System.out.println("STO " + tokenAux);
                     if (!attribIsVector) {
                         if (symbolTable.getSymbol(attributionValue).isVet()) {
-                            codeGenerator.addInstruction("STOV ", attributionValue);
+                            addInstruction("STOV ", attributionValue);
                         } else {
-                            codeGenerator.addInstruction("STO ", attributionValue);
+                            addInstruction("STO ", attributionValue);
                         }
                     }
                 }
 
                 if (attribIsVector) {
-                    codeGenerator.addInstruction("STO ", Integer.toString(valorTemporario));
-                    codeGenerator.addInstruction("LD ", "1000");
-                    codeGenerator.addInstruction("STO ", "$indr");
-                    codeGenerator.addInstruction("LD ", Integer.toString(valorTemporario));
-                    codeGenerator.addInstruction("STOV ", attributionValue);
+                    addInstruction("STO ", Integer.toString(valorTemporario));
+                    addInstruction("LD ", "1000");
+                    addInstruction("STO ", "$indr");
+                    addInstruction("LD ", Integer.toString(valorTemporario));
+                    addInstruction("STOV ", attributionValue);
                     valorTemporario++;
                 }
 
                 startBooleans();
                 operacoes.clear();
 
-                // attribIsVector = false;
-                // isDeclarationNotOperation = false;
-                // isAttribution = true;
-                // declaracao = false;
-                // isOperation = false;
                 break;
 
             case 12:
@@ -485,25 +488,23 @@ public class Semantico implements Constants {
                             tokenAux);
                 }
                 variableAux = symbolTable.getSymbol(tokenAux);
-                if (isCondition || isDo) {
-                    
-                }
-                else if (!isOperation) {
+
+                if (!isOperation) {
                     if (symbolTable.getSymbol(tokenAux).isVet()) {
-                        codeGenerator.addInstruction("LDV ", tokenAux); // Carrega vetor
+                        addInstruction("LDV ", tokenAux); // Carrega vetor
                         // valorTemporario++;
                     } else {
                         System.out.println("LD " + tokenAux);
-                        codeGenerator.addInstruction("LD ", tokenAux); // Carrega variável normal
+                        addInstruction("LD ", tokenAux); // Carrega variável normal
                     }
 
                 } 
                 else {    
                     if (operacoes.peek() == "SUM") {
-                        codeGenerator.addInstruction("ADD ", tokenAux);
+                        addInstruction("ADD ", tokenAux);
                     }
                     if (operacoes.peek() == "SUB") {
-                        codeGenerator.addInstruction("SUB ", tokenAux);
+                        addInstruction("SUB ", tokenAux);
                     }
                 }
 
@@ -544,10 +545,8 @@ public class Semantico implements Constants {
             case 19:
                 System.out.println("Case 19: " + token.getLexeme());
                 operacoes.push("REL");
-                // codeGenerator.addInstruction("STO ", variable.getId());
                 tempEsq = variable.getId();
-                codeGenerator.addInstruction("LD ", tempEsq);
-                codeGenerator.addInstruction("STO ", "1001");
+                addInstruction("STO ", "1001");
                 oprel = token.getLexeme();
                 isOperation = true;
                 break;
@@ -589,7 +588,7 @@ public class Semantico implements Constants {
                         contadorCallParam++;
                     }
                     if (isPrint) {
-                        codeGenerator.addInstruction("STO ", "$out_port");
+                        addInstruction("STO ", "$out_port");
                         isPrint = false;
                     }
 
@@ -597,47 +596,28 @@ public class Semantico implements Constants {
                     // System.out.println("isAttribution: " + isAttribution);
                     if (isPrint) {
                         if (contPrint == 0) {
-                            codeGenerator.addInstruction("STO ", "$indr");
+                            addInstruction("STO ", "$indr");
                             contPrint++;
                         } else {
-                            codeGenerator.addInstruction("STO ", "$out_port");
+                            addInstruction("STO ", "$out_port");
                             contPrint = 0;
                             isPrint = false;
                         }
                     } else if (isAttribution) {
-                        codeGenerator.addInstruction("STO ", "1000");
+                        addInstruction("STO ", "1000");
                     } else if (!isAttribution) {
-                        codeGenerator.addInstruction("STO ", "$indr");
-                        // codeGenerator.addInstruction("LDV ", tokenAux);
+                        addInstruction("STO ", "$indr");
                     }
                 }
-                if(isDo){
+                if(loopType.equals("do")){
                     String rotIni = labelDo.pop();
-
-                    switch (oprel) {
-                        case ">":
-                            codeGenerator.addInstruction("BLE ", rotIni);
-                            break;
-                        case "<":
-                            codeGenerator.addInstruction("BGE ", rotIni);
-                            break;
-                        case "==":
-                            codeGenerator.addInstruction("BNE ", rotIni);
-                            break;
-                        case "!=":
-                            codeGenerator.addInstruction("BEQ ", rotIni);
-                            break;
-                        case ">=":
-                            codeGenerator.addInstruction("BLT ", rotIni);
-                            break;
-                        case "<=":
-                            codeGenerator.addInstruction("BGT ", rotIni);
-                            break;
-                        default:
-                            throw new IllegalArgumentException("Operador relacional desconhecido: " + oprel);
-                    }
-                    isDo = false;
+                    translateRelationalOperator(oprel, rotIni);
+                } else if(loopType.equals("while")){
+                    rotFim = codeGenerator.generateLabel("W");
+                    labelDo.push(rotFim);
+                    translateRelationalOperator(oprel, rotFim);
                 }
+                loopType = "";
 
                 operacoes.clear();
                 isOperation = false;
@@ -708,14 +688,14 @@ public class Semantico implements Constants {
                     semanticError("Caro programador, a variavel \"%s\" não foi designada", variable.getId());
                 }
                 if (variable.isVet()) {
-                    codeGenerator.addInstruction("STO ", "$indr");
-                    codeGenerator.addInstruction("LD ", "$in_port");
-                    codeGenerator.addInstruction("STO ", variable.getId());
+                    addInstruction("STO ", "$indr");
+                    addInstruction("LD ", "$in_port");
+                    addInstruction("STO ", variable.getId());
 
                     isRead = false;
                 } else {
-                    codeGenerator.addInstruction("LD ", "$in_port");
-                    codeGenerator.addInstruction("STO ", variable.getId());
+                    addInstruction("LD ", "$in_port");
+                    addInstruction("STO ", variable.getId());
                 }
 
                 break;
@@ -726,13 +706,12 @@ public class Semantico implements Constants {
                     operationIsCompatible(token);
                 }
 
-                // codeGenerator.popInstruction();
-                codeGenerator.addInstruction("STO ", "1000");
-                codeGenerator.addInstruction("LDI ", Integer.toString(vetorStrings.size()));
-                codeGenerator.addInstruction("STO ", "$indr");
-                codeGenerator.addInstruction("LD ", "1000");
+                addInstruction("STO ", "1000");
+                addInstruction("LDI ", Integer.toString(vetorStrings.size()));
+                addInstruction("STO ", "$indr");
+                addInstruction("LD ", "1000");
 
-                codeGenerator.addInstruction("STOV ", variable.getId());
+                addInstruction("STOV ", variable.getId());
 
                 vetorStrings.add(token.getLexeme());
                 break;
@@ -763,25 +742,25 @@ public class Semantico implements Constants {
             case 34:
                 System.out.println("Case 34");
                 tempDir = token.getLexeme();
-                codeGenerator.addInstruction("LD ", tempDir);
-
-                codeGenerator.addInstruction("STO ", "1002");
-                codeGenerator.addInstruction("LD ", "1001");
-                codeGenerator.addInstruction("SUB ", "1002");
+                addInstruction("LD ", tempDir);
+                addInstruction("STO ", "1002");
+                addInstruction("LD ", "1001");
+                addInstruction("SUB ", "1002");
 
                 break;
 
             case 35:
                 System.out.println("Case 35");
+
                 isCondition = true;
                 break;
 
             case 36:
                 isCondition = true;
                 codeGenerator.popInstruction();
-                String rotIf = codeGenerator.generateLabel();
-                rotFim = codeGenerator.generateLabel();
-                codeGenerator.addInstruction("JMP ", rotFim);
+                String rotIf = codeGenerator.generateLabel("R");
+                rotFim = codeGenerator.generateLabel("R");
+                addInstruction("JMP ", rotFim);
                 codeGenerator.addLabel(rotIf);
                 isElse = true;
 
@@ -790,13 +769,30 @@ public class Semantico implements Constants {
 
             case 37:
                 System.out.println("Case 37");
-                String rotIni = codeGenerator.generateLabel();
+                rotIni = codeGenerator.generateLabel("D");
                 labelDo.push(rotIni);
                 codeGenerator.addLabel(rotIni);
                 break;
             case 38:
-                isDo = true;
+                loopType = "do";
                 break;
+            case 39:
+                rotIni = codeGenerator.generateLabel("W");
+                loopType = "while";
+                labelDo.clear();
+                labelDo.push(rotIni);
+                codeGenerator.addLabel(rotIni);
+                break;
+            case 40:
+                System.out.println("Case 40");
+                rotFim = labelDo.pop();
+                rotIni = labelDo.pop();
+                addInstruction("JMP ", rotIni);
+                codeGenerator.addLabel(rotFim);
+                break;
+
+
+
         }
 
     }

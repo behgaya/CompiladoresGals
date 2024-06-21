@@ -86,8 +86,8 @@ public class CodeGenerator {
         return new ArrayList<>(codeLines);
     }
 
-    public String generateLabel() {
-        String label = "R" + labelCounter++;
+    public String generateLabel(String labelName) {
+        String label = labelName + labelCounter++;
         labels.add(label);
         return label;
     }
