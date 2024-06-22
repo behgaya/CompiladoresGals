@@ -236,7 +236,6 @@ HASH_SIGN: "#"
 <desvio_if> ::= KEYWORD_IF#35 <exp>#21 <bloco> | KEYWORD_IF#35 <exp>#21 <bloco> <desvio_else>;
 <desvio_else> ::= KEYWORD_ELSE#36 <bloco>;
 
-
 <print> ::= KEYWORD_PRINT#28 <exp>#21;
 <read> ::= KEYWORD_READ#36 OPEN_PARENTHESES <variavel>#29 CLOSE_PARENTHESES SEMICOLON;
 

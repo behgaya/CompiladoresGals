@@ -14,13 +14,9 @@ public class Semantico implements Constants {
     public boolean declaracao = false;
     public boolean isFunctionCall = false;
     public boolean isOperation = false;
-    public boolean isCondition = false;
-
     public boolean isPrint = false;
     public boolean isRead = false;
-    public boolean isElse = false;
     public String loopType = "";
-
     public boolean isAttribution = true;
     public boolean attribIsVector = false;
     public boolean lastIsVec = false;
@@ -31,7 +27,6 @@ public class Semantico implements Constants {
     public String tokenAux;
     public String dotData;
     public String tipo;
-    public String tempEsq;
     public String tempDir;
     public String oprel;
     public String rotFim;
@@ -40,14 +35,13 @@ public class Semantico implements Constants {
     public Stack<String> operacoes = new Stack<>();
     public Stack<String> operarit = new Stack<>();
     public Stack<String> labelDo = new Stack<>();
-
+    public Stack<String> labelGeneric = new Stack<>();
     public List<String> warningList = new ArrayList<>();
     public List<String> vetorStrings = new ArrayList<>();
     public int contadorCallParam;
     public int valorTemporario = 1001;
     public int contadorEscopo;
     public int contadorParam;
-    public int tamahoVetor = 0;
     public int contPrint = 0;
 
     private CodeGenerator codeGenerator = new CodeGenerator();
@@ -90,9 +84,6 @@ public class Semantico implements Constants {
         this.variable = new Symbol();
         this.variableAux = new Symbol();
         this.functionSymbol = new Symbol();
-        // this.tokenAux = "";
-        // this.dotData = "";
-        // this.tipo = "";
         this.escopo.clear();
         this.operacoes.clear();
         this.operarit.clear();
@@ -213,11 +204,13 @@ public class Semantico implements Constants {
                 // Abre um novo escopo
                 contadorEscopo++;
                 contadorParam = 0;
-                if(isCondition && !isElse){
-                    String rotIf = codeGenerator.generateLabel("R");
-                    translateRelationalOperator(oprel, rotIf);
+                if(!labelGeneric.isEmpty()){
+                    if(labelGeneric.peek().equals("if")){
+                        String rotIf = codeGenerator.generateLabel("R");
+                        System.out.println("\tCase 1: " + rotIf);
+                        translateRelationalOperator(oprel, rotIf);
+                    }
                 }
-
                 escopo.push(contadorEscopo);
                 break;
 
@@ -226,15 +219,17 @@ public class Semantico implements Constants {
                 // Fecha o escopo atual e remove os símbolos associados a ele
                 int escopoDesejado = escopo.pop();
                 contadorEscopo--;
-                if(isCondition){
-                    rotFim = codeGenerator.popLabel();
-                    codeGenerator.addLabel(rotFim);
-                    System.out.println("rotFim\t" + rotFim);
-                    if(codeGenerator.peekLabel() == null){
-                        isCondition = false;
-                        isElse = false;
-                    }
+                if(!labelGeneric.isEmpty()){
+                    if(labelGeneric.peek().equals("if") || labelGeneric.peek().equals("else")){
+                        rotFim = codeGenerator.popLabel();
+                        System.out.println("addlabel:\t" + rotFim);
+                        codeGenerator.addLabel(rotFim);
+                        System.out.println("rotFim\t" + rotFim);
+                        
+                    } 
+                    labelGeneric.pop();
                 }
+
                 symbolTable.removeSymbolsByScope(escopoDesejado);
                 break;
 
@@ -251,7 +246,6 @@ public class Semantico implements Constants {
                             false, false, false, 0, 0);
                 } else {
                     variable = symbolTable.getSymbol(token.getLexeme());
-                    // variableAux = symbolTable.getSymbol(token.getLexeme());
                 }
                 System.out.println("Case 4\tvariable: " + variable.getId() + "\ttoken: " + token.getLexeme());
 
@@ -492,7 +486,6 @@ public class Semantico implements Constants {
                 if (!isOperation) {
                     if (symbolTable.getSymbol(tokenAux).isVet()) {
                         addInstruction("LDV ", tokenAux); // Carrega vetor
-                        // valorTemporario++;
                     } else {
                         System.out.println("LD " + tokenAux);
                         addInstruction("LD ", tokenAux); // Carrega variável normal
@@ -545,7 +538,6 @@ public class Semantico implements Constants {
             case 19:
                 System.out.println("Case 19: " + token.getLexeme());
                 operacoes.push("REL");
-                tempEsq = variable.getId();
                 addInstruction("STO ", "1001");
                 oprel = token.getLexeme();
                 isOperation = true;
@@ -609,15 +601,17 @@ public class Semantico implements Constants {
                         addInstruction("STO ", "$indr");
                     }
                 }
-                if(loopType.equals("do")){
+
+                if(labelGeneric.peek().equals("do")){
                     String rotIni = labelDo.pop();
+                    System.out.println("\tCase 21(do): " + rotIni);
                     translateRelationalOperator(oprel, rotIni);
-                } else if(loopType.equals("while")){
+                } else if(labelGeneric.peek().equals("while")){
                     rotFim = codeGenerator.generateLabel("W");
                     labelDo.push(rotFim);
+                    System.out.println("\tCase 21(while): " + rotFim);
                     translateRelationalOperator(oprel, rotFim);
                 }
-                loopType = "";
 
                 operacoes.clear();
                 isOperation = false;
@@ -751,18 +745,18 @@ public class Semantico implements Constants {
 
             case 35:
                 System.out.println("Case 35");
-
-                isCondition = true;
+                labelGeneric.push("if");
                 break;
 
             case 36:
-                isCondition = true;
+                System.out.println("Case 36");
+                labelGeneric.push("else");
                 codeGenerator.popInstruction();
                 String rotIf = codeGenerator.generateLabel("R");
                 rotFim = codeGenerator.generateLabel("R");
                 addInstruction("JMP ", rotFim);
+                System.out.println("addlabel:\t" + rotIf);
                 codeGenerator.addLabel(rotIf);
-                isElse = true;
 
 
                 break;
@@ -771,16 +765,19 @@ public class Semantico implements Constants {
                 System.out.println("Case 37");
                 rotIni = codeGenerator.generateLabel("D");
                 labelDo.push(rotIni);
+                System.out.println("addlabel:\t" + rotIni);
                 codeGenerator.addLabel(rotIni);
                 break;
             case 38:
-                loopType = "do";
+                labelGeneric.push("do");
                 break;
             case 39:
+                System.out.println("Case 39");
                 rotIni = codeGenerator.generateLabel("W");
-                loopType = "while";
+                labelGeneric.push("while");
                 labelDo.clear();
                 labelDo.push(rotIni);
+                System.out.println("addlabel:\t" + rotIni);
                 codeGenerator.addLabel(rotIni);
                 break;
             case 40:
@@ -788,6 +785,7 @@ public class Semantico implements Constants {
                 rotFim = labelDo.pop();
                 rotIni = labelDo.pop();
                 addInstruction("JMP ", rotIni);
+                System.out.println("addlabel:\t" + rotFim);
                 codeGenerator.addLabel(rotFim);
                 break;
 
