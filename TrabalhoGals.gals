@@ -225,9 +225,7 @@ HASH_SIGN: "#"
 
 
 <repeticao_while> ::= KEYWORD_WHILE#39 <exp>#21 <bloco>#40 | <repeticao_for>;
-<repeticao_for> ::= KEYWORD_FOR#27 OPEN_PARENTHESES <declaracao_controle> SEMICOLON <exp>#21 SEMICOLON <operacao_incremento> CLOSE_PARENTHESES <bloco>#2;
-<declaracao_controle> ::= <declaracao1> | <atribuicao> | <declaracao1> <atribuicao>;
-<operacao_incremento> ::= <atribuicao> | <incremento>;
+<repeticao_for> ::= KEYWORD_FOR#27 OPEN_PARENTHESES <atribuicao> SEMICOLON#41 <exp>#21 SEMICOLON <incremento>#42 CLOSE_PARENTHESES <bloco>#2;
 <repeticao_do> ::= KEYWORD_DO#37 <bloco> KEYWORD_WHILE#38 <exp>#21;
 
 
@@ -264,7 +262,7 @@ HASH_SIGN: "#"
 <op_bitwise> ::= LEFT_SHIFT | RIGHT_SHIFT;
 <op_arit_baixa> ::= ADDITION#20 | SUBTRACTION#20;
 <op_arit_alta> ::= MULTIPLICATION#20 | DIVISION#20 | MODULO#20;
-<op_incremento> ::= PLUS_PLUS | MINUS_MINUS;
+<op_incremento> ::= PLUS_PLUS#43 | MINUS_MINUS#43;
 <op_atribuicao> ::= EQUALS | PLUS_EQUALS | MINUS_EQUALS | TIMES_EQUALS | DIVIDE_EQUALS;
 
 

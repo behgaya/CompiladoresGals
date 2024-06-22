@@ -15,6 +15,8 @@ public class Semantico implements Constants {
     public boolean isFunctionCall = false;
     public boolean isOperation = false;
     public boolean isPrint = false;
+    public boolean isPlusPlus = false;
+
     public boolean isRead = false;
     public String loopType = "";
     public boolean isAttribution = true;
@@ -43,6 +45,7 @@ public class Semantico implements Constants {
     public int contadorEscopo;
     public int contadorParam;
     public int contPrint = 0;
+    public String variableIncrement; 
 
     private CodeGenerator codeGenerator = new CodeGenerator();
 
@@ -227,6 +230,19 @@ public class Semantico implements Constants {
                         System.out.println("rotFim\t" + rotFim);
                         
                     } 
+                    if(labelGeneric.peek().equals("for")){
+                        if(isPlusPlus){
+                            addInstruction("LD ", variableIncrement);
+                            addInstruction("ADDI ", "1");
+                            addInstruction("STO ", variableIncrement);
+                        } else {
+                            addInstruction("LD ", variableIncrement);
+                            addInstruction("SUBI ", "1");
+                            addInstruction("STO ", variableIncrement);
+                        }
+                        codeGenerator.addLabel(rotFim);
+
+                    }
                     labelGeneric.pop();
                 }
 
@@ -472,6 +488,7 @@ public class Semantico implements Constants {
                     semanticError("Prezado desenvolvedor, o identificador \"%s\" não foi declarado neste escopo.",
                             tokenAux);
                 }
+                variableIncrement = tokenAux;
                 break;
 
             case 13:
@@ -487,7 +504,6 @@ public class Semantico implements Constants {
                     if (symbolTable.getSymbol(tokenAux).isVet()) {
                         addInstruction("LDV ", tokenAux); // Carrega vetor
                     } else {
-                        System.out.println("LD " + tokenAux);
                         addInstruction("LD ", tokenAux); // Carrega variável normal
                     }
 
@@ -611,6 +627,11 @@ public class Semantico implements Constants {
                     labelDo.push(rotFim);
                     System.out.println("\tCase 21(while): " + rotFim);
                     translateRelationalOperator(oprel, rotFim);
+                } else if(labelGeneric.peek().equals("for")){
+                    rotFim = codeGenerator.generateLabel("F");
+                    translateRelationalOperator(oprel, rotFim);
+                    labelDo.push(rotFim);
+                    System.out.println("\tCase 21(For): " + rotFim);
                 }
 
                 operacoes.clear();
@@ -668,6 +689,7 @@ public class Semantico implements Constants {
             case 27:
                 System.out.println("Case 27");
                 contadorParam = 0;
+                labelGeneric.push("for");
                 escopo.push(contadorEscopo);
                 break;
 
@@ -704,7 +726,6 @@ public class Semantico implements Constants {
                 addInstruction("LDI ", Integer.toString(vetorStrings.size()));
                 addInstruction("STO ", "$indr");
                 addInstruction("LD ", "1000");
-
                 addInstruction("STOV ", variable.getId());
 
                 vetorStrings.add(token.getLexeme());
@@ -736,7 +757,13 @@ public class Semantico implements Constants {
             case 34:
                 System.out.println("Case 34");
                 tempDir = token.getLexeme();
-                addInstruction("LD ", tempDir);
+                if (symbolTable.symbolExists(token.getLexeme(), escopo.peek())) {
+                    addInstruction("LD ", tempDir);
+                } else {
+                    addInstruction("LDI ", tempDir);
+
+                }
+
                 addInstruction("STO ", "1002");
                 addInstruction("LD ", "1001");
                 addInstruction("SUB ", "1002");
@@ -788,8 +815,26 @@ public class Semantico implements Constants {
                 System.out.println("addlabel:\t" + rotFim);
                 codeGenerator.addLabel(rotFim);
                 break;
+            
+            case 41:
+                rotIni = codeGenerator.generateLabel("F");
+                labelDo.clear();
+                labelDo.push(rotIni);
+                codeGenerator.addLabel(rotIni);
 
+                break;
+            case 42:
 
+                
+                break;
+            case 43:
+                if(token.getLexeme().equals("++")){
+                    isPlusPlus = true;
+                } else {
+                    isPlusPlus = false;
+                }
+                break;
+            
 
         }
 
