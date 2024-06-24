@@ -31,6 +31,8 @@ public class Semantico implements Constants {
     public String tipo;
     public String tempDir;
     public String oprel;
+    //public Stack<String> rotFim = new Stack<>();
+
     public String rotFim;
     public String rotIni;
     public Stack<Integer> escopo = new Stack<>();
@@ -207,10 +209,12 @@ public class Semantico implements Constants {
                 // Abre um novo escopo
                 contadorEscopo++;
                 contadorParam = 0;
-                if(!labelGeneric.isEmpty()){
-                    if(labelGeneric.peek().equals("if")){
+                if(!labelGeneric.isEmpty())
+                {
+                    if(labelGeneric.peek().equals("if"))
+                    {
                         String rotIf = codeGenerator.generateLabel("R");
-                        System.out.println("\tCase 1: " + rotIf);
+                        labelDo.push(rotIf);
                         translateRelationalOperator(oprel, rotIf);
                     }
                 }
@@ -222,15 +226,16 @@ public class Semantico implements Constants {
                 // Fecha o escopo atual e remove os símbolos associados a ele
                 int escopoDesejado = escopo.pop();
                 contadorEscopo--;
-                if(!labelGeneric.isEmpty()){
-                    if(labelGeneric.peek().equals("if") || labelGeneric.peek().equals("else")){
-                        rotFim = codeGenerator.popLabel();
-                        System.out.println("addlabel:\t" + rotFim);
-                        codeGenerator.addLabel(rotFim);
-                        System.out.println("rotFim\t" + rotFim);
-                        
+                if(!labelGeneric.isEmpty())
+                {
+                    if(labelGeneric.peek().equals("if") || labelGeneric.peek().equals("else"))
+                    {
+                        rotFim = labelDo.pop();
+                        codeGenerator.addLabel(rotFim);                       
                     } 
-                    if(labelGeneric.peek().equals("for")){
+                    if(labelGeneric.peek().equals("for"))
+                    {
+                        variableIncrement = labelDo.pop();
                         if(isPlusPlus){
                             addInstruction("LD ", variableIncrement);
                             addInstruction("ADDI ", "1");
@@ -240,9 +245,13 @@ public class Semantico implements Constants {
                             addInstruction("SUBI ", "1");
                             addInstruction("STO ", variableIncrement);
                         }
-                        codeGenerator.addLabel(rotFim);
+                        String fimFor = labelDo.pop();
+                        String iniFor = labelDo.pop();
 
+                        addInstruction("JMP ", iniFor);
+                        codeGenerator.addLabel(fimFor);
                     }
+                    escopo.pop();
                     labelGeneric.pop();
                 }
 
@@ -488,7 +497,7 @@ public class Semantico implements Constants {
                     semanticError("Prezado desenvolvedor, o identificador \"%s\" não foi declarado neste escopo.",
                             tokenAux);
                 }
-                variableIncrement = tokenAux;
+                labelDo.push(tokenAux);
                 break;
 
             case 13:
@@ -618,20 +627,22 @@ public class Semantico implements Constants {
                     }
                 }
 
-                if(labelGeneric.peek().equals("do")){
-                    String rotIni = labelDo.pop();
-                    System.out.println("\tCase 21(do): " + rotIni);
-                    translateRelationalOperator(oprel, rotIni);
-                } else if(labelGeneric.peek().equals("while")){
-                    rotFim = codeGenerator.generateLabel("W");
-                    labelDo.push(rotFim);
-                    System.out.println("\tCase 21(while): " + rotFim);
-                    translateRelationalOperator(oprel, rotFim);
-                } else if(labelGeneric.peek().equals("for")){
-                    rotFim = codeGenerator.generateLabel("F");
-                    translateRelationalOperator(oprel, rotFim);
-                    labelDo.push(rotFim);
-                    System.out.println("\tCase 21(For): " + rotFim);
+                if(labelGeneric.peek().equals("do"))
+                {
+                    String IniDo = labelDo.pop();
+                    translateRelationalOperator(oprel, IniDo);
+                } 
+                else if(labelGeneric.peek().equals("while"))
+                {
+                    String fimWhile = codeGenerator.generateLabel("W");
+                    labelDo.push(fimWhile);
+                    translateRelationalOperator(oprel, fimWhile);
+                } 
+                else if(labelGeneric.peek().equals("for"))
+                {
+                    String fimFor = codeGenerator.generateLabel("F");
+                    labelDo.push(fimFor);
+                    translateRelationalOperator(oprel, fimFor);
                 }
 
                 operacoes.clear();
@@ -688,9 +699,14 @@ public class Semantico implements Constants {
 
             case 27:
                 System.out.println("Case 27");
-                contadorParam = 0;
+                ///////////////////////////////////////
+                // For
+                ///////////////////////////////////////
+                //contadorParam = 0;
                 labelGeneric.push("for");
+                contadorEscopo++;
                 escopo.push(contadorEscopo);
+
                 break;
 
             case 28:
@@ -771,61 +787,78 @@ public class Semantico implements Constants {
                 break;
 
             case 35:
+                ///////////////////////////////////////
+                // KEYWORD_IF#35
+                ///////////////////////////////////////
                 System.out.println("Case 35");
                 labelGeneric.push("if");
                 break;
 
             case 36:
+                ///////////////////////////////////////
+                // KEYWORD_ELSE#36
+                ///////////////////////////////////////
                 System.out.println("Case 36");
                 labelGeneric.push("else");
                 codeGenerator.popInstruction();
                 String rotIf = codeGenerator.generateLabel("R");
-                rotFim = codeGenerator.generateLabel("R");
+                String rotFim = codeGenerator.generateLabel("R");
                 addInstruction("JMP ", rotFim);
                 System.out.println("addlabel:\t" + rotIf);
                 codeGenerator.addLabel(rotIf);
-
-
                 break;
 
             case 37:
                 System.out.println("Case 37");
+                labelGeneric.push("do");
+                /////////////////////////////////////////
+                // KEYWORD_DO#38
+                /////////////////////////////////////////
                 rotIni = codeGenerator.generateLabel("D");
                 labelDo.push(rotIni);
-                System.out.println("addlabel:\t" + rotIni);
                 codeGenerator.addLabel(rotIni);
                 break;
             case 38:
-                labelGeneric.push("do");
+                /////////////////////////////////////////
+                // KEYWORD_WHILE#37
+                /////////////////////////////////////////
+                //labelGeneric.push("do");
                 break;
             case 39:
                 System.out.println("Case 39");
-                rotIni = codeGenerator.generateLabel("W");
                 labelGeneric.push("while");
-                labelDo.clear();
-                labelDo.push(rotIni);
-                System.out.println("addlabel:\t" + rotIni);
-                codeGenerator.addLabel(rotIni);
+                /////////////////////////////////////////
+                // KEYWORD_WHILE#39
+                ////////////////////////////////////////
+                String IniDo = codeGenerator.generateLabel("W");
+                labelDo.push(IniDo);
+                codeGenerator.addLabel(IniDo);
                 break;
             case 40:
                 System.out.println("Case 40");
-                rotFim = labelDo.pop();
-                rotIni = labelDo.pop();
-                addInstruction("JMP ", rotIni);
-                System.out.println("addlabel:\t" + rotFim);
-                codeGenerator.addLabel(rotFim);
-                break;
+                ////////////////////////////////////////////
+                // WHILE
+                ////////////////////////////////////////////
+                String fimWhile = labelDo.pop();
+                String IniWhile = labelDo.pop();
+                addInstruction("JMP ", IniWhile);
+                codeGenerator.addLabel(fimWhile);
+                break;  
             
             case 41:
-                rotIni = codeGenerator.generateLabel("F");
-                labelDo.clear();
-                labelDo.push(rotIni);
-                codeGenerator.addLabel(rotIni);
+                ////////////////////////////////////////////
+                // SEMICOLON#41
+                ////////////////////////////////////////////
+                String iniFor = codeGenerator.generateLabel("F");
+                labelDo.push(iniFor);
+                codeGenerator.addLabel(iniFor);
 
                 break;
             case 42:
-
-                
+                ////////////////////////////////////////////
+                // <incremento>#42
+                ////////////////////////////////////////////
+                //labelDo.pop();
                 break;
             case 43:
                 if(token.getLexeme().equals("++")){

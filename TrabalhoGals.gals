@@ -225,7 +225,11 @@ HASH_SIGN: "#"
 
 
 <repeticao_while> ::= KEYWORD_WHILE#39 <exp>#21 <bloco>#40 | <repeticao_for>;
-<repeticao_for> ::= KEYWORD_FOR#27 OPEN_PARENTHESES <atribuicao> SEMICOLON#41 <exp>#21 SEMICOLON <incremento>#42 CLOSE_PARENTHESES <bloco>#2;
+//======================================================================
+
+<repeticao_for> ::= KEYWORD_FOR#27 OPEN_PARENTHESES <tipo>#8 <atribuicao> SEMICOLON#41 <exp>#21 SEMICOLON <incremento>#42 CLOSE_PARENTHESES <bloco>;
+
+//======================================================================
 <repeticao_do> ::= KEYWORD_DO#37 <bloco> KEYWORD_WHILE#38 <exp>#21;
 
 
