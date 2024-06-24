@@ -214,6 +214,7 @@ public class Semantico implements Constants {
                     if(labelGeneric.peek().equals("if"))
                     {
                         String rotIf = codeGenerator.generateLabel("R");
+
                         labelDo.push(rotIf);
                         translateRelationalOperator(oprel, rotIf);
                     }
@@ -247,6 +248,8 @@ public class Semantico implements Constants {
                         }
                         String fimFor = labelDo.pop();
                         String iniFor = labelDo.pop();
+                        System.out.println("fimFor: " + fimFor);
+                        System.out.println("fimFor: " + fimFor);
 
                         addInstruction("JMP ", iniFor);
                         codeGenerator.addLabel(fimFor);
@@ -598,19 +601,25 @@ public class Semantico implements Constants {
                 // Finaliza uma operação de atribuição e verifica os tipos
                 if (isOperation) {
                     operationIsCompatible(token);
+                    isOperation = false;
+                    operacoes.clear();
+
                 }
 
                 if (!variable.isVet()) {
                     if (isFunctionCall) {
                         contadorCallParam++;
+                        return;
                     }
                     if (isPrint) {
                         addInstruction("STO ", "$out_port");
                         isPrint = false;
+                        return;
                     }
-
-                } else {
-                    // System.out.println("isAttribution: " + isAttribution);
+                } 
+                
+                if(variable.isVet()){
+                    System.out.println("Entrei : if(variable.isVet())" + isAttribution);
                     if (isPrint) {
                         if (contPrint == 0) {
                             addInstruction("STO ", "$indr");
@@ -620,6 +629,8 @@ public class Semantico implements Constants {
                             contPrint = 0;
                             isPrint = false;
                         }
+                        return;
+
                     } 
                     if(!isRead){
                         if (isAttribution) {
@@ -627,10 +638,12 @@ public class Semantico implements Constants {
                         } else if (!isAttribution) {
                             addInstruction("STO ", "$indr");
                         }
+                        return;
+
                     }
-
-                }
-
+                    //return;
+                } 
+                
                 if(!labelGeneric.isEmpty()){
                     if(labelGeneric.peek().equals("do"))
                     {
@@ -639,6 +652,7 @@ public class Semantico implements Constants {
                     } 
                     else if(labelGeneric.peek().equals("while"))
                     {
+                        System.out.println("Entrei : else if(labelGeneric.peek().equals(\"while\"))" + isAttribution);
                         String fimWhile = codeGenerator.generateLabel("W");
                         labelDo.push(fimWhile);
                         translateRelationalOperator(oprel, fimWhile);
@@ -651,10 +665,6 @@ public class Semantico implements Constants {
                     }
                 }
 
-
-
-                operacoes.clear();
-                isOperation = false;
                 break;
 
             case 22:
