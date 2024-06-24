@@ -31,8 +31,6 @@ public class Semantico implements Constants {
     public String tipo;
     public String tempDir;
     public String oprel;
-    //public Stack<String> rotFim = new Stack<>();
-
     public String rotFim;
     public String rotIni;
     public Stack<Integer> escopo = new Stack<>();
@@ -89,6 +87,7 @@ public class Semantico implements Constants {
         this.variable = new Symbol();
         this.variableAux = new Symbol();
         this.functionSymbol = new Symbol();
+        this.labelGeneric.clear();
         this.escopo.clear();
         this.operacoes.clear();
         this.operarit.clear();
@@ -123,6 +122,7 @@ public class Semantico implements Constants {
         }
         if (isOperation) {
             if (variableAux != null && variableAux.isVet() && !isAttribution) {
+
                 codeGenerator.addInstruction("STO ", Integer.toString(valorTemporario));
                 codeGenerator.addInstruction("LDI ", token);
                 valorTemporario++;
@@ -620,30 +620,38 @@ public class Semantico implements Constants {
                             contPrint = 0;
                             isPrint = false;
                         }
-                    } else if (isAttribution) {
-                        addInstruction("STO ", "1000");
-                    } else if (!isAttribution) {
-                        addInstruction("STO ", "$indr");
+                    } 
+                    if(!isRead){
+                        if (isAttribution) {
+                            addInstruction("STO ", "1000");
+                        } else if (!isAttribution) {
+                            addInstruction("STO ", "$indr");
+                        }
+                    }
+
+                }
+
+                if(!labelGeneric.isEmpty()){
+                    if(labelGeneric.peek().equals("do"))
+                    {
+                        String IniDo = labelDo.pop();
+                        translateRelationalOperator(oprel, IniDo);
+                    } 
+                    else if(labelGeneric.peek().equals("while"))
+                    {
+                        String fimWhile = codeGenerator.generateLabel("W");
+                        labelDo.push(fimWhile);
+                        translateRelationalOperator(oprel, fimWhile);
+                    } 
+                    else if(labelGeneric.peek().equals("for"))
+                    {
+                        String fimFor = codeGenerator.generateLabel("F");
+                        labelDo.push(fimFor);
+                        translateRelationalOperator(oprel, fimFor);
                     }
                 }
 
-                if(labelGeneric.peek().equals("do"))
-                {
-                    String IniDo = labelDo.pop();
-                    translateRelationalOperator(oprel, IniDo);
-                } 
-                else if(labelGeneric.peek().equals("while"))
-                {
-                    String fimWhile = codeGenerator.generateLabel("W");
-                    labelDo.push(fimWhile);
-                    translateRelationalOperator(oprel, fimWhile);
-                } 
-                else if(labelGeneric.peek().equals("for"))
-                {
-                    String fimFor = codeGenerator.generateLabel("F");
-                    labelDo.push(fimFor);
-                    translateRelationalOperator(oprel, fimFor);
-                }
+
 
                 operacoes.clear();
                 isOperation = false;
@@ -720,9 +728,10 @@ public class Semantico implements Constants {
                     semanticError("Caro programador, a variavel \"%s\" não foi designada", variable.getId());
                 }
                 if (variable.isVet()) {
+                    
                     addInstruction("STO ", "$indr");
                     addInstruction("LD ", "$in_port");
-                    addInstruction("STO ", variable.getId());
+                    addInstruction("STOV ", variable.getId());
 
                     isRead = false;
                 } else {
@@ -737,6 +746,7 @@ public class Semantico implements Constants {
                 if (isOperation) {
                     operationIsCompatible(token);
                 }
+
 
                 addInstruction("STO ", "1000");
                 addInstruction("LDI ", Integer.toString(vetorStrings.size()));
@@ -764,6 +774,7 @@ public class Semantico implements Constants {
                 declaracao = false;
                 operacoes.clear();
                 isOperation = false;
+                isAttribution = false;
                 break;
             case 33:
                 System.out.println("Case 33");
@@ -867,7 +878,10 @@ public class Semantico implements Constants {
                     isPlusPlus = false;
                 }
                 break;
-            
+            case 44:
+                isRead = true;
+                break;
+
 
         }
 
