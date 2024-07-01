@@ -2,7 +2,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
-
 public class Semantico implements Constants {
     public final SymbolTable symbolTable;
     public SemanticTable semanticTable;
@@ -47,7 +46,7 @@ public class Semantico implements Constants {
     private CodeGenerator codeGenerator = new CodeGenerator();
     public String nome_call;
     public boolean isFunc = false;
-    public String funcName;
+    public String funcName = "";
     public boolean isVoid;
     public String variableName;
 
@@ -103,6 +102,7 @@ public class Semantico implements Constants {
         startBooleans();
         escopo.push(contadorEscopo);
         this.contpar = 0;
+        this.funcName = "";
     }
 
     public void startBooleans() {
@@ -120,7 +120,7 @@ public class Semantico implements Constants {
 
     public void processImmediateOperation(String token) {
         if (!isOperation) {
-            codeGenerator.addInstruction("LDI ", token);
+            addInstruction("LDI ", token);
             System.out.println("processImmediateOperation: LDI " + token);
         }
         if (isOperation) {
@@ -200,9 +200,13 @@ public class Semantico implements Constants {
     }
 
     public void addInstruction(String operation, String token, String funcName) {
-        if(!funcName.equals("main")){
+        if (!funcName.equals("main")) {
             token = funcName + "_" + token;
         }
+        codeGenerator.addInstruction(operation, token);
+    }
+
+    public void addInstruction(String operation, String token) {
         codeGenerator.addInstruction(operation, token);
     }
 
@@ -237,13 +241,13 @@ public class Semantico implements Constants {
                     if (labelGeneric.peek().equals("for")) {
                         variableIncrement = labelDo.pop();
                         if (isPlusPlus) {
-                            addInstruction("LD ", variableIncrement);
+                            addInstruction("LD ", variableIncrement, funcName);
                             addInstruction("ADDI ", "1");
-                            addInstruction("STO ", variableIncrement);
+                            addInstruction("STO ", variableIncrement, funcName);
                         } else {
-                            addInstruction("LD ", variableIncrement);
+                            addInstruction("LD ", variableIncrement, funcName);
                             addInstruction("SUBI ", "1");
-                            addInstruction("STO ", variableIncrement);
+                            addInstruction("STO ", variableIncrement, funcName);
                         }
                         String fimFor = labelDo.pop();
                         String iniFor = labelDo.pop();
@@ -257,7 +261,6 @@ public class Semantico implements Constants {
 
                     labelGeneric.pop();
                 }
-                funcName = "";
                 symbolTable.removeSymbolsByScope(escopoDesejado);
                 break;
 
@@ -270,7 +273,7 @@ public class Semantico implements Constants {
             case 4:
                 System.out.println("Case 4");
                 if (!symbolTable.symbolExists(token.getLexeme(), escopo.peek())) {
-                    if(funcName != null){
+                    if (funcName != "") {
                         if (funcName.equals("main")) {
                             variableName = token.getLexeme();
                         } else {
@@ -279,7 +282,6 @@ public class Semantico implements Constants {
                     } else {
                         variableName = token.getLexeme();
                     }
-
 
                     variable = new Symbol(variableName, tipo, false, false, escopo.peek(), false, 0, false, false,
                             false, false, false, 0, 0);
@@ -439,9 +441,9 @@ public class Semantico implements Constants {
                     }
                     if (!attribIsVector) {
                         if (symbolTable.getSymbol(attributionValue, funcName).isVet()) {
-                            addInstruction("STOV ", attributionValue);
+                            addInstruction("STOV ", attributionValue, funcName);
                         } else {
-                            addInstruction("STO ", attributionValue);
+                            addInstruction("STO ", attributionValue, funcName);
                         }
                     }
                 }
@@ -493,7 +495,7 @@ public class Semantico implements Constants {
                         if (symbolTable.getSymbol(attributionValue, funcName).isVet()) {
                             addInstruction("STOV ", attributionValue);
                         } else {
-                            addInstruction("STO ", attributionValue);
+                            addInstruction("STO ", attributionValue, funcName);
                         }
                     }
                 }
@@ -535,9 +537,9 @@ public class Semantico implements Constants {
 
                 if (!isOperation && !isFunctionCall) {
                     if (symbolTable.getSymbol(tokenAux, funcName).isVet()) {
-                        addInstruction("LDV ", tokenAux); // Carrega vetor
+                        addInstruction("LDV ", tokenAux, funcName); // Carrega vetor
                     } else {
-                        addInstruction("LD ", tokenAux); // Carrega variável normal
+                        addInstruction("LD ", tokenAux, funcName); // Carrega variável normal
                     }
 
                 } else if (isOperation) {
@@ -763,12 +765,12 @@ public class Semantico implements Constants {
 
                     addInstruction("STO ", "$indr");
                     addInstruction("LD ", "$in_port");
-                    addInstruction("STOV ", variable.getId());
+                    addInstruction("STOV ", variable.getId(), funcName);
 
                     isRead = false;
                 } else {
                     addInstruction("LD ", "$in_port");
-                    addInstruction("STO ", variable.getId());
+                    addInstruction("STO ", variable.getId(), funcName);
                 }
 
                 break;
@@ -783,7 +785,7 @@ public class Semantico implements Constants {
                 addInstruction("LDI ", Integer.toString(vetorStrings.size()));
                 addInstruction("STO ", "$indr");
                 addInstruction("LD ", "1000");
-                addInstruction("STOV ", variable.getId());
+                addInstruction("STOV ", variable.getId(), funcName);
 
                 vetorStrings.add(token.getLexeme());
                 break;
@@ -914,7 +916,13 @@ public class Semantico implements Constants {
                 break;
 
             case 45:
-                addInstruction("RETURN ", "0");
+                if (funcName.equals("main")) {
+                    addInstruction("HLT ", "0");
+                } else {
+                    addInstruction("RETURN ", "0");
+                }
+                funcName = "";
+
                 escopoDesejado = escopo.pop();
                 contadorEscopo--;
                 symbolTable.removeSymbolsByScope(escopoDesejado);
@@ -934,8 +942,8 @@ public class Semantico implements Constants {
                                     + "\" pode causar perca de precisão");
                 }
 
-                addInstruction("LD ", variable.getId());
-                addInstruction("STO ", parName.getId());
+                addInstruction("LD ", variable.getId(), funcName);
+                addInstruction("STO ", parName.getId(), funcName);
                 contpar++;
                 break;
 
@@ -945,6 +953,24 @@ public class Semantico implements Constants {
                             "Caro programador, o procedimento de nome \"%s\" não pode ser usado em expressões",
                             variable.getId());
                 }
+                break;
+
+            case 48:
+                if (isVoid) {
+                    semanticError(
+                            "Caro programador, o procedimento de nome \"%s\" não pode retornar valores",
+                            variable.getId());
+                }
+                break;
+            case 49:
+                if (funcName.equals("main")) {
+                    addInstruction("HLT ", "0");
+                } else {
+                    addInstruction("RETURN ", "0");
+                }
+                funcName = "";
+
+                isVoid = false;
                 break;
 
         }

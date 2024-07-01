@@ -58,7 +58,6 @@ public class CodeGenerator {
         List<String> reversedLines = new ArrayList<>(codeLines);
         Collections.reverse(reversedLines);
         try (FileWriter writer = new FileWriter(fileName)) {
-            writer.write("JMP _MAIN\n");
             for (String line : reversedLines) {
                 writer.write(line + "\n");
             }

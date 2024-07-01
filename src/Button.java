@@ -278,6 +278,8 @@ public class Button {
         }
         
         assemblyTextArea.append(".text\n");
+        assemblyTextArea.append("JMP _main\n");
+
         for (String line : assemblyCode) {
             if (line.startsWith("Instruction")) {
                 String processedLine = line.replaceFirst("Instruction", "").trim();

@@ -182,7 +182,7 @@ HASH_SIGN: "#"
 <rotina> ::= <funcao> | <procedimento> | <lista_comentarios>; 
 
 <funcao> ::= <tipo>#6 <id>#7  OPEN_PARENTHESES <parenteses_funcao> CLOSE_PARENTHESES#24 OPEN_BRACES#1 <lista_cmd> CLOSE_BRACES#45 | <tipo>#6 <id>#7 OPEN_PARENTHESES CLOSE_PARENTHESES#24 OPEN_BRACES#1 <lista_cmd> CLOSE_BRACES#45;
-<procedimento> ::= <void>#6 <id>#7 OPEN_PARENTHESES <parenteses_funcao> CLOSE_PARENTHESES#24 <bloco>#45 | <void>#6 <id>#7 OPEN_PARENTHESES CLOSE_PARENTHESES#24 <bloco>#45;
+<procedimento> ::= <void>#6 <id>#7 OPEN_PARENTHESES <parenteses_funcao> CLOSE_PARENTHESES#24 <bloco>#49 | <void>#6 <id>#7 OPEN_PARENTHESES CLOSE_PARENTHESES#24 <bloco>#49;
 <parenteses_funcao> ::= <declaracao>#23 | <declaracao>#23 COMMA <parenteses_funcao>;
 
 <bloco> ::= OPEN_BRACES#1 CLOSE_BRACES#2 | OPEN_BRACES#1 <lista_cmd> CLOSE_BRACES#2;
@@ -190,7 +190,7 @@ HASH_SIGN: "#"
 <cmd> ::= <declaracao1> SEMICOLON | <repeticao_while> | <chamar_funcao> SEMICOLON | <desvio_if> | <print> SEMICOLON | 
 	 <comment> | <block_comment> | <read> | <atribuicao> SEMICOLON | <incremento> SEMICOLON | <repeticao_do> SEMICOLON | <return>;
 
-<return> ::= KEYWORD_RETURN <exp>#21 SEMICOLON;
+<return> ::= KEYWORD_RETURN <exp>#21 SEMICOLON#48;
 
 //======================================================================
 <chamar_funcao> ::= <id>#22 OPEN_PARENTHESES#25 CLOSE_PARENTHESES#26 | <id>#22 OPEN_PARENTHESES#25 <parametros_chamar> CLOSE_PARENTHESES#26;
