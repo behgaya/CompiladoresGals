@@ -1,10 +1,7 @@
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 import java.util.Stack;
 
-import javax.lang.model.element.VariableElement;
 
 public class Semantico implements Constants {
     public final SymbolTable symbolTable;
@@ -45,9 +42,14 @@ public class Semantico implements Constants {
     public int contadorEscopo;
     public int contadorParam;
     public int contPrint = 0;
-    public String variableIncrement; 
-
+    public String variableIncrement;
+    public int contpar = 0;
     private CodeGenerator codeGenerator = new CodeGenerator();
+    public String nome_call;
+    public boolean isFunc = false;
+    public String funcName;
+    public boolean isVoid;
+    public String variableName;
 
     public Semantico() {
         this.symbolTable = new SymbolTable();
@@ -100,6 +102,7 @@ public class Semantico implements Constants {
         this.codeGenerator.reset();
         startBooleans();
         escopo.push(contadorEscopo);
+        this.contpar = 0;
     }
 
     public void startBooleans() {
@@ -196,10 +199,12 @@ public class Semantico implements Constants {
         }
     }
 
-    public void addInstruction(String operation, String token){
+    public void addInstruction(String operation, String token, String funcName) {
+        if(!funcName.equals("main")){
+            token = funcName + "_" + token;
+        }
         codeGenerator.addInstruction(operation, token);
     }
-    
 
     public void executeAction(int action, Token token) throws SemanticError {
 
@@ -209,12 +214,9 @@ public class Semantico implements Constants {
                 // Abre um novo escopo
                 contadorEscopo++;
                 contadorParam = 0;
-                if(!labelGeneric.isEmpty())
-                {
-                    if(labelGeneric.peek().equals("if"))
-                    {
+                if (!labelGeneric.isEmpty()) {
+                    if (labelGeneric.peek().equals("if")) {
                         String rotIf = codeGenerator.generateLabel("R");
-
                         labelDo.push(rotIf);
                         translateRelationalOperator(oprel, rotIf);
                     }
@@ -227,17 +229,14 @@ public class Semantico implements Constants {
                 // Fecha o escopo atual e remove os símbolos associados a ele
                 int escopoDesejado = escopo.pop();
                 contadorEscopo--;
-                if(!labelGeneric.isEmpty())
-                {
-                    if(labelGeneric.peek().equals("if") || labelGeneric.peek().equals("else"))
-                    {
+                if (!labelGeneric.isEmpty()) {
+                    if (labelGeneric.peek().equals("if") || labelGeneric.peek().equals("else")) {
                         rotFim = labelDo.pop();
-                        codeGenerator.addLabel(rotFim);                       
-                    } 
-                    if(labelGeneric.peek().equals("for"))
-                    {
+                        codeGenerator.addLabel(rotFim);
+                    }
+                    if (labelGeneric.peek().equals("for")) {
                         variableIncrement = labelDo.pop();
-                        if(isPlusPlus){
+                        if (isPlusPlus) {
                             addInstruction("LD ", variableIncrement);
                             addInstruction("ADDI ", "1");
                             addInstruction("STO ", variableIncrement);
@@ -253,11 +252,12 @@ public class Semantico implements Constants {
 
                         addInstruction("JMP ", iniFor);
                         codeGenerator.addLabel(fimFor);
+                        escopo.pop();
                     }
-                    escopo.pop();
+
                     labelGeneric.pop();
                 }
-
+                funcName = "";
                 symbolTable.removeSymbolsByScope(escopoDesejado);
                 break;
 
@@ -270,13 +270,22 @@ public class Semantico implements Constants {
             case 4:
                 System.out.println("Case 4");
                 if (!symbolTable.symbolExists(token.getLexeme(), escopo.peek())) {
-                    variable = new Symbol(token.getLexeme(), tipo, false, false, escopo.peek(), false, 0, false, false,
+                    if(funcName != null){
+                        if (funcName.equals("main")) {
+                            variableName = token.getLexeme();
+                        } else {
+                            variableName = funcName + "_" + token.getLexeme();
+                        }
+                    } else {
+                        variableName = token.getLexeme();
+                    }
+
+
+                    variable = new Symbol(variableName, tipo, false, false, escopo.peek(), false, 0, false, false,
                             false, false, false, 0, 0);
                 } else {
-                    variable = symbolTable.getSymbol(token.getLexeme());
+                    variable = symbolTable.getSymbol(token.getLexeme(), funcName);
                 }
-                System.out.println("Case 4\tvariable: " + variable.getId() + "\ttoken: " + token.getLexeme());
-
                 tokenAux = token.getLexeme();
                 break;
 
@@ -284,8 +293,8 @@ public class Semantico implements Constants {
                 System.out.println("Case 5\tvariable: " + variable.getId() + "\ttoken: " + token.getLexeme());
                 variable.setVet(true);
                 tokenAux = token.getLexeme();
-                if (symbolTable.symbolExists(token.getLexeme(), escopo.peek())) {
-                    variableAux = symbolTable.getSymbol(token.getLexeme());
+                if (symbolTable.symbolExists(token.getLexeme(), escopo.peek(), funcName)) {
+                    variableAux = symbolTable.getSymbol(token.getLexeme(), funcName);
                 }
 
                 break;
@@ -293,7 +302,10 @@ public class Semantico implements Constants {
             case 6:
                 System.out.println("Case 6");
                 tipo = token.getLexeme();
-                // Define a variável como uma função
+                if (tipo.equals("void")) {
+                    isVoid = true;
+                }
+                isFunc = true;
                 break;
             case 7:
                 System.out.println("Case 7");
@@ -310,6 +322,8 @@ public class Semantico implements Constants {
                 symbolTable.addSymbol(variable);
                 symbolTableShow.addSymbol(variable);
                 variable.setEscopo(contadorEscopo);
+                codeGenerator.addLabel("_" + variable.getId());
+                funcName = token.getLexeme();
                 break;
 
             case 8:
@@ -321,14 +335,19 @@ public class Semantico implements Constants {
             case 9:
                 System.out.println("Case 9");
                 // Finaliza uma declaração de variável e a adiciona à tabela de símbolos
-                if (symbolTable.symbolExists(variable.getId(), escopo.peek())) {
+                if (symbolTable.symbolExists(variable.getId(), escopo.peek(), funcName)) {
                     semanticError("Prezado desenvolvedor, a variável \"%s\" já foi declarada", variable.getId());
                 }
 
                 if (!variable.isFunc()) {
                     symbolTable.addSymbol(variable);
                     symbolTableShow.addSymbol(variable);
-                    codeGenerator.declareVariable(variable.getId(), "0");
+                    if (!isFunc) {
+                        codeGenerator.declareVariable(variable.getId(), "0");
+                    } else {
+                        codeGenerator.declareVariable(variable.getId(), "0");
+
+                    }
                 }
 
                 declaracao = false;
@@ -336,7 +355,7 @@ public class Semantico implements Constants {
             case 10:
                 System.out.println("Case 10");
                 if (declaracao) {
-                    if (symbolTable.symbolExists(variable.getId(), escopo.peek())) {
+                    if (symbolTable.symbolExists(variable.getId(), escopo.peek(), funcName)) {
                         semanticError("Prezado desenvolvedor, a variável \"%s\" já foi declarada", variable.getId());
                     }
 
@@ -345,7 +364,7 @@ public class Semantico implements Constants {
                     dotData = tokenAux;
 
                 } else {
-                    if (!symbolTable.symbolExists(variable.getId(), escopo.peek())) {
+                    if (!symbolTable.symbolExists(variable.getId(), escopo.peek(), funcName)) {
                         semanticError("Prezado desenvolvedor, a variável \"%s\" não foi declarada.", variable.getId());
                     }
 
@@ -419,7 +438,7 @@ public class Semantico implements Constants {
                         valorTemporario--;
                     }
                     if (!attribIsVector) {
-                        if (symbolTable.getSymbol(attributionValue).isVet()) {
+                        if (symbolTable.getSymbol(attributionValue, funcName).isVet()) {
                             addInstruction("STOV ", attributionValue);
                         } else {
                             addInstruction("STO ", attributionValue);
@@ -471,7 +490,7 @@ public class Semantico implements Constants {
                     }
                     System.out.println("STO " + tokenAux);
                     if (!attribIsVector) {
-                        if (symbolTable.getSymbol(attributionValue).isVet()) {
+                        if (symbolTable.getSymbol(attributionValue, funcName).isVet()) {
                             addInstruction("STOV ", attributionValue);
                         } else {
                             addInstruction("STO ", attributionValue);
@@ -496,7 +515,7 @@ public class Semantico implements Constants {
             case 12:
                 System.out.println("Case 12");
                 // Verifica se o identificador foi declarado no escopo atual
-                if (!symbolTable.symbolExists(tokenAux, escopo.peek())) {
+                if (!symbolTable.symbolExists(tokenAux, escopo.peek(), funcName)) {
                     semanticError("Prezado desenvolvedor, o identificador \"%s\" não foi declarado neste escopo.",
                             tokenAux);
                 }
@@ -506,21 +525,22 @@ public class Semantico implements Constants {
             case 13:
                 System.out.println("Case 13");
                 // Verifica o tipo da variável na expressão
-                if (!symbolTable.symbolExists(tokenAux, escopo.peek())) {
+                System.out.println("TOKENAUX::::\t" + tokenAux);
+
+                if (!symbolTable.symbolExists(tokenAux, escopo.peek(), funcName)) {
                     semanticError("Prezado desenvolvedor, o identificador \"%s\" não foi declarado neste escopo.",
                             tokenAux);
                 }
-                variableAux = symbolTable.getSymbol(tokenAux);
+                variableAux = symbolTable.getSymbol(tokenAux, funcName);
 
-                if (!isOperation) {
-                    if (symbolTable.getSymbol(tokenAux).isVet()) {
+                if (!isOperation && !isFunctionCall) {
+                    if (symbolTable.getSymbol(tokenAux, funcName).isVet()) {
                         addInstruction("LDV ", tokenAux); // Carrega vetor
                     } else {
                         addInstruction("LD ", tokenAux); // Carrega variável normal
                     }
 
-                } 
-                else {    
+                } else if (isOperation) {
                     if (operacoes.peek() == "SUM") {
                         addInstruction("ADD ", tokenAux);
                     }
@@ -528,7 +548,7 @@ public class Semantico implements Constants {
                         addInstruction("SUB ", tokenAux);
                     }
                 }
-
+                System.out.println("variableAux.getId()\t" + variableAux.getId() + " funcName\t" + funcName);
                 Symbol variableExp = symbolTable.getSymbol(variableAux.getId());
                 variableExp.setUsada(true);
                 operacoes.push(variableExp.getTipo());
@@ -616,9 +636,9 @@ public class Semantico implements Constants {
                         isPrint = false;
                         return;
                     }
-                } 
-                
-                if(variable.isVet()){
+                }
+
+                if (variable.isVet()) {
                     System.out.println("Entrei : if(variable.isVet())" + isAttribution);
                     if (isPrint) {
                         if (contPrint == 0) {
@@ -631,8 +651,8 @@ public class Semantico implements Constants {
                         }
                         return;
 
-                    } 
-                    if(!isRead){
+                    }
+                    if (!isRead) {
                         if (isAttribution) {
                             addInstruction("STO ", "1000");
                         } else if (!isAttribution) {
@@ -641,24 +661,19 @@ public class Semantico implements Constants {
                         return;
 
                     }
-                    //return;
-                } 
-                
-                if(!labelGeneric.isEmpty()){
-                    if(labelGeneric.peek().equals("do"))
-                    {
+                    // return;
+                }
+
+                if (!labelGeneric.isEmpty()) {
+                    if (labelGeneric.peek().equals("do")) {
                         String IniDo = labelDo.pop();
                         translateRelationalOperator(oprel, IniDo);
-                    } 
-                    else if(labelGeneric.peek().equals("while"))
-                    {
+                    } else if (labelGeneric.peek().equals("while")) {
                         System.out.println("Entrei : else if(labelGeneric.peek().equals(\"while\"))" + isAttribution);
                         String fimWhile = codeGenerator.generateLabel("W");
                         labelDo.push(fimWhile);
                         translateRelationalOperator(oprel, fimWhile);
-                    } 
-                    else if(labelGeneric.peek().equals("for"))
-                    {
+                    } else if (labelGeneric.peek().equals("for")) {
                         String fimFor = codeGenerator.generateLabel("F");
                         labelDo.push(fimFor);
                         translateRelationalOperator(oprel, fimFor);
@@ -675,21 +690,26 @@ public class Semantico implements Constants {
 
                 functionSymbol = new Symbol(variable); // Criar uma cópia do objeto variable
                 functionSymbol.setFunc(true);
+                nome_call = token.getLexeme();
+                contpar = 0;
                 break;
 
             case 23:
                 System.out.println("Case 23");
-                if (symbolTable.symbolExists(token.getLexeme(), escopo.peek())) {
+                if (symbolTable.symbolExists(token.getLexeme(), escopo.peek(), funcName)) {
                     variable.setParam(true);
                     contadorParam++;
                     variable.setPos(contadorParam);
                 }
+
                 break;
 
             case 24:
                 System.out.println("Case 24");
                 Symbol lastFunction = symbolTable.getLastFunction();
                 lastFunction.setQuantparam(contadorParam);
+                isFunc = false;
+                // addInstruction("Return ", "0");
                 break;
 
             case 25:
@@ -700,19 +720,21 @@ public class Semantico implements Constants {
             case 26:
                 System.out.println("Case 26");
                 functionSymbol = symbolTable.getFunctionById(functionSymbol.getId());
+                System.out.println("functionSymbol.getQuantparam()\t" + functionSymbol.getQuantparam());
+                System.out.println("contadorCallParam\t" + contpar);
 
-                if (functionSymbol.getQuantparam() > contadorCallParam) {
+                if (functionSymbol.getQuantparam() > contpar) {
                     semanticError("Caro programador, a função de nome \"%s\" Necessita de mais parametros",
                             variable.getId());
                 }
 
-                if (functionSymbol.getQuantparam() < contadorCallParam) {
+                if (functionSymbol.getQuantparam() < contpar) {
                     semanticError("Caro programador, a função de nome \"%s\" Possui parametros que não foram expostos",
                             variable.getId());
                 }
-
+                addInstruction("CALL ", "_" + nome_call);
                 isFunctionCall = false;
-                contadorCallParam = 0;
+                contpar = 0;
                 break;
 
             case 27:
@@ -720,7 +742,7 @@ public class Semantico implements Constants {
                 ///////////////////////////////////////
                 // For
                 ///////////////////////////////////////
-                //contadorParam = 0;
+                // contadorParam = 0;
                 labelGeneric.push("for");
                 contadorEscopo++;
                 escopo.push(contadorEscopo);
@@ -734,11 +756,11 @@ public class Semantico implements Constants {
 
             case 29:
                 System.out.println("Case 29");
-                if (!symbolTable.symbolExists(variable.getId(), escopo.peek())) {
+                if (!symbolTable.symbolExists(variable.getId(), escopo.peek(), funcName)) {
                     semanticError("Caro programador, a variavel \"%s\" não foi designada", variable.getId());
                 }
                 if (variable.isVet()) {
-                    
+
                     addInstruction("STO ", "$indr");
                     addInstruction("LD ", "$in_port");
                     addInstruction("STOV ", variable.getId());
@@ -756,7 +778,6 @@ public class Semantico implements Constants {
                 if (isOperation) {
                     operationIsCompatible(token);
                 }
-
 
                 addInstruction("STO ", "1000");
                 addInstruction("LDI ", Integer.toString(vetorStrings.size()));
@@ -794,7 +815,7 @@ public class Semantico implements Constants {
             case 34:
                 System.out.println("Case 34");
                 tempDir = token.getLexeme();
-                if (symbolTable.symbolExists(token.getLexeme(), escopo.peek())) {
+                if (symbolTable.symbolExists(token.getLexeme(), escopo.peek(), funcName)) {
                     addInstruction("LD ", tempDir);
                 } else {
                     addInstruction("LDI ", tempDir);
@@ -825,13 +846,13 @@ public class Semantico implements Constants {
                 String rotIf = codeGenerator.generateLabel("R");
                 String rotFim = codeGenerator.generateLabel("R");
                 addInstruction("JMP ", rotFim);
-                System.out.println("addlabel:\t" + rotIf);
-                codeGenerator.addLabel(rotIf);
+                labelDo.push(rotIf);
+
                 break;
 
             case 37:
                 System.out.println("Case 37");
-                labelGeneric.push("do");
+                // labelGeneric.push("do");
                 /////////////////////////////////////////
                 // KEYWORD_DO#38
                 /////////////////////////////////////////
@@ -843,7 +864,7 @@ public class Semantico implements Constants {
                 /////////////////////////////////////////
                 // KEYWORD_WHILE#37
                 /////////////////////////////////////////
-                //labelGeneric.push("do");
+                labelGeneric.push("do");
                 break;
             case 39:
                 System.out.println("Case 39");
@@ -864,8 +885,8 @@ public class Semantico implements Constants {
                 String IniWhile = labelDo.pop();
                 addInstruction("JMP ", IniWhile);
                 codeGenerator.addLabel(fimWhile);
-                break;  
-            
+                break;
+
             case 41:
                 ////////////////////////////////////////////
                 // SEMICOLON#41
@@ -879,10 +900,10 @@ public class Semantico implements Constants {
                 ////////////////////////////////////////////
                 // <incremento>#42
                 ////////////////////////////////////////////
-                //labelDo.pop();
+                // labelDo.pop();
                 break;
             case 43:
-                if(token.getLexeme().equals("++")){
+                if (token.getLexeme().equals("++")) {
                     isPlusPlus = true;
                 } else {
                     isPlusPlus = false;
@@ -892,6 +913,39 @@ public class Semantico implements Constants {
                 isRead = true;
                 break;
 
+            case 45:
+                addInstruction("RETURN ", "0");
+                escopoDesejado = escopo.pop();
+                contadorEscopo--;
+                symbolTable.removeSymbolsByScope(escopoDesejado);
+                break;
+            case 46:
+                Symbol parName = symbolTable.getParName(nome_call, contpar);
+                int resultadoAtribuicao = SemanticTable.resultType(variable.getTipo(), parName.getTipo(), "REL");
+                if (resultadoAtribuicao == SemanticTable.ERR) {
+                    throw new SemanticError(
+                            String.format("Prezado desenvolvedor, o carregamento da variável " + variable.getId()
+                                    + " para " + parName.getId()
+                                    + " não é possível"),
+                            token.getPosition());
+                } else if (resultadoAtribuicao == SemanticTable.WAR) {
+                    warningList.add(
+                            "\nO carregamento da variavel de tipo " + parName.getTipo() + " para " + variable.getTipo()
+                                    + "\" pode causar perca de precisão");
+                }
+
+                addInstruction("LD ", variable.getId());
+                addInstruction("STO ", parName.getId());
+                contpar++;
+                break;
+
+            case 47:
+                if (isVoid) {
+                    semanticError(
+                            "Caro programador, o procedimento de nome \"%s\" não pode ser usado em expressões",
+                            variable.getId());
+                }
+                break;
 
         }
 

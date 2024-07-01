@@ -178,31 +178,24 @@ HASH_SIGN: "#"
 #Grammar
 <programa> ::= <lista_rotina>;
 
-//======================================================================
 <lista_rotina> ::= <rotina> | <lista_rotina> <rotina>;
 <rotina> ::= <funcao> | <procedimento> | <lista_comentarios>; 
-//======================================================================
 
-//======================================================================
-<funcao> ::= <tipo>#6 <id>#7  OPEN_PARENTHESES <parenteses_funcao> CLOSE_PARENTHESES#24 <bloco>#2 | <tipo>#6 <id>#7 OPEN_PARENTHESES CLOSE_PARENTHESES#24 <bloco>#2;
-<procedimento> ::= <void>#6 <id>#7 OPEN_PARENTHESES <parenteses_funcao> CLOSE_PARENTHESES <bloco> | <void>#6 <id>#7 OPEN_PARENTHESES CLOSE_PARENTHESES <bloco>;
+<funcao> ::= <tipo>#6 <id>#7  OPEN_PARENTHESES <parenteses_funcao> CLOSE_PARENTHESES#24 OPEN_BRACES#1 <lista_cmd> CLOSE_BRACES#45 | <tipo>#6 <id>#7 OPEN_PARENTHESES CLOSE_PARENTHESES#24 OPEN_BRACES#1 <lista_cmd> CLOSE_BRACES#45;
+<procedimento> ::= <void>#6 <id>#7 OPEN_PARENTHESES <parenteses_funcao> CLOSE_PARENTHESES#24 <bloco>#45 | <void>#6 <id>#7 OPEN_PARENTHESES CLOSE_PARENTHESES#24 <bloco>#45;
 <parenteses_funcao> ::= <declaracao>#23 | <declaracao>#23 COMMA <parenteses_funcao>;
-//======================================================================
 
-//======================================================================
 <bloco> ::= OPEN_BRACES#1 CLOSE_BRACES#2 | OPEN_BRACES#1 <lista_cmd> CLOSE_BRACES#2;
 <lista_cmd> ::= <cmd> | <lista_cmd> <cmd>;
 <cmd> ::= <declaracao1> SEMICOLON | <repeticao_while> | <chamar_funcao> SEMICOLON | <desvio_if> | <print> SEMICOLON | 
-<return> SEMICOLON | <comment> | <block_comment> | <read> | <atribuicao> SEMICOLON | <incremento> SEMICOLON | <repeticao_do> SEMICOLON ;
-//======================================================================
+	 <comment> | <block_comment> | <read> | <atribuicao> SEMICOLON | <incremento> SEMICOLON | <repeticao_do> SEMICOLON | <return>;
+
+<return> ::= KEYWORD_RETURN <exp>#21 SEMICOLON;
 
 //======================================================================
-<return> ::= KEYWORD_RETURN <exp>#21;
-//======================================================================
-
 <chamar_funcao> ::= <id>#22 OPEN_PARENTHESES#25 CLOSE_PARENTHESES#26 | <id>#22 OPEN_PARENTHESES#25 <parametros_chamar> CLOSE_PARENTHESES#26;
-<parametros_chamar> ::= <exp>#21 | <parametros_chamar> COMMA <exp>#21;
-
+<parametros_chamar> ::= <exp>#46 | <parametros_chamar> COMMA <exp>#46;
+//======================================================================
 
 <lista_comentarios> ::= <comment> | <block_comment>;
 <comment> ::= COMMENTARY;
@@ -258,7 +251,7 @@ HASH_SIGN: "#"
 <exp7> ::= <exp7> <op_arit_baixa> <exp8> | <exp8>;
 <exp8> ::= <exp8> <op_arit_alta> <exp9> | <exp9>;
 <exp9> ::= <op_neg> <exp10> | <exp10>;
-<exp10> ::= <variavel>#13 | STRING_VALUE#14 | INTEGER_NUMBER#15 | FLOAT_NUMBER#16 | <bool>#17 | CHAR_VALUE#18 | OPEN_PARENTHESES <exp> CLOSE_PARENTHESES | <chamar_funcao>;
+<exp10> ::= <variavel>#13 | STRING_VALUE#14 | INTEGER_NUMBER#15 | FLOAT_NUMBER#16 | <bool>#17 | CHAR_VALUE#18 | OPEN_PARENTHESES <exp> CLOSE_PARENTHESES | <chamar_funcao>#47;
 
 
 <op_rel> ::= BIGGER_THAN | LESS_THAN | BIGGER_EQUAL | LESS_EQUAL | EQUALS | NOT_EQUAL | EQUAL_TO;

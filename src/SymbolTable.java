@@ -13,6 +13,22 @@ public class SymbolTable {
         symbolTable.add(symbol);
     }
 
+    public boolean symbolExists(String id, int escopo, String funcName) {
+        String idSymbol;
+        if(!funcName.equals("main")){
+            idSymbol = funcName + "_" + id;
+        } else {
+            idSymbol = id;
+        }
+        for (int i = symbolTable.size() - 1; i >= 0; i--) {
+            Symbol symbol = symbolTable.get(i);
+            if (symbol.getId().equals(idSymbol) && symbol.getEscopo() <= escopo && !symbol.isFunc()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public boolean symbolExists(String id, int escopo) {
         for (int i = symbolTable.size() - 1; i >= 0; i--) {
             Symbol symbol = symbolTable.get(i);
@@ -83,6 +99,21 @@ public class SymbolTable {
         return false; 
     }
 
+    public Symbol getSymbol(String id, String funcName) {
+        String idSymbol;
+        if(!funcName.equals("main")){
+            idSymbol = funcName + "_" + id;
+        } else {
+            idSymbol = id;
+        }
+        for (Symbol symbol : symbolTable) {
+            if (symbol.getId().equals(idSymbol)) {
+                return symbol;
+            }
+        }
+        return null; 
+    }
+
     public Symbol getSymbol(String id) {
         for (Symbol symbol : symbolTable) {
             if (symbol.getId().equals(id)) {
@@ -134,6 +165,29 @@ public class SymbolTable {
         return null;
     }
 
+
+    public Symbol getParName(String nome_call, int contpar) {
+        boolean functionFound = false;
+        int paramCount = 0;
+
+        for (Symbol symbol : symbolTable) {
+            if (functionFound) {
+                if (!symbol.isParam()) {
+                    return null;
+                }
+
+                if (paramCount == contpar) {
+                    return symbol; 
+                }
+                paramCount++;
+            }
+
+            if (symbol.isFunc() && symbol.getId().equals(nome_call)) {
+                functionFound = true; // Função encontrada
+            }
+        }
+        return null; 
+    }
     
 
 }
